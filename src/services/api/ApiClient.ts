@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance } from 'axios'
 
-const API_BASE_URL = 'http://localhost:8001/api/platform'
+const API_BASE_URL = 'https://frankly-perfect-swan.ngrok-free.app/api/platform'
 
 export class ApiClient {
   private client: AxiosInstance
