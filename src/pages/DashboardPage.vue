@@ -74,12 +74,6 @@
         </div>
       </Card>
     </div>
-
-    <!-- CTA Button -->
-    <div v-if="dashboardStore.dashboardData && !dashboardStore.isLoading" class="flex gap-4">
-      <Button variant="primary" @click="$router.push('/crm')"> Buka CRM Dashboard → </Button>
-      <Button variant="outline"> Lihat Profile Lengkap </Button>
-    </div>
   </AppLayout>
 </template>
 
@@ -89,7 +83,6 @@ import { useAuthStore } from "@/stores/auth";
 import { useDashboardStore } from "@/stores/dashboard";
 import AppLayout from "@/layouts/AppLayout.vue";
 import Card from "@/components/common/Card.vue";
-import Button from "@/components/common/Button.vue";
 import Alert from "@/components/common/Alert.vue";
 import Spinner from "@/components/common/Spinner.vue";
 
