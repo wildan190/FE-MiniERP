@@ -227,43 +227,6 @@
           <p class="text-xs text-gray-600 mt-2">dengan target growth 50%</p>
         </Card>
       </div>
-
-      <!-- Action Buttons -->
-      <div class="flex flex-col sm:flex-row gap-4">
-        <Button variant="primary">
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          New Lead
-        </Button>
-        <Button variant="secondary">
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 10V3L4 14h7v7l9-11h-7z"
-            />
-          </svg>
-          Create Quotation
-        </Button>
-        <Button variant="outline">
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            />
-          </svg>
-          Export Report
-        </Button>
-      </div>
     </div>
   </AppLayout>
 </template>
