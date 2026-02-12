@@ -80,8 +80,8 @@
       </Card>
       <Card>
         <div class="text-center">
-          <p class="text-gray-600 text-sm">Pending</p>
-          <p class="text-3xl font-bold text-yellow-600 mt-2">{{ pendingCount }}</p>
+          <p class="text-gray-600 text-sm">Draft</p>
+          <p class="text-3xl font-bold text-yellow-600 mt-2">{{ draftCount }}</p>
         </div>
       </Card>
       <Card>
@@ -137,11 +137,11 @@ const filteredQuotations = computed(() => {
 });
 
 const totalValue = computed(() => {
-  return filteredQuotations.value.reduce((sum, q) => sum + parseFloat(String(q.amount)), 0);
+  return filteredQuotations.value.reduce((sum, q) => sum + parseFloat(String(q.total_amount)), 0);
 });
 
-const pendingCount = computed(() => {
-  return filteredQuotations.value.filter((q) => q.status === "pending").length;
+const draftCount = computed(() => {
+  return filteredQuotations.value.filter((q) => q.status === "draft").length;
 });
 
 const acceptedCount = computed(() => {
@@ -162,7 +162,7 @@ const formatCurrency = (amount: number) => {
 const loadData = async () => {
   try {
     quotations.value = await crmServiceInstance.getQuotations();
-    customers.value = await crmServiceInstance.getCustomers();
+    customers.value = (await crmServiceInstance.getCustomers()).data;
   } catch (error) {
     console.error("Failed to load quotations:", error);
   }

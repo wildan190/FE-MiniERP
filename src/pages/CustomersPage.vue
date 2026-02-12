@@ -2,194 +2,163 @@
   <AppLayout>
     <div class="max-w-7xl mx-auto px-4 py-8">
       <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Customers</h1>
-        <p class="text-gray-600 mt-1">Manage and view all your customers</p>
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Customers</h1>
+          <p class="text-gray-600 mt-1">Manage and view all your customers</p>
+        </div>
+        <button
+          @click="isCreateModalOpen = true"
+          class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium flex items-center gap-2"
+        >
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          New Customer
+        </button>
       </div>
 
-      <!-- Create Customer Form -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        <div class="lg:col-span-1">
-          <Card>
-            <div class="mb-6">
-              <h2 class="text-lg font-semibold text-gray-900">Add New Customer</h2>
-              <p class="text-sm text-gray-600 mt-1">Create a new customer record</p>
-            </div>
+      <!-- Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <Card>
+          <div class="text-center">
+            <p class="text-gray-600 text-sm">Total Customers</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ pagination.total }}</p>
+          </div>
+        </Card>
+      </div>
 
-            <form @submit.prevent="handleCreateCustomer" class="space-y-4">
-              <FormField
-                label="Customer Name"
-                v-model="form.name"
-                placeholder="e.g., PT Maju Jaya"
-                :error="formErrors.name"
-              />
-
-              <FormField
-                label="Email"
-                type="email"
-                v-model="form.email"
-                placeholder="e.g., contact@majujaya.co.id"
-                :error="formErrors.email"
-              />
-
-              <Button
-                variant="primary"
-                type="submit"
-                :disabled="isSubmitting || !form.name || !form.email"
-                class="w-full"
-              >
-                <span v-if="isSubmitting" class="flex items-center gap-2">
-                  <Spinner />
-                  Creating...
-                </span>
-                <span v-else>Create Customer</span>
-              </Button>
-            </form>
-          </Card>
-
-          <!-- Stats Card -->
-          <Card class="mt-6">
-            <div class="text-center">
-              <div class="text-3xl font-bold text-primary-600">
-                {{ customerStore.totalCustomers }}
-              </div>
-              <p class="text-sm text-gray-600 mt-2">Total Customers</p>
-            </div>
-          </Card>
-        </div>
-
-        <!-- Customer List -->
-        <div class="lg:col-span-2">
-          <!-- Error Alert -->
-          <Alert
-            v-if="customerStore.hasError"
-            :message="customerStore.error || 'An error occurred'"
-            class="mb-4"
-          />
-
-          <!-- Loading State -->
-          <div
-            v-if="customerStore.isLoading && customerStore.isEmpty"
-            class="flex justify-center py-12"
-          >
+      <!-- Customer List -->
+      <Card>
+        <div class="space-y-4">
+           <!-- Loading State -->
+          <div v-if="isLoading" class="flex justify-center py-12">
             <Spinner />
           </div>
 
           <!-- Customer Table -->
           <div v-else>
-            <CustomerTable :customers="customerStore.customers" />
+            <CustomerTable :customers="customers" />
 
             <!-- Pagination -->
-            <div v-if="customerStore.totalPages > 1" class="mt-6 flex items-center justify-between">
-              <p class="text-sm text-gray-600">
-                Page {{ customerStore.currentPage }} of {{ customerStore.totalPages }}
-              </p>
-              <div class="flex gap-2">
-                <Button
-                  variant="outline"
-                  @click="previousPage"
-                  :disabled="customerStore.currentPage === 1"
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  @click="nextPage"
-                  :disabled="customerStore.currentPage === customerStore.totalPages"
-                >
-                  Next
-                </Button>
+            <div v-if="pagination.total > 0" class="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6 mt-4">
+              <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                   <p class="text-sm text-gray-700">
+                    Showing
+                    <span class="font-medium">{{ pagination.from }}</span>
+                    to
+                    <span class="font-medium">{{ pagination.to }}</span>
+                    of
+                    <span class="font-medium">{{ pagination.total }}</span>
+                    results
+                  </p>
+                </div>
+                <div>
+                  <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                    <button
+                      v-for="link in pagination.links"
+                      :key="link.label"
+                      @click="link.url ? loadData(link.page || 1) : null"
+                      :disabled="!link.url"
+                      :class="[
+                        link.active ? 'bg-primary-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0',
+                        !link.url ? 'text-gray-300 cursor-not-allowed' : 'cursor-pointer',
+                        'relative inline-flex items-center px-4 py-2 text-sm font-semibold first:rounded-l-md last:rounded-r-md'
+                      ]"
+                      v-html="link.label"
+                    >
+                    </button>
+                  </nav>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </Card>
+
+      <!-- Create Customer Modal -->
+      <CreateCustomerModal
+        :is-open="isCreateModalOpen"
+        :errors="createErrors"
+        :error-message="createErrorMessage"
+        @close="isCreateModalOpen = false"
+        @submit="handleCreateCustomer"
+      />
     </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
-import { useCustomerStore } from "../stores/customer";
+import { ref, onMounted } from "vue";
 import AppLayout from "../layouts/AppLayout.vue";
 import Card from "../components/common/Card.vue";
-import Button from "../components/common/Button.vue";
-import FormField from "../components/common/FormField.vue";
-import Alert from "../components/common/Alert.vue";
 import Spinner from "../components/common/Spinner.vue";
 import CustomerTable from "../components/crm/CustomerTable.vue";
+import CreateCustomerModal from "../components/crm/CreateCustomerModal.vue";
+import { crmServiceInstance } from "../services";
+import type { Customer, PaginationLink, CreateCustomerRequest } from "../services";
 
-const customerStore = useCustomerStore();
-const isSubmitting = ref(false);
-
-const form = reactive({
-  name: "",
-  email: "",
+const customers = ref<Customer[]>([]);
+const isLoading = ref(false);
+const isCreateModalOpen = ref(false);
+const pagination = ref({
+  current_page: 1,
+  from: 0,
+  to: 0,
+  total: 0,
+  links: [] as PaginationLink[],
+  last_page: 1
 });
 
-const formErrors = reactive({
-  name: "",
-  email: "",
-});
-
-// Validate form
-const validateForm = (): boolean => {
-  formErrors.name = "";
-  formErrors.email = "";
-
-  if (!form.name.trim()) {
-    formErrors.name = "Customer name is required";
-    return false;
-  }
-
-  if (!form.email.trim()) {
-    formErrors.email = "Email is required";
-    return false;
-  }
-
-  if (!form.email.includes("@")) {
-    formErrors.email = "Please enter a valid email";
-    return false;
-  }
-
-  return true;
-};
-
-// Create customer
-const handleCreateCustomer = async () => {
-  if (!validateForm()) return;
-
-  isSubmitting.value = true;
-
+const loadData = async (page = 1) => {
+  isLoading.value = true;
   try {
-    await customerStore.createCustomer({
-      name: form.name,
-      email: form.email,
-    });
-
-    // Reset form
-    form.name = "";
-    form.email = "";
+    const response = await crmServiceInstance.getCustomers(page);
+    customers.value = response.data;
+    pagination.value = {
+      current_page: response.current_page,
+      from: response.from,
+      to: response.to,
+      total: response.total,
+      links: response.links,
+      last_page: response.last_page
+    };
+  } catch (error) {
+    console.error("Failed to load customers:", error);
   } finally {
-    isSubmitting.value = false;
+    isLoading.value = false;
   }
 };
 
-// Pagination
-const nextPage = () => {
-  if (customerStore.currentPage < customerStore.totalPages) {
-    customerStore.fetchCustomers(customerStore.currentPage + 1);
+const createErrors = ref<Record<string, string[]> | null>(null);
+const createErrorMessage = ref<string | null>(null);
+
+const handleCreateCustomer = async (data: CreateCustomerRequest) => {
+  createErrors.value = null;
+  createErrorMessage.value = null;
+  
+  try {
+    await crmServiceInstance.createCustomer(data);
+    isCreateModalOpen.value = false;
+    loadData(1); // Reload to first page
+  } catch (error: any) {
+    console.error("Failed to create customer:", error);
+    if (error.response?.status === 422) {
+      createErrors.value = error.response.data.errors;
+      createErrorMessage.value = "Please correct the errors below.";
+    } else {
+      createErrorMessage.value = error.response?.data?.message || "Failed to create customer. Please try again.";
+    }
   }
 };
 
-const previousPage = () => {
-  if (customerStore.currentPage > 1) {
-    customerStore.fetchCustomers(customerStore.currentPage - 1);
-  }
-};
-
-// Load customers on mount
-if (customerStore.customers.length === 0) {
-  customerStore.fetchCustomers();
-}
+onMounted(() => {
+  loadData();
+});
 </script>

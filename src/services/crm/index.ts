@@ -16,8 +16,9 @@ export { customerService, leadService, prospectService, salesPipelineService, qu
 // CRM Service Wrapper - lightweight convenience wrapper for views
 export const crmServiceInstance = {
   // Customer methods
-  getCustomers: async (page = 1) => (await customerService.getCustomers(page)).data.data,
+  getCustomers: async (page = 1) => (await customerService.getCustomers(page)).data,
   getCustomerById: async (id: number) => await customerService.getCustomerById(id),
+  getCustomerByUuid: async (uuid: string) => await customerService.getCustomerByUuid(uuid),
   createCustomer: async (data: any) => await customerService.createCustomer(data),
 
   // Lead methods
@@ -27,7 +28,7 @@ export const crmServiceInstance = {
   // Prospect methods
   getProspects: async (page = 1) => (await prospectService.getProspects(page)).data.data,
   createProspect: async (data: any) => await prospectService.createProspect(data),
-  updateProspectStatus: async (id: number, data: any) => await prospectService.updateProspectStatus(id, data),
+  updateProspectStatus: async (uuid: string, data: any) => await prospectService.updateProspectStatus(uuid, data),
 
   // Quotation methods
   getQuotations: async (page = 1) => (await quotationService.getQuotations(page)).data.data,

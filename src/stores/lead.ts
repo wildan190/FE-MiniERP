@@ -42,13 +42,45 @@ export const useLeadStore = defineStore('lead', () => {
 
     try {
       const response = await leadRepository.createLead(data)
-      // Add new lead to list
       leads.value.unshift(response.data)
       totalLeads.value += 1
       return response.data
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to create lead'
       console.error('Error creating lead:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function getLeadByUuid(uuid: string) {
+    isLoading.value = true
+    error.value = null
+    try {
+      return await leadRepository.getLeadByUuid(uuid)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch lead'
+      console.error('Error fetching lead:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function convertLead(uuid: string) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await leadRepository.convertToProspect(uuid)
+      // Update status of converted lead locally
+      leads.value = leads.value.map(l => 
+        l.uuid === uuid ? { ...l, status: 'converted' } : l
+      )
+      return response
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to convert lead'
+      console.error('Error converting lead:', err)
       throw err
     } finally {
       isLoading.value = false
@@ -82,7 +114,9 @@ export const useLeadStore = defineStore('lead', () => {
     isEmpty,
     // Actions
     fetchLeads,
+    getLeadByUuid,
     createLead,
+    convertLead,
     clearError,
     resetStore,
   }

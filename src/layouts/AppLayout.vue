@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Header -->
-    <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+    <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50 print:hidden">
       <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <div
@@ -114,7 +114,8 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8">
+    <main class="max-w-7xl mx-auto px-4 py-8 print:p-0 print:m-0 print:max-w-none">
+      <Breadcrumb class="mb-6 print:hidden" />
       <slot />
     </main>
   </div>
@@ -124,6 +125,7 @@
 import { ref } from "vue";
 import { useRouter, useRoute, RouterLink } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import Breadcrumb from "@/components/common/Breadcrumb.vue";
 
 const router = useRouter();
 const route = useRoute();

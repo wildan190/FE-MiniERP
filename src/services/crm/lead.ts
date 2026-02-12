@@ -1,35 +1,36 @@
 import { apiClient } from '../api/ApiClient'
-import type { Lead, LeadsListResponse, CreateLeadRequest, CreateLeadResponse } from './types'
+import type { Lead, LeadsListResponse, CreateLeadRequest, CreateLeadResponse, ConvertLeadResponse, LeadDetailResponse } from './types'
 
-export class LeadService {
+export const leadService = {
   async getLeads(page: number = 1): Promise<LeadsListResponse> {
-    try {
-      const response = await apiClient.getClient().get<LeadsListResponse>('/crm/leads', {
-        params: { page },
-      })
-      return response.data
-    } catch (err: any) {
-      // Some backends accept POST for list endpoints; fallback to POST on 405
-      if (err?.response?.status === 405) {
-        try {
-          const response = await apiClient.getClient().post<LeadsListResponse>('/crm/leads')
-          return response.data
-        } catch (e: any) {
-          if (e?.response?.status === 422 || e?.response?.status === 405) {
-            const response = await apiClient.getClient().post<LeadsListResponse>('/crm/leads', { page })
-            return response.data
-          }
-          throw e
-        }
-      }
-      throw err
-    }
-  }
+    const response = await apiClient.getClient().get<LeadsListResponse>('/crm/leads', {
+      params: { page },
+    })
+    return response.data
+  },
+
+  async getLeadByUuid(uuid: string): Promise<Lead> {
+    const response = await apiClient.getClient().get<LeadDetailResponse>(`/crm/leads/${uuid}`)
+    return response.data.data
+  },
 
   async createLead(data: CreateLeadRequest): Promise<CreateLeadResponse> {
     const response = await apiClient.getClient().post<CreateLeadResponse>('/crm/leads', data)
     return response.data
+  },
+
+  async updateLead(uuid: string, data: CreateLeadRequest): Promise<CreateLeadResponse> {
+    const response = await apiClient.getClient().put<CreateLeadResponse>(`/crm/leads/${uuid}`, data)
+    return response.data
+  },
+
+  async deleteLead(uuid: string): Promise<{ message: string }> {
+    const response = await apiClient.getClient().delete<{ message: string }>(`/crm/leads/${uuid}`)
+    return response.data
+  },
+
+  async convertLeadToProspect(uuid: string): Promise<ConvertLeadResponse> {
+    const response = await apiClient.getClient().post<ConvertLeadResponse>(`/crm/leads/${uuid}/convert`)
+    return response.data
   }
 }
-
-export const leadService = new LeadService()

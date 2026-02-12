@@ -1,4 +1,4 @@
-import { authService, dashboardService, customerService, leadService, prospectService, salesPipelineService, quotationService, type LoginResponse, type DashboardResponse, type CRMDashboardResponse, type CustomersListResponse, type CreateCustomerRequest, type CreateCustomerResponse, type LeadsListResponse, type CreateLeadRequest, type CreateLeadResponse, type ProspectsListResponse, type CreateProspectRequest, type CreateProspectResponse, type UpdateProspectStatusRequest, type UpdateProspectStatusResponse, type SalesPipelineListResponse, type CreateSalesPipelineRequest, type CreateSalesPipelineResponse, type QuotationListResponse, type CreateQuotationRequest, type CreateQuotationResponse } from '@/services'
+import { authService, dashboardService, customerService, leadService, prospectService, salesPipelineService, quotationService, type LoginResponse, type DashboardResponse, type CRMDashboardResponse, type CustomersListResponse, type CreateCustomerRequest, type CreateCustomerResponse, type LeadsListResponse, type CreateLeadRequest, type CreateLeadResponse, type ProspectsListResponse, type CreateProspectRequest, type CreateProspectResponse, type UpdateProspectStatusRequest, type UpdateProspectStatusResponse, type SalesPipelineListResponse, type CreateSalesPipelineRequest, type CreateSalesPipelineResponse, type QuotationListResponse, type CreateQuotationRequest, type CreateQuotationResponse, type Lead, type ConvertLeadResponse } from '@/services'
 
 export class AuthRepository {
   async login(email: string, password: string): Promise<LoginResponse> {
@@ -48,8 +48,24 @@ export class LeadRepository {
     return await leadService.getLeads(page)
   }
 
+  async getLeadByUuid(uuid: string): Promise<Lead> {
+    return await leadService.getLeadByUuid(uuid)
+  }
+
   async createLead(data: CreateLeadRequest): Promise<CreateLeadResponse> {
     return await leadService.createLead(data)
+  }
+
+  async updateLead(uuid: string, data: CreateLeadRequest): Promise<CreateLeadResponse> {
+    return await leadService.updateLead(uuid, data)
+  }
+
+  async deleteLead(uuid: string): Promise<{ message: string }> {
+    return await leadService.deleteLead(uuid)
+  }
+
+  async convertToProspect(uuid: string): Promise<ConvertLeadResponse> {
+    return await leadService.convertLeadToProspect(uuid)
   }
 }
 
@@ -62,8 +78,8 @@ export class ProspectRepository {
     return await prospectService.createProspect(data)
   }
 
-  async updateProspectStatus(id: number, data: UpdateProspectStatusRequest): Promise<UpdateProspectStatusResponse> {
-    return await prospectService.updateProspectStatus(id, data)
+  async updateProspectStatus(uuid: string, data: UpdateProspectStatusRequest): Promise<UpdateProspectStatusResponse> {
+    return await prospectService.updateProspectStatus(uuid, data)
   }
 }
 

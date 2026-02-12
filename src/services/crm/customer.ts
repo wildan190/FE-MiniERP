@@ -14,6 +14,11 @@ export class CustomerService {
     return resp.data.data
   }
 
+  async getCustomerByUuid(uuid: string): Promise<Customer> {
+    const resp = await apiClient.getClient().get<{ data: Customer }>(`/crm/customers/${uuid}`)
+    return resp.data.data
+  }
+
   async createCustomer(data: CreateCustomerRequest): Promise<CreateCustomerResponse> {
     const response = await apiClient.getClient().post<CreateCustomerResponse>('/crm/customers', data)
     return response.data

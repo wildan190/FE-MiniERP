@@ -166,7 +166,7 @@ const formatCurrency = (amount: number) => {
 const loadData = async () => {
   try {
     orders.value = await crmServiceInstance.getOrders();
-    customers.value = await crmServiceInstance.getCustomers();
+    customers.value = (await crmServiceInstance.getCustomers()).data;
   } catch (error) {
     console.error("Failed to load orders:", error);
   }

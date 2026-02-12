@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { prospectRepository } from '@/repositories'
+import { prospectService } from '@/services/crm/prospect'
 import type { Prospect, ProspectsListResponse, CreateProspectRequest, UpdateProspectStatusRequest } from '@/services'
 
 export const useProspectStore = defineStore('prospect', () => {
@@ -22,7 +22,7 @@ export const useProspectStore = defineStore('prospect', () => {
     error.value = null
 
     try {
-      const response = await prospectRepository.getProspects(page)
+      const response = await prospectService.getProspects(page)
       prospects.value = response.data.data
       currentPage.value = response.data.current_page
       totalPages.value = response.data.last_page
@@ -36,12 +36,25 @@ export const useProspectStore = defineStore('prospect', () => {
     }
   }
 
+  async function getProspectByUuid(uuid: string) {
+    isLoading.value = true
+    error.value = null
+    try {
+      return await prospectService.getProspectByUuid(uuid)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch prospect'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function createProspect(data: CreateProspectRequest) {
     isLoading.value = true
     error.value = null
 
     try {
-      const response = await prospectRepository.createProspect(data)
+      const response = await prospectService.createProspect(data)
       // Add new prospect to list
       prospects.value.unshift(response.data)
       totalProspects.value += 1
@@ -55,14 +68,14 @@ export const useProspectStore = defineStore('prospect', () => {
     }
   }
 
-  async function updateProspectStatus(id: number, data: UpdateProspectStatusRequest) {
+  async function updateProspectStatus(uuid: string, data: UpdateProspectStatusRequest) {
     isLoading.value = true
     error.value = null
 
     try {
-      const response = await prospectRepository.updateProspectStatus(id, data)
+      const response = await prospectService.updateProspectStatus(uuid, data)
       // Update prospect in list
-      const index = prospects.value.findIndex((p) => p.id === id)
+      const index = prospects.value.findIndex((p) => p.uuid === uuid)
       if (index !== -1) {
         prospects.value[index] = response.data
       }
@@ -103,6 +116,7 @@ export const useProspectStore = defineStore('prospect', () => {
     isEmpty,
     // Actions
     fetchProspects,
+    getProspectByUuid,
     createProspect,
     updateProspectStatus,
     clearError,

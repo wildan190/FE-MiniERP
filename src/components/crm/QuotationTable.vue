@@ -60,10 +60,8 @@
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <p class="text-sm font-semibold text-green-600">
-                {{ formatCurrency(parseFloat(String(quotation.amount))) }}
-              </p>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              {{ formatCurrency(parseFloat(String(quotation.total_amount))) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <p class="text-sm text-gray-600">{{ formatDate(quotation.valid_until) }}</p>
