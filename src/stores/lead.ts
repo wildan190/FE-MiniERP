@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { leadRepository } from '@/repositories'
-import type { Lead, LeadsListResponse, CreateLeadRequest } from '@/services'
+import type { Lead, LeadsListResponse, CreateLeadRequest, PaginationLink } from '@/services'
 
 export const useLeadStore = defineStore('lead', () => {
   const leads = ref<Lead[]>([])
@@ -11,6 +11,7 @@ export const useLeadStore = defineStore('lead', () => {
   const totalPages = ref(1)
   const totalLeads = ref(0)
   const perPage = ref(10)
+  const paginationLinks = ref<PaginationLink[]>([])
 
   // Computed
   const hasError = computed(() => !!error.value)
@@ -28,6 +29,7 @@ export const useLeadStore = defineStore('lead', () => {
       totalPages.value = response.data.last_page
       totalLeads.value = response.data.total
       perPage.value = response.data.per_page
+      paginationLinks.value = response.data.links
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch leads'
       console.error('Error fetching leads:', err)
@@ -109,6 +111,7 @@ export const useLeadStore = defineStore('lead', () => {
     totalPages,
     totalLeads,
     perPage,
+    paginationLinks,
     // Computed
     hasError,
     isEmpty,

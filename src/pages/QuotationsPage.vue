@@ -7,7 +7,7 @@
           <h1 class="text-3xl font-bold text-gray-900">Quotations</h1>
           <button
             @click="showCreateModal = true"
-            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+            class="hidden md:block px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
           >
             + Create Quotation
           </button>
@@ -187,26 +187,16 @@
         </Card>
 
         <!-- Pagination -->
-        <div v-if="pagination.total > 0" class="flex justify-between items-center">
-          <p class="text-sm text-gray-700">
-            Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} quotations
-          </p>
-          <div class="flex gap-2">
-            <button
-              v-for="link in pagination.links"
-              :key="link.label"
-              @click="handlePageChange(link.page)"
-              :disabled="!link.page || link.active"
-              :class="{
-                'bg-primary-600 text-white': link.active,
-                'bg-white text-gray-700 hover:bg-gray-50': !link.active && link.page,
-                'bg-gray-100 text-gray-400 cursor-not-allowed': !link.page
-              }"
-              class="px-3 py-2 rounded-md border border-gray-300 text-sm font-medium transition-colors"
-              v-html="link.label"
-            />
-          </div>
-        </div>
+        <ResponsivePagination
+          v-if="pagination.total > 0"
+          :current-page="pagination.current_page"
+          :last-page="pagination.last_page"
+          :from="pagination.from"
+          :to="pagination.to"
+          :total="pagination.total"
+          :links="pagination.links"
+          @page-change="fetchQuotations"
+        />
       </div>
     </div>
 
@@ -216,15 +206,27 @@
       @close="showCreateModal = false"
       @created="handleQuotationCreated"
     />
+
+    <!-- Mobile Floating Actions -->
+    <MobileActions 
+      :primary-action="{
+        label: 'New Quotation',
+        icon: Plus,
+        onClick: () => showCreateModal = true
+      }"
+    />
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { quotationService, type Quotation } from '../services'
+import { quotationService, type Quotation, type PaginationLink } from '../services'
 import AppLayout from '../layouts/AppLayout.vue'
 import Card from '../components/common/Card.vue'
 import CreateQuotationModal from '../components/crm/CreateQuotationModal.vue'
+import MobileActions from '../components/common/MobileActions.vue'
+import ResponsivePagination from '../components/common/ResponsivePagination.vue'
+import { Plus } from 'lucide-vue-next'
 
 const quotations = ref<Quotation[]>([])
 const pagination = ref({
@@ -232,7 +234,8 @@ const pagination = ref({
   total: 0,
   from: 0,
   to: 0,
-  links: [] as Array<{ label: string; page: number | null; active: boolean }>
+  links: [] as PaginationLink[],
+  last_page: 1
 })
 const loading = ref(false)
 const showCreateModal = ref(false)
@@ -248,7 +251,8 @@ const fetchQuotations = async (page = 1) => {
       total: response.data.total,
       from: response.data.from,
       to: response.data.to,
-      links: response.data.links
+      links: response.data.links,
+      last_page: response.data.last_page
     }
   } catch (error) {
     console.error('Failed to fetch quotations:', error)
