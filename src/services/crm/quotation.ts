@@ -48,20 +48,36 @@ export const quotationService = {
     return response.data
   },
 
-  async getCustomerQuotations(customerId: number): Promise<Quotation[]> {
+  async getCustomerQuotations(customerId: number | string): Promise<Quotation[]> {
+    const id = Number(customerId)
     try {
-      // Try specific customer endpoint first (pattern: /crm/customers/{id}/quotations)
-      const response = await apiClient.getClient().get<{ data: Quotation[] }>(`/crm/customers/${customerId}/quotations`)
-      return response.data.data
+      // 1. Try base list with query param (common pattern: /crm/quotation?customer_id=X)
+      const response = await apiClient.getClient().get<QuotationListResponse>('/crm/quotation', {
+        params: { customer_id: id }
+      })
+      
+      // response.data.data is PaginatedResponse<Quotation>
+      const paginatedData = response.data.data
+      const quotations = paginatedData.data
+      
+      // If the response is filtered correctly, return it.
+      if (quotations.length > 0 && quotations.every((q: Quotation) => Number(q.customer_id) === id)) {
+        return quotations
+      }
+      
+      // 2. Try specific singular customer endpoint (pattern: /crm/customers/{id}/quotation)
+      const responseSub = await apiClient.getClient().get<{ data: Quotation[] | Quotation }>(`/crm/customers/${id}/quotation`)
+      const subData = responseSub.data.data
+      return Array.isArray(subData) ? subData : [subData]
     } catch (err) {
+      // 3. Fallback to filter first page of full list
       try {
-        // Try singular if plural fails
-        const response = await apiClient.getClient().get<{ data: Quotation[] }>(`/crm/customers/${customerId}/quotation`)
-        return response.data.data
+        const resp = await this.getQuotations(1)
+        const all = resp.data.data // data field of PaginatedResponse
+        return all.filter((q) => Number(q.customer_id) === id)
       } catch (err2) {
-        // Fallback to filter full list if direct endpoints fail
-        const all = (await this.getQuotations(1)).data.data
-        return all.filter((q) => Number(q.customer_id) === Number(customerId))
+        console.error('Failed all attempts to fetch customer quotations:', err2)
+        return []
       }
     }
   },
