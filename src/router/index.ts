@@ -16,6 +16,7 @@ import CustomerDetailView from '@/views/crm/CustomerDetailView.vue'
 import LeadDetailView from '@/views/crm/LeadDetailView.vue'
 import ProspectDetailView from '@/views/crm/ProspectDetailView.vue'
 import OrderListView from '@/views/crm/OrderListView.vue'
+import AppMenuView from '@/pages/AppMenuView.vue'
 // No change to file content here, just updating router.
 
 const router = createRouter({
@@ -23,7 +24,9 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/dashboard',
+      name: 'menu',
+      component: AppMenuView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/login',
@@ -160,9 +163,9 @@ router.beforeEach((to, from, next) => {
   if (requiresAuth && !isAuthenticated) {
     next('/login')
   }
-  // If user is authenticated and trying to access login page, redirect to dashboard
+  // If user is authenticated and trying to access login page, redirect to menu
   else if (to.path === '/login' && isAuthenticated) {
-    next('/dashboard')
+    next('/')
   }
   // Otherwise, allow navigation
   else {
