@@ -45,82 +45,135 @@
           </div>
         </div>
 
+        <!-- Stats Summary -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card class="bg-indigo-50 border-none">
+            <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Expected Value</p>
+            <p class="text-xl font-bold text-indigo-900">{{ formatCurrency(prospect.expected_value) }}</p>
+          </Card>
+          <Card class="bg-emerald-50 border-none">
+            <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">Probability</p>
+            <p class="text-xl font-bold text-emerald-900">{{ prospect.probability || 0 }}%</p>
+          </Card>
+          <Card class="bg-amber-50 border-none">
+            <p class="text-xs font-semibold text-amber-600 tracking-wider uppercase mb-1">Closing Date</p>
+            <p class="text-xl font-bold text-amber-900">{{ formatDate(prospect.expected_closing_date) }}</p>
+          </Card>
+        </div>
+
+        <!-- Desktop: Tab Bar -->
+        <div class="hidden md:flex gap-4 border-b border-gray-200">
+          <button
+            v-for="tab in tabs"
+            :key="tab"
+            @click="activeTab = tab"
+            :class="
+              activeTab === tab
+                ? 'border-b-2 border-primary-600 text-primary-600'
+                : 'text-gray-500 hover:text-gray-700'
+            "
+            class="px-4 py-3 font-medium text-sm transition-colors whitespace-nowrap"
+          >
+            {{ tab }}
+          </button>
+        </div>
+
+        <!-- Mobile: Tab Select -->
+        <div class="md:hidden">
+          <select
+            v-model="activeTab"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none"
+          >
+            <option v-for="tab in tabs" :key="tab" :value="tab">{{ tab }}</option>
+          </select>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Main Info -->
+          <!-- Main Content Area -->
           <div class="lg:col-span-2 space-y-6">
-            <!-- Prospect Summary -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Card class="bg-indigo-50 border-none">
-                <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Expected Value</p>
-                <p class="text-xl font-bold text-indigo-900">{{ formatCurrency(prospect.expected_value) }}</p>
-              </Card>
-              <Card class="bg-emerald-50 border-none">
-                <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">Probability</p>
-                <p class="text-xl font-bold text-emerald-900">{{ prospect.probability || 0 }}%</p>
-              </Card>
-              <Card class="bg-amber-50 border-none">
-                <p class="text-xs font-semibold text-amber-600 tracking-wider uppercase mb-1">Closing Date</p>
-                <p class="text-xl font-bold text-amber-900">{{ formatDate(prospect.expected_closing_date) }}</p>
-              </Card>
-            </div>
-
-            <!-- Details -->
-            <Card>
-              <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Opportunity Details
-              </h2>
-              <div class="space-y-4">
-                <div v-if="prospect.notes">
-                  <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Notes</label>
-                  <p class="text-gray-700 whitespace-pre-wrap leading-relaxed">{{ prospect.notes }}</p>
+            <!-- Details Tab -->
+            <template v-if="activeTab === 'Details'">
+              <Card>
+                <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Opportunity Details
+                </h2>
+                <div class="space-y-4">
+                  <div v-if="prospect.notes">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">General Notes</label>
+                    <p class="text-gray-700 whitespace-pre-wrap leading-relaxed">{{ prospect.notes }}</p>
+                  </div>
+                  <div v-else>
+                    <p class="text-gray-500 italic text-sm">No additional notes provided for this prospect.</p>
+                  </div>
                 </div>
-                <div v-else>
-                  <p class="text-gray-500 italic">No additional notes provided for this prospect.</p>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </template>
 
-            <!-- Pipelines -->
-            <Card>
-              <h2 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 012-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                Sales Pipeline History
-              </h2>
-              <div v-if="prospect.pipelines && prospect.pipelines.length > 0" class="flow-root">
-                <ul role="list" class="-mb-8">
-                  <li v-for="(step, idx) in prospect.pipelines" :key="step.id">
-                    <div class="relative pb-8">
-                      <span v-if="idx !== prospect.pipelines.length - 1" class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
-                      <div class="relative flex space-x-3">
-                        <div>
-                          <span class="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center ring-8 ring-white">
-                            <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                          </span>
-                        </div>
-                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+            <!-- Quotations Tab -->
+            <template v-else-if="activeTab === 'Quotations'">
+              <QuotationTable 
+                :quotations="customerQuotations"
+                :customer-map="customerMap"
+              />
+            </template>
+
+            <!-- Orders Tab -->
+            <template v-else-if="activeTab === 'Orders'">
+              <OrderTable 
+                :orders="customerOrders"
+                :customer-map="customerMap"
+              />
+            </template>
+
+            <!-- History Tab -->
+            <template v-else-if="activeTab === 'History'">
+              <Card>
+                <h2 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 012-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                  Sales Pipeline History
+                </h2>
+                <div v-if="prospect.pipelines && prospect.pipelines.length > 0" class="flow-root">
+                  <ul role="list" class="-mb-8">
+                    <li v-for="(step, idx) in prospect.pipelines" :key="step.id">
+                      <div class="relative pb-8">
+                        <span v-if="idx !== prospect.pipelines.length - 1" class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                        <div class="relative flex space-x-3">
                           <div>
-                            <p class="text-sm font-medium text-gray-900">Moved to <span class="capitalize text-primary-600">{{ step.stage }}</span> stage</p>
+                            <span class="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center ring-8 ring-white">
+                              <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </span>
                           </div>
-                          <div class="whitespace-nowrap text-right text-xs text-gray-500">
-                            {{ formatDate(step.created_at) }}
+                          <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                            <div>
+                              <p class="text-sm font-medium text-gray-900">Moved to <span class="capitalize text-primary-600">{{ step.stage }}</span> stage</p>
+                              <p v-if="step.notes" class="mt-1 text-xs text-gray-600">{{ step.notes }}</p>
+                            </div>
+                            <div class="whitespace-nowrap text-right text-xs text-gray-500">
+                              {{ formatDate(step.created_at) }}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div v-else class="text-center py-6 text-gray-500 italic text-sm">
-                No pipeline history available yet.
-              </div>
-            </Card>
+                    </li>
+                  </ul>
+                </div>
+                <div v-else class="text-center py-6 text-gray-500 italic text-sm">
+                  No pipeline history available yet.
+                </div>
+              </Card>
+            </template>
+
+            <!-- Interactions Tab -->
+            <template v-else-if="activeTab === 'Interactions'">
+              <InteractionTimeline :interactions="customerInteractions" />
+            </template>
           </div>
 
           <!-- Sidebar -->
@@ -185,59 +238,29 @@
   </AppLayout>
 
   <!-- Status Update Modal -->
-  <div v-if="showStatusModal" class="fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-end justify-center min-h-screen px-2 py-4 sm:px-4 sm:py-0 text-center sm:block sm:p-0">
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showStatusModal = false"></div>
-      <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle w-full max-w-md">
-        <div class="bg-white px-6 py-6">
-          <h3 class="text-lg font-bold text-gray-900 mb-4">Update Pipeline Stage</h3>
-          <div class="space-y-4">
-            <label class="block text-sm font-medium text-gray-700">Select new stage</label>
-            <select
-              v-model="newStatus"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none"
-            >
-              <option value="new">New</option>
-              <option value="contacted">Contacted</option>
-              <option value="qualified">Qualified</option>
-              <option value="proposal">Proposal</option>
-              <option value="negotiation">Negotiation</option>
-              <option value="won">Won</option>
-              <option value="lost">Lost</option>
-            </select>
-          </div>
-        </div>
-        <div class="bg-gray-50 px-6 py-3 flex flex-row-reverse gap-3">
-          <button
-            @click="handleUpdateStatusConfirm"
-            :disabled="updatingStatus"
-            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 text-sm font-medium flex items-center gap-2"
-          >
-            <Spinner v-if="updatingStatus" class="w-4 h-4 text-white" />
-            Update Stage
-          </button>
-          <button
-            @click="showStatusModal = false"
-            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <CreateSalesPipelineModal
+    :is-open="showStatusModal"
+    :initial-prospect-id="prospect?.uuid"
+    :initial-stage="prospect?.status"
+    @close="showStatusModal = false"
+    @created="handleStatusUpdated"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { useProspectStore } from '../../stores/prospect'
 import AppLayout from '../../layouts/AppLayout.vue'
+import { crmServiceInstance } from '../../services/crm'
 import Card from '../../components/common/Card.vue'
 import Spinner from '../../components/common/Spinner.vue'
-import type { Prospect } from '../../services'
+import CreateSalesPipelineModal from '../../components/crm/CreateSalesPipelineModal.vue'
+import QuotationTable from '../../components/crm/QuotationTable.vue'
+import OrderTable from '../../components/crm/OrderTable.vue'
+import InteractionTimeline from '../../components/crm/InteractionTimeline.vue'
+import type { Prospect, Quotation, Order, Interaction } from '../../services'
 
 const route = useRoute()
 const router = useRouter()
@@ -246,15 +269,35 @@ const prospectStore = useProspectStore()
 const prospect = ref<Prospect | null>(null)
 const loading = ref(true)
 const showStatusModal = ref(false)
-const newStatus = ref('')
-const updatingStatus = ref(false)
+
+const activeTab = ref('Details')
+const tabs = ['Details', 'Quotations', 'Orders', 'Interactions', 'History']
+
+const customerQuotations = ref<Quotation[]>([])
+const customerOrders = ref<Order[]>([])
+const customerInteractions = ref<Interaction[]>([])
+
+const customerMap = computed(() => {
+  if (!prospect.value?.customer) return {}
+  return {
+    [prospect.value.customer.id]: {
+      name: prospect.value.customer.name,
+      email: prospect.value.customer.email || ''
+    }
+  }
+})
 
 const fetchProspect = async () => {
   loading.value = true
   try {
     const uuid = route.params.uuid as string
     prospect.value = await prospectStore.getProspectByUuid(uuid)
-    newStatus.value = prospect.value?.status || ''
+    
+    // Prioritize the ID from the customer relation, then the foreign key
+    const customerId = prospect.value?.customer?.id || prospect.value?.customer_id
+    if (customerId) {
+      await fetchRelatedData(Number(customerId))
+    }
   } catch (error) {
     console.error('Failed to fetch prospect:', error)
   } finally {
@@ -262,36 +305,27 @@ const fetchProspect = async () => {
   }
 }
 
+const fetchRelatedData = async (customerId: number) => {
+  try {
+    const [quotations, orders, interactions] = await Promise.all([
+      crmServiceInstance.getCustomerQuotations(customerId),
+      crmServiceInstance.getCustomerOrders(customerId),
+      crmServiceInstance.getCustomerInteractions(customerId)
+    ])
+    customerQuotations.value = quotations
+    customerOrders.value = orders
+    customerInteractions.value = interactions
+  } catch (error) {
+    console.error('Failed to fetch related data:', error)
+  }
+}
+
 const handleUpdateStatus = () => {
   showStatusModal.value = true
 }
 
-const handleUpdateStatusConfirm = async () => {
-  if (!prospect.value) return
-  updatingStatus.value = true
-  try {
-    const updated = await prospectStore.updateProspectStatus(prospect.value.uuid, {
-      status: newStatus.value
-    })
-    prospect.value = updated
-    showStatusModal.value = false
-    
-    Swal.fire({
-      title: 'Status Updated',
-      text: `Prospect successfully moved to ${newStatus.value} stage.`,
-      icon: 'success',
-      confirmButtonColor: '#4f46e5'
-    })
-  } catch (error: any) {
-    Swal.fire({
-      title: 'Error!',
-      text: error.response?.data?.message || 'Failed to update status',
-      icon: 'error',
-      confirmButtonColor: '#4f46e5'
-    })
-  } finally {
-    updatingStatus.value = false
-  }
+const handleStatusUpdated = () => {
+  fetchProspect()
 }
 
 const handleDelete = async () => {

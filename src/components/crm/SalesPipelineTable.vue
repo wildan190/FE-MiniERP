@@ -41,7 +41,10 @@
               <p class="text-sm font-medium text-gray-900">#{{ pipeline.id }}</p>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <p class="text-sm text-gray-600">{{ pipeline.prospect_id }}</p>
+              <p class="text-sm font-medium text-gray-900">
+                {{ pipeline.prospect?.title || 'No Title' }}
+              </p>
+              <p class="text-xs text-gray-500">ID: {{ pipeline.prospect_id }}</p>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span
@@ -55,9 +58,14 @@
               {{ formatDate(pipeline.created_at) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm">
-              <button class="text-primary-600 hover:text-primary-900 font-medium transition-colors">
+              <router-link
+                :to="{ name: 'crm-pipeline-detail', params: { uuid: pipeline.uuid } }"
+                class="text-primary-600 hover:text-primary-900 font-medium transition-colors"
+                v-if="pipeline.uuid"
+              >
                 View
-              </button>
+              </router-link>
+              <span v-else class="text-gray-400">N/A</span>
             </td>
           </tr>
         </tbody>

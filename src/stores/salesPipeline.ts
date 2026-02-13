@@ -5,6 +5,7 @@ import type { SalesPipeline, SalesPipelineListResponse, CreateSalesPipelineReque
 
 export const useSalesPipelineStore = defineStore('salesPipeline', () => {
   const pipelines = ref<SalesPipeline[]>([])
+  const selectedPipeline = ref<SalesPipeline | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const currentPage = ref(1)
@@ -36,6 +37,23 @@ export const useSalesPipelineStore = defineStore('salesPipeline', () => {
     }
   }
 
+  async function fetchSalesPipelineDetail(uuid: string) {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const response = await salesPipelineRepository.getSalesPipelineDetail(uuid)
+      selectedPipeline.value = response.data
+      return response.data
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch sales pipeline detail'
+      console.error('Error fetching sales pipeline detail:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function createSalesPipeline(data: CreateSalesPipelineRequest) {
     isLoading.value = true
     error.value = null
@@ -61,6 +79,7 @@ export const useSalesPipelineStore = defineStore('salesPipeline', () => {
 
   function resetStore() {
     pipelines.value = []
+    selectedPipeline.value = null
     currentPage.value = 1
     totalPages.value = 1
     totalPipelines.value = 0
@@ -71,6 +90,7 @@ export const useSalesPipelineStore = defineStore('salesPipeline', () => {
   return {
     // State
     pipelines,
+    selectedPipeline,
     isLoading,
     error,
     currentPage,
@@ -82,6 +102,7 @@ export const useSalesPipelineStore = defineStore('salesPipeline', () => {
     isEmpty,
     // Actions
     fetchSalesPipelines,
+    fetchSalesPipelineDetail,
     createSalesPipeline,
     clearError,
     resetStore,

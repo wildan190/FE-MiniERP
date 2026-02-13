@@ -2,6 +2,7 @@ import { apiClient } from '../api/ApiClient'
 import type {
   SalesPipeline,
   SalesPipelineListResponse,
+  SalesPipelineDetailResponse,
   CreateSalesPipelineRequest,
   CreateSalesPipelineResponse,
 } from './types'
@@ -28,6 +29,11 @@ export class SalesPipelineService {
       }
       throw err
     }
+  }
+
+  async getSalesPipelineDetail(uuid: string): Promise<SalesPipelineDetailResponse> {
+    const response = await apiClient.getClient().get<SalesPipelineDetailResponse>(`/crm/sales-pipeline/${uuid}`)
+    return response.data
   }
 
   async createSalesPipeline(data: CreateSalesPipelineRequest): Promise<CreateSalesPipelineResponse> {

@@ -8,6 +8,7 @@ import CustomersPage from '@/pages/CustomersPage.vue'
 import LeadsPage from '@/pages/LeadsPage.vue'
 import ProspectsPage from '@/pages/ProspectsPage.vue'
 import SalesPipelinePage from '@/pages/SalesPipelinePage.vue'
+import SalesPipelineDetailView from '../views/crm/SalesPipelineDetailView.vue'
 import QuotationPage from '../pages/QuotationsPage.vue'
 import QuotationDetailView from '../views/crm/QuotationDetailView.vue'
 
@@ -129,6 +130,20 @@ const router = createRouter({
         name: 'crm-pipelines',
         component: SalesPipelinePage,
         meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'CRM', to: '/crm' }, { label: 'Pipelines' }] },
+      },
+      {
+        path: '/crm/pipelines/:uuid',
+        name: 'crm-pipeline-detail',
+        component: SalesPipelineDetailView,
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'CRM', to: '/crm' }, 
+            { label: 'Pipelines', to: '/crm/pipelines' },
+            { label: 'Detail' }
+          ] 
+        },
       },
   ],
 })

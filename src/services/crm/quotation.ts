@@ -49,8 +49,20 @@ export const quotationService = {
   },
 
   async getCustomerQuotations(customerId: number): Promise<Quotation[]> {
-    // Fallback to filter full list since backend might not have this endpoint
-    const all = (await this.getQuotations(1)).data.data
-    return all.filter((q) => q.customer_id === customerId)
+    try {
+      // Try specific customer endpoint first (pattern: /crm/customers/{id}/quotations)
+      const response = await apiClient.getClient().get<{ data: Quotation[] }>(`/crm/customers/${customerId}/quotations`)
+      return response.data.data
+    } catch (err) {
+      try {
+        // Try singular if plural fails
+        const response = await apiClient.getClient().get<{ data: Quotation[] }>(`/crm/customers/${customerId}/quotation`)
+        return response.data.data
+      } catch (err2) {
+        // Fallback to filter full list if direct endpoints fail
+        const all = (await this.getQuotations(1)).data.data
+        return all.filter((q) => Number(q.customer_id) === Number(customerId))
+      }
+    }
   },
 }
