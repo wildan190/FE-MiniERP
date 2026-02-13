@@ -10,7 +10,7 @@
           </div>
           <button
             @click="showCreateModal = true"
-            class="w-full sm:w-auto px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium flex items-center justify-center gap-2"
+            class="hidden md:flex w-full sm:w-auto px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium items-center justify-center gap-2"
           >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -84,29 +84,16 @@
             />
 
             <!-- Pagination -->
-            <div v-if="leadStore.totalPages > 1" class="flex flex-col sm:flex-row justify-between items-center bg-white px-6 py-4 rounded-xl shadow-sm border border-gray-100 gap-4">
-              <p class="text-sm text-gray-600">
-                Page <span class="font-semibold text-gray-900">{{ leadStore.currentPage }}</span> of <span class="font-semibold text-gray-900">{{ leadStore.totalPages }}</span>
-              </p>
-              <div class="flex gap-2 w-full sm:w-auto">
-                <Button
-                  variant="outline"
-                  class="flex-1 sm:flex-none"
-                  @click="leadStore.fetchLeads(leadStore.currentPage - 1)"
-                  :disabled="leadStore.currentPage === 1"
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  class="flex-1 sm:flex-none"
-                  @click="leadStore.fetchLeads(leadStore.currentPage + 1)"
-                  :disabled="leadStore.currentPage === leadStore.totalPages"
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
+            <ResponsivePagination
+              v-if="leadStore.totalPages > 1"
+              :current-page="leadStore.currentPage"
+              :last-page="leadStore.totalPages"
+              :from="(leadStore.currentPage - 1) * 10 + 1"
+              :to="Math.min(leadStore.currentPage * 10, leadStore.totalLeads)"
+              :total="leadStore.totalLeads"
+              :links="leadStore.paginationLinks"
+              @page-change="leadStore.fetchLeads"
+            />
           </template>
         </div>
       </div>
@@ -117,6 +104,14 @@
       :is-open="showCreateModal"
       @close="showCreateModal = false"
       @created="handleLeadCreated"
+    />
+    <!-- Mobile Floating Actions -->
+    <MobileActions 
+      :primary-action="{
+        label: 'New Lead',
+        icon: Plus,
+        onClick: () => showCreateModal = true
+      }"
     />
   </AppLayout>
 </template>
@@ -133,6 +128,9 @@ import Alert from '../components/common/Alert.vue'
 import Spinner from '../components/common/Spinner.vue'
 import LeadTable from '../components/crm/LeadTable.vue'
 import CreateLeadModal from '../components/crm/CreateLeadModal.vue'
+import MobileActions from '../components/common/MobileActions.vue'
+import ResponsivePagination from '../components/common/ResponsivePagination.vue'
+import { Plus } from 'lucide-vue-next'
 import type { Lead } from '../services'
 
 const leadStore = useLeadStore()

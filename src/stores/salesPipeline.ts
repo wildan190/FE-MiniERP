@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { salesPipelineRepository } from '@/repositories'
-import type { SalesPipeline, SalesPipelineListResponse, CreateSalesPipelineRequest } from '@/services'
+import type { SalesPipeline, SalesPipelineListResponse, CreateSalesPipelineRequest, PaginationLink } from '@/services'
 
 export const useSalesPipelineStore = defineStore('salesPipeline', () => {
   const pipelines = ref<SalesPipeline[]>([])
@@ -12,6 +12,7 @@ export const useSalesPipelineStore = defineStore('salesPipeline', () => {
   const totalPages = ref(1)
   const totalPipelines = ref(0)
   const perPage = ref(10)
+  const paginationLinks = ref<PaginationLink[]>([])
 
   // Computed
   const hasError = computed(() => !!error.value)
@@ -29,6 +30,7 @@ export const useSalesPipelineStore = defineStore('salesPipeline', () => {
       totalPages.value = response.data.last_page
       totalPipelines.value = response.data.total
       perPage.value = response.data.per_page
+      paginationLinks.value = response.data.links
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch sales pipelines'
       console.error('Error fetching sales pipelines:', err)
@@ -97,6 +99,7 @@ export const useSalesPipelineStore = defineStore('salesPipeline', () => {
     totalPages,
     totalPipelines,
     perPage,
+    paginationLinks,
     // Computed
     hasError,
     isEmpty,

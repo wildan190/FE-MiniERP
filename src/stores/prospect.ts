@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { prospectService } from '@/services/crm/prospect'
-import type { Prospect, ProspectsListResponse, CreateProspectRequest, UpdateProspectStatusRequest } from '@/services'
+import type { Prospect, ProspectsListResponse, CreateProspectRequest, UpdateProspectStatusRequest, PaginationLink } from '@/services'
 
 export const useProspectStore = defineStore('prospect', () => {
   const prospects = ref<Prospect[]>([])
@@ -11,6 +11,7 @@ export const useProspectStore = defineStore('prospect', () => {
   const totalPages = ref(1)
   const totalProspects = ref(0)
   const perPage = ref(10)
+  const paginationLinks = ref<PaginationLink[]>([])
 
   // Computed
   const hasError = computed(() => !!error.value)
@@ -28,6 +29,7 @@ export const useProspectStore = defineStore('prospect', () => {
       totalPages.value = response.data.last_page
       totalProspects.value = response.data.total
       perPage.value = response.data.per_page
+      paginationLinks.value = response.data.links
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch prospects'
       console.error('Error fetching prospects:', err)
@@ -111,6 +113,7 @@ export const useProspectStore = defineStore('prospect', () => {
     totalPages,
     totalProspects,
     perPage,
+    paginationLinks,
     // Computed
     hasError,
     isEmpty,

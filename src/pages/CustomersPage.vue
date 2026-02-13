@@ -9,7 +9,7 @@
         </div>
         <button
           @click="isCreateModalOpen = true"
-          class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium flex items-center gap-2"
+          class="hidden md:flex px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium items-center gap-2"
         >
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -46,38 +46,16 @@
             <CustomerTable :customers="customers" />
 
             <!-- Pagination -->
-            <div v-if="pagination.total > 0" class="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6 mt-4">
-              <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                <div>
-                   <p class="text-sm text-gray-700">
-                    Showing
-                    <span class="font-medium">{{ pagination.from }}</span>
-                    to
-                    <span class="font-medium">{{ pagination.to }}</span>
-                    of
-                    <span class="font-medium">{{ pagination.total }}</span>
-                    results
-                  </p>
-                </div>
-                <div>
-                  <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                    <button
-                      v-for="link in pagination.links"
-                      :key="link.label"
-                      @click="link.url ? loadData(link.page || 1) : null"
-                      :disabled="!link.url"
-                      :class="[
-                        link.active ? 'bg-primary-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0',
-                        !link.url ? 'text-gray-300 cursor-not-allowed' : 'cursor-pointer',
-                        'relative inline-flex items-center px-4 py-2 text-sm font-semibold first:rounded-l-md last:rounded-r-md'
-                      ]"
-                      v-html="link.label"
-                    >
-                    </button>
-                  </nav>
-                </div>
-              </div>
-            </div>
+            <ResponsivePagination
+              v-if="pagination.total > 0"
+              :current-page="pagination.current_page"
+              :last-page="pagination.last_page"
+              :from="pagination.from"
+              :to="pagination.to"
+              :total="pagination.total"
+              :links="pagination.links"
+              @page-change="loadData"
+            />
           </div>
         </div>
       </Card>
@@ -90,6 +68,14 @@
         @close="isCreateModalOpen = false"
         @submit="handleCreateCustomer"
       />
+      <!-- Mobile Floating Actions -->
+      <MobileActions 
+        :primary-action="{
+          label: 'New Customer',
+          icon: Plus,
+          onClick: () => isCreateModalOpen = true
+        }"
+      />
     </div>
   </AppLayout>
 </template>
@@ -101,6 +87,9 @@ import Card from "../components/common/Card.vue";
 import Spinner from "../components/common/Spinner.vue";
 import CustomerTable from "../components/crm/CustomerTable.vue";
 import CreateCustomerModal from "../components/crm/CreateCustomerModal.vue";
+import MobileActions from "../components/common/MobileActions.vue";
+import ResponsivePagination from "../components/common/ResponsivePagination.vue";
+import { Plus } from 'lucide-vue-next';
 import { crmServiceInstance } from "../services";
 import type { Customer, PaginationLink, CreateCustomerRequest } from "../services";
 

@@ -10,7 +10,7 @@
           </div>
           <button
             @click="showCreateModal = true"
-            class="w-full sm:w-auto px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium flex items-center justify-center gap-2"
+            class="hidden md:flex w-full sm:w-auto px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium items-center justify-center gap-2"
           >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -66,29 +66,16 @@
             />
 
             <!-- Pagination -->
-            <div v-if="prospectStore.totalPages > 1" class="flex flex-col sm:flex-row justify-between items-center bg-white px-6 py-4 rounded-xl shadow-sm border border-gray-100 gap-4">
-              <p class="text-sm text-gray-600">
-                Page <span class="font-semibold text-gray-900">{{ prospectStore.currentPage }}</span> of <span class="font-semibold text-gray-900">{{ prospectStore.totalPages }}</span>
-              </p>
-              <div class="flex gap-2 w-full sm:w-auto">
-                <Button
-                  variant="outline"
-                  class="flex-1 sm:flex-none"
-                  @click="prospectStore.fetchProspects(prospectStore.currentPage - 1)"
-                  :disabled="prospectStore.currentPage === 1"
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  class="flex-1 sm:flex-none"
-                  @click="prospectStore.fetchProspects(prospectStore.currentPage + 1)"
-                  :disabled="prospectStore.currentPage === prospectStore.totalPages"
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
+            <ResponsivePagination
+              v-if="prospectStore.totalPages > 1"
+              :current-page="prospectStore.currentPage"
+              :last-page="prospectStore.totalPages"
+              :from="(prospectStore.currentPage - 1) * 10 + 1"
+              :to="Math.min(prospectStore.currentPage * 10, prospectStore.totalProspects)"
+              :total="prospectStore.totalProspects"
+              :links="prospectStore.paginationLinks"
+              @page-change="prospectStore.fetchProspects"
+            />
           </template>
         </div>
       </div>
@@ -145,6 +132,14 @@
         </div>
       </div>
     </div>
+    <!-- Mobile Floating Actions -->
+    <MobileActions 
+      :primary-action="{
+        label: 'New Prospect',
+        icon: Plus,
+        onClick: () => showCreateModal = true
+      }"
+    />
   </AppLayout>
 </template>
 
@@ -159,6 +154,9 @@ import Alert from '../components/common/Alert.vue'
 import Spinner from '../components/common/Spinner.vue'
 import ProspectTable from '../components/crm/ProspectTable.vue'
 import CreateProspectModal from '../components/crm/CreateProspectModal.vue'
+import MobileActions from '../components/common/MobileActions.vue'
+import ResponsivePagination from '../components/common/ResponsivePagination.vue'
+import { Plus } from 'lucide-vue-next'
 import type { Prospect } from '../services'
 
 const prospectStore = useProspectStore()
