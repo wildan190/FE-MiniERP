@@ -3,35 +3,32 @@
     <!-- Header -->
     <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50 print:hidden">
       <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div
-            class="flex items-center justify-center h-8 w-8 rounded-lg bg-primary-600 text-white"
+        <div class="flex items-center gap-4">
+          <!-- App Drawer Button -->
+          <RouterLink
+            to="/"
+            class="p-2 hover:bg-gray-100 rounded-lg transition-all active:scale-95 group"
+            title="Main Menu"
           >
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
+            <LayoutGrid class="h-6 w-6 text-gray-400 group-hover:text-primary-600 transition-colors" />
+          </RouterLink>
+
+          <div class="flex items-center gap-2">
+            <div
+              class="flex items-center justify-center h-8 w-8 rounded-lg bg-primary-600 text-white shadow-sm"
+            >
+              <Zap class="h-5 w-5 fill-current" />
+            </div>
+            <h1 class="text-xl font-bold text-gray-800 tracking-tight hidden sm:block">MiniERP</h1>
           </div>
-          <h1 class="text-2xl font-bold text-gray-900">MiniERP</h1>
         </div>
 
         <!-- Navigation -->
         <nav class="hidden md:flex items-center gap-1">
           <RouterLink
-            to="/dashboard"
-            class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{ 'bg-primary-50 text-primary-600': route.path === '/dashboard' }"
-          >
-            Dashboard
-          </RouterLink>
-          <RouterLink
             to="/crm"
             class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{ 'bg-primary-50 text-primary-600': route.path === '/crm' }"
+            :class="{ 'bg-primary-50 text-primary-600': route.path === '/crm' || route.path.startsWith('/crm/') }"
           >
             CRM
           </RouterLink>
@@ -98,14 +95,7 @@
               @click="handleLogout"
               class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
             >
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
+              <LogOut class="h-4 w-4" />
               Logout
             </button>
           </div>
@@ -126,6 +116,11 @@ import { ref } from "vue";
 import { useRouter, useRoute, RouterLink } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import Breadcrumb from "@/components/common/Breadcrumb.vue";
+import { 
+  LayoutGrid, 
+  LogOut, 
+  Zap 
+} from 'lucide-vue-next';
 
 const router = useRouter();
 const route = useRoute();

@@ -104,7 +104,7 @@ const form = reactive({
 const handleLogin = async () => {
   try {
     await authStore.login(form.email, form.password);
-    router.push("/dashboard");
+    router.push('/')
   } catch (error) {
     console.error("Login failed:", error);
   }
