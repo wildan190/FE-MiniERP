@@ -17,3 +17,4 @@ export {
   interactionService,
   crmServiceInstance,
 } from './crm'
+export * from './hrm'

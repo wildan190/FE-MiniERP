@@ -116,6 +116,21 @@
                     <span>Pipelines</span>
                   </div>
                 </RouterLink>
+
+                <div class="pt-4 pb-2">
+                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-3">HRM Module</p>
+                  <RouterLink
+                    to="/hrm/departments"
+                    @click="isMobileSidebarOpen = false"
+                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                    :class="route.path === '/hrm/departments' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                  >
+                    <div class="flex items-center gap-3">
+                      <Zap class="h-5 w-5" />
+                      <span>Departments</span>
+                    </div>
+                  </RouterLink>
+                </div>
               </div>
             </div>
           </nav>
@@ -209,6 +224,13 @@
             :class="{ 'bg-primary-50 text-primary-600': route.path === '/crm/pipelines' }"
           >
             Pipelines
+          </RouterLink>
+          <RouterLink
+            to="/hrm/departments"
+            class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+            :class="{ 'bg-primary-50 text-primary-600': route.path === '/hrm/departments' }"
+          >
+            HRM
           </RouterLink>
         </nav>
 

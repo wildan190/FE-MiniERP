@@ -17,6 +17,8 @@ import LeadDetailView from '@/views/crm/LeadDetailView.vue'
 import ProspectDetailView from '@/views/crm/ProspectDetailView.vue'
 import OrderListView from '@/views/crm/OrderListView.vue'
 import AppMenuView from '@/pages/AppMenuView.vue'
+import DepartmentsPage from '@/pages/DepartmentsPage.vue'
+import DepartmentDetailView from '@/views/hrm/DepartmentDetailView.vue'
 // No change to file content here, just updating router.
 
 const router = createRouter({
@@ -144,6 +146,33 @@ const router = createRouter({
             { label: 'Home', to: '/dashboard' }, 
             { label: 'CRM', to: '/crm' }, 
             { label: 'Pipelines', to: '/crm/pipelines' },
+            { label: 'Detail' }
+          ] 
+        },
+      },
+      {
+        path: '/hrm/departments',
+        name: 'hrm-departments',
+        component: DepartmentsPage,
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Departments' }
+          ] 
+        },
+      },
+      {
+        path: '/hrm/departments/:uuid',
+        name: 'hrm-department-detail',
+        component: DepartmentDetailView,
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Departments', to: '/hrm/departments' },
             { label: 'Detail' }
           ] 
         },
