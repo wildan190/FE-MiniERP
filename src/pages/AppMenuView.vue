@@ -68,7 +68,8 @@ import {
   Users, 
   Box, 
   Settings,
-  LogOut
+  LogOut,
+  Zap
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
@@ -77,6 +78,7 @@ const router = useRouter();
 const apps = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, color: "bg-gradient-to-br from-blue-500 to-indigo-700" },
   { name: "CRM", path: "/crm", icon: Users, color: "bg-gradient-to-br from-emerald-500 to-teal-700" },
+  { name: "HRM", path: "/hrm/departments", icon: Zap, color: "bg-gradient-to-br from-purple-500 to-indigo-700" },
   { name: "Inventory", path: "#", icon: Box, color: "bg-gradient-to-br from-orange-500 to-red-700 opacity-50 cursor-not-allowed" },
   { name: "Settings", path: "#", icon: Settings, color: "bg-gradient-to-br from-slate-500 to-gray-700 opacity-50 cursor-not-allowed" },
 ];
