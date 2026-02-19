@@ -5,6 +5,12 @@ import type {
   CreateDepartmentResponse,
 } from './types/department.types'
 
+export type {
+  DepartmentListResponse,
+  CreateDepartmentRequest,
+  CreateDepartmentResponse,
+}
+
 export class DepartmentService {
   async getDepartments(page: number = 1): Promise<DepartmentListResponse> {
     const response = await apiClient.getClient().get('/hrm/departments', {

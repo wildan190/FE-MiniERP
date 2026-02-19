@@ -1,2 +1,6 @@
 export * from './department'
 export * from './types/department.types'
+export * from './employee'
+export * from './types/employee.types'
+export * from './designation'
+export * from './types/designation.types'

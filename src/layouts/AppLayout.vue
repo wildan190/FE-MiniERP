@@ -1,5 +1,5 @@
 <template>
-  <div 
+  <div
     class="min-h-screen bg-gray-50 overflow-x-hidden"
     @touchstart="handleTouchStart"
     @touchmove="handleTouchMove"
@@ -11,7 +11,7 @@
     <!-- Mobile Sidebar -->
     <Teleport to="body">
       <Transition name="overlay">
-        <div 
+        <div
           v-if="isMobileSidebarOpen"
           class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[70] md:hidden"
           @click="isMobileSidebarOpen = false"
@@ -19,19 +19,21 @@
       </Transition>
 
       <Transition name="sidebar">
-        <aside 
+        <aside
           v-if="isMobileSidebarOpen"
           class="fixed inset-y-0 left-0 w-[280px] bg-white shadow-2xl z-[80] md:hidden flex flex-col"
         >
           <!-- Sidebar Header -->
           <div class="p-6 border-b border-gray-100 flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <div class="h-8 w-8 rounded-lg bg-primary-600 flex items-center justify-center text-white">
+              <div
+                class="h-8 w-8 rounded-lg bg-primary-600 flex items-center justify-center text-white"
+              >
                 <Zap class="h-5 w-5 fill-current" />
               </div>
               <span class="text-xl font-bold text-gray-900">MiniERP</span>
             </div>
-            <button 
+            <button
               @click="isMobileSidebarOpen = false"
               class="p-1 rounded-lg hover:bg-gray-100 text-gray-400"
             >
@@ -42,13 +44,19 @@
           <!-- Sidebar Nav -->
           <nav class="flex-1 overflow-y-auto p-4 space-y-2">
             <div class="px-2 py-4">
-              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Navigation</p>
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+                Navigation
+              </p>
               <div class="space-y-1">
                 <RouterLink
                   to="/crm"
                   @click="isMobileSidebarOpen = false"
                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                  :class="route.path.startsWith('/crm') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                  :class="
+                    route.path.startsWith('/crm')
+                      ? 'bg-primary-50 text-primary-600 shadow-sm'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  "
                 >
                   <div class="flex items-center gap-3">
                     <Users class="h-5 w-5" />
@@ -61,7 +69,11 @@
                   to="/customers"
                   @click="isMobileSidebarOpen = false"
                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                  :class="route.path === '/customers' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                  :class="
+                    route.path === '/customers'
+                      ? 'bg-primary-50 text-primary-600 shadow-sm'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  "
                 >
                   <div class="flex items-center gap-3">
                     <Users class="h-5 w-5" />
@@ -73,7 +85,11 @@
                   to="/leads"
                   @click="isMobileSidebarOpen = false"
                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                  :class="route.path === '/leads' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                  :class="
+                    route.path === '/leads'
+                      ? 'bg-primary-50 text-primary-600 shadow-sm'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  "
                 >
                   <div class="flex items-center gap-3">
                     <Users class="h-5 w-5" />
@@ -85,7 +101,11 @@
                   to="/prospects"
                   @click="isMobileSidebarOpen = false"
                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                  :class="route.path === '/prospects' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                  :class="
+                    route.path === '/prospects'
+                      ? 'bg-primary-50 text-primary-600 shadow-sm'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  "
                 >
                   <div class="flex items-center gap-3">
                     <Users class="h-5 w-5" />
@@ -97,7 +117,11 @@
                   to="/crm/quotations"
                   @click="isMobileSidebarOpen = false"
                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                  :class="route.path === '/crm/quotations' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                  :class="
+                    route.path === '/crm/quotations'
+                      ? 'bg-primary-50 text-primary-600 shadow-sm'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  "
                 >
                   <div class="flex items-center gap-3">
                     <Box class="h-5 w-5" />
@@ -109,7 +133,11 @@
                   to="/crm/pipelines"
                   @click="isMobileSidebarOpen = false"
                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                  :class="route.path === '/crm/pipelines' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                  :class="
+                    route.path === '/crm/pipelines'
+                      ? 'bg-primary-50 text-primary-600 shadow-sm'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  "
                 >
                   <div class="flex items-center gap-3">
                     <LayoutGrid class="h-5 w-5" />
@@ -118,16 +146,39 @@
                 </RouterLink>
 
                 <div class="pt-4 pb-2">
-                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-3">HRM Module</p>
+                  <p
+                    class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-3"
+                  >
+                    HRM Module
+                  </p>
                   <RouterLink
                     to="/hrm/departments"
                     @click="isMobileSidebarOpen = false"
                     class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                    :class="route.path === '/hrm/departments' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    :class="
+                      route.path === '/hrm/departments'
+                        ? 'bg-primary-50 text-primary-600 shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    "
                   >
                     <div class="flex items-center gap-3">
                       <Zap class="h-5 w-5" />
                       <span>Departments</span>
+                    </div>
+                  </RouterLink>
+                  <RouterLink
+                    to="/hrm/employees"
+                    @click="isMobileSidebarOpen = false"
+                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                    :class="
+                      route.path === '/hrm/employees'
+                        ? 'bg-primary-50 text-primary-600 shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    "
+                  >
+                    <div class="flex items-center gap-3">
+                      <Users class="h-5 w-5" />
+                      <span>Employees</span>
                     </div>
                   </RouterLink>
                 </div>
@@ -138,15 +189,19 @@
           <!-- Sidebar Footer -->
           <div class="p-6 border-t border-gray-100 bg-gray-50/50">
             <div class="flex items-center gap-3 mb-6">
-              <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold uppercase">
+              <div
+                class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold uppercase"
+              >
                 {{ authStore.user?.name?.charAt(0) }}
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-gray-900 truncate">{{ authStore.user?.name }}</p>
+                <p class="text-sm font-semibold text-gray-900 truncate">
+                  {{ authStore.user?.name }}
+                </p>
                 <p class="text-xs text-gray-500 truncate">{{ authStore.user?.email }}</p>
               </div>
             </div>
-            <button 
+            <button
               @click="handleLogout"
               class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white border border-red-100 text-red-600 text-sm font-bold hover:bg-red-50 transition-colors"
             >
@@ -168,7 +223,9 @@
             class="p-2 hover:bg-gray-100 rounded-lg transition-all active:scale-95 group"
             title="Main Menu"
           >
-            <LayoutGrid class="h-6 w-6 text-gray-400 group-hover:text-primary-600 transition-colors" />
+            <LayoutGrid
+              class="h-6 w-6 text-gray-400 group-hover:text-primary-600 transition-colors"
+            />
           </RouterLink>
 
           <div class="flex items-center gap-2">
@@ -186,7 +243,10 @@
           <RouterLink
             to="/crm"
             class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{ 'bg-primary-50 text-primary-600': route.path === '/crm' || route.path.startsWith('/crm/') }"
+            :class="{
+              'bg-primary-50 text-primary-600':
+                route.path === '/crm' || route.path.startsWith('/crm/'),
+            }"
           >
             CRM
           </RouterLink>
@@ -225,13 +285,25 @@
           >
             Pipelines
           </RouterLink>
-          <RouterLink
-            to="/hrm/departments"
-            class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{ 'bg-primary-50 text-primary-600': route.path === '/hrm/departments' }"
-          >
-            HRM
-          </RouterLink>
+          <div class="border-t border-gray-200 my-2 pt-2">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-4">
+              HRM Module
+            </p>
+            <RouterLink
+              to="/hrm/departments"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
+              :class="{ 'bg-primary-50 text-primary-600': route.path === '/hrm/departments' }"
+            >
+              Departments
+            </RouterLink>
+            <RouterLink
+              to="/hrm/employees"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
+              :class="{ 'bg-primary-50 text-primary-600': route.path === '/hrm/employees' }"
+            >
+              Employees
+            </RouterLink>
+          </div>
         </nav>
 
         <!-- User Menu -->
@@ -282,15 +354,15 @@ import { useRouter, useRoute, RouterLink } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import Breadcrumb from "@/components/common/Breadcrumb.vue";
 import GestureHint from "@/components/common/GestureHint.vue";
-import { 
-  LayoutGrid, 
-  LogOut, 
+import {
+  LayoutGrid,
+  LogOut,
   Zap,
   LayoutDashboard,
   Users,
   Box,
-  ChevronRight
-} from 'lucide-vue-next';
+  ChevronRight,
+} from "lucide-vue-next";
 
 const router = useRouter();
 const route = useRoute();
@@ -317,17 +389,17 @@ const handleTouchMove = (e: TouchEvent) => {
 
 const handleTouchEnd = () => {
   const distance = touchEndX.value - touchStartX.value;
-  
+
   // Open if swiped from left to right on the left side of the screen
   if (distance > minSwipeDistance && touchStartX.value < 100) {
     openMobileSidebar();
   }
-  
+
   // Close if swiped from right to left while open
   if (distance < -minSwipeDistance && isMobileSidebarOpen.value) {
     isMobileSidebarOpen.value = false;
   }
-  
+
   // Reset
   touchStartX.value = 0;
   touchEndX.value = 0;
@@ -335,10 +407,10 @@ const handleTouchEnd = () => {
 
 const openMobileSidebar = () => {
   isMobileSidebarOpen.value = true;
-  
+
   // Update hint count
-  const STORAGE_KEY = 'sidebar_gesture_count';
-  const count = parseInt(localStorage.getItem(STORAGE_KEY) || '0');
+  const STORAGE_KEY = "sidebar_gesture_count";
+  const count = parseInt(localStorage.getItem(STORAGE_KEY) || "0");
   localStorage.setItem(STORAGE_KEY, (count + 1).toString());
 };
 
