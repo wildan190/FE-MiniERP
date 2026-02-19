@@ -19,6 +19,8 @@ import OrderListView from '@/views/crm/OrderListView.vue'
 import AppMenuView from '@/pages/AppMenuView.vue'
 import DepartmentsPage from '@/pages/DepartmentsPage.vue'
 import DepartmentDetailView from '@/views/hrm/DepartmentDetailView.vue'
+import EmployeesPage from '@/pages/EmployeesPage.vue'
+import EmployeeDetailView from '@/views/hrm/EmployeeDetailView.vue'
 // No change to file content here, just updating router.
 
 const router = createRouter({
@@ -173,6 +175,33 @@ const router = createRouter({
             { label: 'Home', to: '/dashboard' }, 
             { label: 'HRM', to: '/hrm' }, 
             { label: 'Departments', to: '/hrm/departments' },
+            { label: 'Detail' }
+          ] 
+        },
+      },
+      {
+        path: '/hrm/employees',
+        name: 'hrm-employees',
+        component: EmployeesPage,
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Employees' }
+          ] 
+        },
+      },
+      {
+        path: '/hrm/employees/:uuid',
+        name: 'hrm-employee-detail',
+        component: EmployeeDetailView,
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Employees', to: '/hrm/employees' },
             { label: 'Detail' }
           ] 
         },
