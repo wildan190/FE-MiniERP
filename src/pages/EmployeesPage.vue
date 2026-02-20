@@ -193,13 +193,24 @@ const handleSave = async (data: CreateEmployeeRequest) => {
   submitErrorMessage.value = null;
 
   try {
-    await employeeRepository.createEmployee(data);
-    await Swal.fire({
-      title: "Success!",
-      text: "Employee created successfully",
-      icon: "success",
-      confirmButtonColor: "#10b981",
-    });
+    if (selectedEmployee.value) {
+      await employeeRepository.updateEmployee(selectedEmployee.value.uuid, data as any);
+      await Swal.fire({
+        title: "Success!",
+        text: "Employee updated successfully",
+        icon: "success",
+        confirmButtonColor: "#10b981",
+      });
+    } else {
+      await employeeRepository.createEmployee(data);
+      await Swal.fire({
+        title: "Success!",
+        text: "Employee created successfully",
+        icon: "success",
+        confirmButtonColor: "#10b981",
+      });
+    }
+    
     closeModal();
     loadData(pagination.value.current_page);
   } catch (error: any) {
