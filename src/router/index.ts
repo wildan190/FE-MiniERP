@@ -180,6 +180,33 @@ const router = createRouter({
         },
       },
       {
+        path: '/hrm/designations',
+        name: 'hrm-designations',
+        component: () => import('@/pages/DesignationsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Designations' }
+          ] 
+        },
+      },
+      {
+        path: '/hrm/designations/:uuid',
+        name: 'hrm-designation-detail',
+        component: () => import('@/views/hrm/DesignationDetailView.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Designations', to: '/hrm/designations' },
+            { label: 'Detail' }
+          ] 
+        },
+      },
+      {
         path: '/hrm/employees',
         name: 'hrm-employees',
         component: EmployeesPage,

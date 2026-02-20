@@ -13,12 +13,27 @@ export interface DesignationListResponse {
   data: Designation[]
 }
 
+export interface DesignationDetailResponse {
+  message: string
+  data: Designation
+}
+
 export interface CreateDesignationRequest {
   name: string
   description?: string
 }
 
 export interface CreateDesignationResponse {
+  message: string
+  data: Designation
+}
+
+export interface UpdateDesignationRequest {
+  name: string
+  description?: string
+}
+
+export interface UpdateDesignationResponse {
   message: string
   data: Designation
 }
