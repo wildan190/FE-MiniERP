@@ -207,6 +207,45 @@ const router = createRouter({
         },
       },
       {
+        path: '/hrm/leave-types',
+        name: 'hrm-leave-types',
+        component: () => import('@/pages/LeaveTypesPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Leave Types' }
+          ] 
+        },
+      },
+      {
+        path: '/hrm/leave-requests',
+        name: 'hrm-leave-requests',
+        component: () => import('@/pages/LeaveRequestsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Leave Requests' }
+          ] 
+        },
+      },
+      {
+        path: '/hrm/reports',
+        name: 'hrm-reports',
+        component: () => import('@/pages/HrmReportsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Reports' }
+          ] 
+        },
+      },
+      {
         path: '/hrm/employees',
         name: 'hrm-employees',
         component: EmployeesPage,

@@ -181,6 +181,54 @@
                     </RouterLink>
                     <div class="mt-1"></div>
                     <RouterLink
+                      to="/hrm/leave-types"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="
+                        route.path.startsWith('/hrm/leave-types')
+                          ? 'bg-primary-50 text-primary-600 shadow-sm'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      "
+                    >
+                      <div class="flex items-center gap-3">
+                        <CalendarDays class="h-5 w-5" />
+                        <span>Leave Types</span>
+                      </div>
+                    </RouterLink>
+                    <div class="mt-1"></div>
+                    <RouterLink
+                      to="/hrm/leave-requests"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="
+                        route.path.startsWith('/hrm/leave-requests')
+                          ? 'bg-primary-50 text-primary-600 shadow-sm'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      "
+                    >
+                      <div class="flex items-center gap-3">
+                        <ClipboardList class="h-5 w-5" />
+                        <span>Leave Requests</span>
+                      </div>
+                    </RouterLink>
+                    <div class="mt-1"></div>
+                    <RouterLink
+                      to="/hrm/reports"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="
+                        route.path.startsWith('/hrm/reports')
+                          ? 'bg-primary-50 text-primary-600 shadow-sm'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      "
+                    >
+                      <div class="flex items-center gap-3">
+                        <BarChart3 class="h-5 w-5" />
+                        <span>Reports</span>
+                      </div>
+                    </RouterLink>
+                    <div class="mt-1"></div>
+                    <RouterLink
                       to="/hrm/employees"
                       @click="isMobileSidebarOpen = false"
                       class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
@@ -324,6 +372,27 @@
             >
               Employees
             </RouterLink>
+            <RouterLink
+              to="/hrm/leave-types"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
+              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/leave-types') }"
+            >
+              Leave Types
+            </RouterLink>
+            <RouterLink
+              to="/hrm/leave-requests"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
+              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/leave-requests') }"
+            >
+              Leave Requests
+            </RouterLink>
+            <RouterLink
+              to="/hrm/reports"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
+              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/reports') }"
+            >
+              Reports
+            </RouterLink>
           </template>
         </nav>
 
@@ -384,6 +453,9 @@ import {
   Box,
   ChevronRight,
   Briefcase,
+  CalendarDays,
+  ClipboardList,
+  BarChart3,
 } from "lucide-vue-next";
 
 const router = useRouter();
