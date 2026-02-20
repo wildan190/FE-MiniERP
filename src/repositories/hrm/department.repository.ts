@@ -3,7 +3,7 @@ import {
   type DepartmentListResponse,
   type CreateDepartmentRequest,
   type CreateDepartmentResponse,
-} from '@/services/hrm'
+} from '../../services/hrm'
 
 export class DepartmentRepository {
   async getDepartments(page: number = 1): Promise<DepartmentListResponse> {
