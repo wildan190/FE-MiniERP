@@ -7,6 +7,10 @@ import type {
   UpdateEmployeeResponse,
   EmployeeDetailResponse,
 } from './types/employee.types'
+import type {
+  EmployeeDocumentListResponse,
+  CreateEmployeeDocumentResponse
+} from './types/employee-document.types'
 
 export class EmployeeService {
   async getEmployees(page: number = 1): Promise<EmployeeListResponse> {
@@ -28,6 +32,25 @@ export class EmployeeService {
 
   async updateEmployee(uuid: string, data: UpdateEmployeeRequest): Promise<UpdateEmployeeResponse> {
     const response = await apiClient.getClient().put(`/hrm/employees/${uuid}`, data)
+    return response.data
+  }
+
+  async getEmployeeDocuments(employeeUuid: string): Promise<EmployeeDocumentListResponse> {
+    const response = await apiClient.getClient().get(`/hrm/employees/${employeeUuid}/documents`)
+    return response.data
+  }
+
+  async createEmployeeDocument(employeeUuid: string, data: FormData): Promise<CreateEmployeeDocumentResponse> {
+    const response = await apiClient.getClient().post(`/hrm/employees/${employeeUuid}/documents`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    return response.data
+  }
+
+  async deleteEmployeeDocument(documentUuid: string): Promise<{ message: string }> {
+    const response = await apiClient.getClient().delete(`/hrm/documents/${documentUuid}`)
     return response.data
   }
 }
