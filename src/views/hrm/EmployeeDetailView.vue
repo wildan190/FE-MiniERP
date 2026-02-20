@@ -285,6 +285,17 @@
             </div>
           </div>
         </Card>
+
+        <!-- Employee Documents -->
+        <!-- Added pt-6 for spacing between cards -->
+        <div class="pt-6 border-t border-gray-200 mt-6">
+          <EmployeeDocumentList 
+            :documents="documents" 
+            :loading="isDocumentsLoading"
+            @upload="openUploadModal"
+            @delete="handleDeleteDocument"
+          />
+        </div>
       </div>
 
       <!-- Mobile Floating Action -->
@@ -294,6 +305,26 @@
           icon: Edit,
           onClick: openEditModal,
         }"
+      />
+      
+      <!-- Edit Employee Modal -->
+      <CreateEmployeeModal
+        :is-open="isEditModalOpen"
+        :loading="isUpdating"
+        :editing-employee="employee"
+        :errors="updateErrors"
+        :error-message="updateErrorMessage"
+        @close="closeEditModal"
+        @submit="handleUpdateEmployee"
+      />
+
+      <!-- Upload Document Modal -->
+      <UploadDocumentModal
+        :is-open="isUploadModalOpen"
+        :loading="isUploading"
+        :errors="uploadErrors"
+        @close="closeUploadModal"
+        @submit="handleUploadDocument"
       />
     </div>
   </AppLayout>
@@ -309,8 +340,11 @@ import Card from "../../components/common/Card.vue";
 import Spinner from "../../components/common/Spinner.vue";
 import MobileActions from "../../components/common/MobileActions.vue";
 import CreateEmployeeModal from "../../components/hrm/CreateEmployeeModal.vue";
+import EmployeeDocumentList from "../../components/hrm/EmployeeDocumentList.vue";
+import UploadDocumentModal from "../../components/hrm/UploadDocumentModal.vue";
 import { useEmployeeStore } from "../../stores/employee";
 import type { Employee, UpdateEmployeeRequest, CreateEmployeeRequest } from "../../services/hrm/types/employee.types";
+import type { EmployeeDocument } from "../../services/hrm/types/employee-document.types";
 
 const route = useRoute();
 const employeeStore = useEmployeeStore();
@@ -318,6 +352,13 @@ const employeeStore = useEmployeeStore();
 const employee = ref<Employee | null>(null);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
+
+// Documents state
+const documents = ref<EmployeeDocument[]>([]);
+const isDocumentsLoading = ref(false);
+const isUploadModalOpen = ref(false);
+const isUploading = ref(false);
+const uploadErrors = ref<Record<string, string[]> | null>(null);
 
 // Edit modal state
 const isEditModalOpen = ref(false);
@@ -380,6 +421,99 @@ const closeEditModal = () => {
   updateErrorMessage.value = null;
 };
 
+const openUploadModal = () => {
+  uploadErrors.value = null;
+  isUploadModalOpen.value = true;
+};
+
+const closeUploadModal = () => {
+  isUploadModalOpen.value = false;
+  uploadErrors.value = null;
+};
+
+const fetchDocuments = async (uuid: string) => {
+  if (!uuid) return;
+  isDocumentsLoading.value = true;
+  try {
+    const data = await employeeStore.fetchEmployeeDocuments(uuid);
+    documents.value = data || [];
+  } catch (error) {
+    console.error("Failed to load documents:", error);
+  } finally {
+    isDocumentsLoading.value = false;
+  }
+};
+
+const handleUploadDocument = async (data: FormData) => {
+  if (!employee.value) return;
+  
+  isUploading.value = true;
+  uploadErrors.value = null;
+
+  try {
+    await employeeStore.uploadEmployeeDocument(employee.value.uuid, data);
+    await Swal.fire({
+      title: "Success!",
+      text: "Document uploaded successfully",
+      icon: "success",
+      confirmButtonColor: "#10b981",
+    });
+    closeUploadModal();
+    // Refresh documents
+    await fetchDocuments(employee.value.uuid);
+  } catch (error: any) {
+    console.error("Failed to upload document:", error);
+    if (error.response?.status === 422) {
+      uploadErrors.value = error.response.data.errors;
+    } else {
+      Swal.fire({
+        title: "Error!",
+        text: error.response?.data?.message || "Failed to upload document",
+        icon: "error",
+        confirmButtonColor: "#ef4444",
+      });
+    }
+  } finally {
+    isUploading.value = false;
+  }
+};
+
+const handleDeleteDocument = async (uuid: string) => {
+  if (!employee.value) return;
+
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, delete it!",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await employeeStore.deleteEmployeeDocument(uuid);
+      await Swal.fire({
+        title: "Deleted!",
+        text: "Document has been deleted.",
+        icon: "success",
+        confirmButtonColor: "#10b981",
+      });
+      // Refresh documents
+      await fetchDocuments(employee.value.uuid);
+    } catch (error: any) {
+      console.error("Failed to delete document:", error);
+      Swal.fire({
+        title: "Error!",
+        text: error.response?.data?.message || "Failed to delete document",
+        icon: "error",
+        confirmButtonColor: "#ef4444",
+      });
+    }
+  }
+};
+
 const handleUpdateEmployee = async (data: CreateEmployeeRequest | UpdateEmployeeRequest) => {
   if (!employee.value) return;
 
@@ -422,7 +556,10 @@ const handleUpdateEmployee = async (data: CreateEmployeeRequest | UpdateEmployee
 onMounted(async () => {
   const uuid = route.params.uuid as string;
   if (uuid) {
-    await employeeStore.fetchEmployeeDetail(uuid);
+    await Promise.all([
+      employeeStore.fetchEmployeeDetail(uuid),
+      fetchDocuments(uuid)
+    ]);
     employee.value = employeeStore.currentEmployee;
     error.value = employeeStore.error;
   }

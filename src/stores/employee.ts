@@ -97,6 +97,54 @@ export const useEmployeeStore = defineStore('employee', () => {
     }
   }
 
+  async function fetchEmployeeDocuments(uuid: string) {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const response = await employeeRepository.getEmployeeDocuments(uuid)
+      return response.data
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch employee documents'
+      console.error('Error fetching employee documents:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function uploadEmployeeDocument(uuid: string, data: FormData) {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const response = await employeeRepository.createEmployeeDocument(uuid, data)
+      return response.data
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to upload document'
+      console.error('Error uploading document:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function deleteEmployeeDocument(documentUuid: string) {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const response = await employeeRepository.deleteEmployeeDocument(documentUuid)
+      return response
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to delete document'
+      console.error('Error deleting document:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   function clearError() {
     error.value = null
   }
@@ -125,6 +173,9 @@ export const useEmployeeStore = defineStore('employee', () => {
     fetchEmployeeDetail,
     createEmployee,
     updateEmployee,
+    fetchEmployeeDocuments,
+    uploadEmployeeDocument,
+    deleteEmployeeDocument,
     clearError,
     clearCurrentEmployee,
   }
