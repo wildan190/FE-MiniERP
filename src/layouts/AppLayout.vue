@@ -48,140 +48,139 @@
                 Navigation
               </p>
               <div class="space-y-1">
-                <RouterLink
-                  to="/crm"
-                  @click="isMobileSidebarOpen = false"
-                  class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                  :class="
-                    route.path.startsWith('/crm')
-                      ? 'bg-primary-50 text-primary-600 shadow-sm'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  "
-                >
-                  <div class="flex items-center gap-3">
-                    <Users class="h-5 w-5" />
-                    <span>CRM</span>
-                  </div>
-                  <ChevronRight v-if="route.path.startsWith('/crm')" class="h-4 w-4" />
-                </RouterLink>
-
-                <RouterLink
-                  to="/customers"
-                  @click="isMobileSidebarOpen = false"
-                  class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                  :class="
-                    route.path === '/customers'
-                      ? 'bg-primary-50 text-primary-600 shadow-sm'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  "
-                >
-                  <div class="flex items-center gap-3">
-                    <Users class="h-5 w-5" />
-                    <span>Customers</span>
-                  </div>
-                </RouterLink>
-
-                <RouterLink
-                  to="/leads"
-                  @click="isMobileSidebarOpen = false"
-                  class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                  :class="
-                    route.path === '/leads'
-                      ? 'bg-primary-50 text-primary-600 shadow-sm'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  "
-                >
-                  <div class="flex items-center gap-3">
-                    <Users class="h-5 w-5" />
-                    <span>Leads</span>
-                  </div>
-                </RouterLink>
-
-                <RouterLink
-                  to="/prospects"
-                  @click="isMobileSidebarOpen = false"
-                  class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                  :class="
-                    route.path === '/prospects'
-                      ? 'bg-primary-50 text-primary-600 shadow-sm'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  "
-                >
-                  <div class="flex items-center gap-3">
-                    <Users class="h-5 w-5" />
-                    <span>Prospects</span>
-                  </div>
-                </RouterLink>
-
-                <RouterLink
-                  to="/crm/quotations"
-                  @click="isMobileSidebarOpen = false"
-                  class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                  :class="
-                    route.path === '/crm/quotations'
-                      ? 'bg-primary-50 text-primary-600 shadow-sm'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  "
-                >
-                  <div class="flex items-center gap-3">
-                    <Box class="h-5 w-5" />
-                    <span>Quotations</span>
-                  </div>
-                </RouterLink>
-
-                <RouterLink
-                  to="/crm/pipelines"
-                  @click="isMobileSidebarOpen = false"
-                  class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                  :class="
-                    route.path === '/crm/pipelines'
-                      ? 'bg-primary-50 text-primary-600 shadow-sm'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  "
-                >
-                  <div class="flex items-center gap-3">
-                    <LayoutGrid class="h-5 w-5" />
-                    <span>Pipelines</span>
-                  </div>
-                </RouterLink>
-
-                <div class="pt-4 pb-2">
-                  <p
-                    class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-3"
-                  >
-                    HRM Module
-                  </p>
+                <template v-if="activeModule === 'crm'">
                   <RouterLink
-                    to="/hrm/departments"
+                    to="/crm"
                     @click="isMobileSidebarOpen = false"
                     class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
                     :class="
-                      route.path === '/hrm/departments'
+                      route.path === '/crm'
                         ? 'bg-primary-50 text-primary-600 shadow-sm'
                         : 'text-gray-600 hover:bg-gray-50'
                     "
                   >
                     <div class="flex items-center gap-3">
-                      <Zap class="h-5 w-5" />
-                      <span>Departments</span>
+                      <LayoutDashboard class="h-5 w-5" />
+                      <span>CRM Dashboard</span>
                     </div>
                   </RouterLink>
+
                   <RouterLink
-                    to="/hrm/employees"
+                    to="/customers"
                     @click="isMobileSidebarOpen = false"
                     class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
                     :class="
-                      route.path === '/hrm/employees'
+                      route.path.startsWith('/customers')
                         ? 'bg-primary-50 text-primary-600 shadow-sm'
                         : 'text-gray-600 hover:bg-gray-50'
                     "
                   >
                     <div class="flex items-center gap-3">
                       <Users class="h-5 w-5" />
-                      <span>Employees</span>
+                      <span>Customers</span>
                     </div>
                   </RouterLink>
-                </div>
+
+                  <RouterLink
+                    to="/leads"
+                    @click="isMobileSidebarOpen = false"
+                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                    :class="
+                      route.path.startsWith('/leads')
+                        ? 'bg-primary-50 text-primary-600 shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    "
+                  >
+                    <div class="flex items-center gap-3">
+                      <Users class="h-5 w-5" />
+                      <span>Leads</span>
+                    </div>
+                  </RouterLink>
+
+                  <RouterLink
+                    to="/prospects"
+                    @click="isMobileSidebarOpen = false"
+                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                    :class="
+                      route.path.startsWith('/prospects')
+                        ? 'bg-primary-50 text-primary-600 shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    "
+                  >
+                    <div class="flex items-center gap-3">
+                      <Users class="h-5 w-5" />
+                      <span>Prospects</span>
+                    </div>
+                  </RouterLink>
+
+                  <RouterLink
+                    to="/crm/quotations"
+                    @click="isMobileSidebarOpen = false"
+                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                    :class="
+                      route.path.startsWith('/crm/quotations')
+                        ? 'bg-primary-50 text-primary-600 shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    "
+                  >
+                    <div class="flex items-center gap-3">
+                      <Box class="h-5 w-5" />
+                      <span>Quotations</span>
+                    </div>
+                  </RouterLink>
+
+                  <RouterLink
+                    to="/crm/pipelines"
+                    @click="isMobileSidebarOpen = false"
+                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                    :class="
+                      route.path.startsWith('/crm/pipelines')
+                        ? 'bg-primary-50 text-primary-600 shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    "
+                  >
+                    <div class="flex items-center gap-3">
+                      <LayoutGrid class="h-5 w-5" />
+                      <span>Pipelines</span>
+                    </div>
+                  </RouterLink>
+                </template>
+
+                <template v-if="activeModule === 'hrm'">
+                  <div class="pt-2 pb-2">
+                    <RouterLink
+                      to="/hrm/departments"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="
+                        route.path.startsWith('/hrm/departments')
+                          ? 'bg-primary-50 text-primary-600 shadow-sm'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      "
+                    >
+                      <div class="flex items-center gap-3">
+                        <Zap class="h-5 w-5" />
+                        <span>Departments</span>
+                      </div>
+                    </RouterLink>
+                    <div class="mt-1"></div>
+                    <RouterLink
+                      to="/hrm/employees"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="
+                        route.path.startsWith('/hrm/employees')
+                          ? 'bg-primary-50 text-primary-600 shadow-sm'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      "
+                    >
+                      <div class="flex items-center gap-3">
+                        <Users class="h-5 w-5" />
+                        <span>Employees</span>
+                      </div>
+                    </RouterLink>
+                  </div>
+                </template>
               </div>
             </div>
           </nav>
@@ -240,70 +239,69 @@
 
         <!-- Navigation -->
         <nav class="hidden md:flex items-center gap-1">
-          <RouterLink
-            to="/crm"
-            class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{
-              'bg-primary-50 text-primary-600':
-                route.path === '/crm' || route.path.startsWith('/crm/'),
-            }"
-          >
-            CRM
-          </RouterLink>
-          <RouterLink
-            to="/customers"
-            class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{ 'bg-primary-50 text-primary-600': route.path === '/customers' }"
-          >
-            Customers
-          </RouterLink>
-          <RouterLink
-            to="/leads"
-            class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{ 'bg-primary-50 text-primary-600': route.path === '/leads' }"
-          >
-            Leads
-          </RouterLink>
-          <RouterLink
-            to="/prospects"
-            class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{ 'bg-primary-50 text-primary-600': route.path === '/prospects' }"
-          >
-            Prospects
-          </RouterLink>
-          <RouterLink
-            to="/crm/quotations"
-            class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{ 'bg-primary-50 text-primary-600': route.path === '/crm/quotations' }"
-          >
-            Quotations
-          </RouterLink>
-          <RouterLink
-            to="/crm/pipelines"
-            class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{ 'bg-primary-50 text-primary-600': route.path === '/crm/pipelines' }"
-          >
-            Pipelines
-          </RouterLink>
-          <div class="border-t border-gray-200 my-2 pt-2">
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-4">
-              HRM Module
-            </p>
+          <template v-if="activeModule === 'crm'">
+            <RouterLink
+              to="/crm"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              :class="{
+                'bg-primary-50 text-primary-600': route.path === '/crm',
+              }"
+            >
+              Dashboard
+            </RouterLink>
+            <RouterLink
+              to="/customers"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/customers') }"
+            >
+              Customers
+            </RouterLink>
+            <RouterLink
+              to="/leads"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/leads') }"
+            >
+              Leads
+            </RouterLink>
+            <RouterLink
+              to="/prospects"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/prospects') }"
+            >
+              Prospects
+            </RouterLink>
+            <RouterLink
+              to="/crm/quotations"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/crm/quotations') }"
+            >
+              Quotations
+            </RouterLink>
+            <RouterLink
+              to="/crm/pipelines"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/crm/pipelines') }"
+            >
+              Pipelines
+            </RouterLink>
+          </template>
+
+          <template v-if="activeModule === 'hrm'">
             <RouterLink
               to="/hrm/departments"
               class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
-              :class="{ 'bg-primary-50 text-primary-600': route.path === '/hrm/departments' }"
+              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/departments') }"
             >
               Departments
             </RouterLink>
             <RouterLink
               to="/hrm/employees"
               class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
-              :class="{ 'bg-primary-50 text-primary-600': route.path === '/hrm/employees' }"
+              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/employees') }"
             >
               Employees
             </RouterLink>
-          </div>
+          </template>
         </nav>
 
         <!-- User Menu -->
@@ -349,7 +347,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter, useRoute, RouterLink } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import Breadcrumb from "@/components/common/Breadcrumb.vue";
@@ -368,6 +366,18 @@ const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const showUserMenu = ref(false);
+
+const activeModule = computed(() => {
+  const p = route.path;
+  if (p.startsWith('/hrm')) return 'hrm';
+  if (
+    p.startsWith('/crm') || 
+    p.startsWith('/customers') || 
+    p.startsWith('/leads') || 
+    p.startsWith('/prospects')
+  ) return 'crm';
+  return 'dashboard';
+});
 
 // Mobile Sidebar Logic
 const isMobileSidebarOpen = ref(false);
