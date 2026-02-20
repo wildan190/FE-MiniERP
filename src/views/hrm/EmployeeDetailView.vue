@@ -310,7 +310,7 @@ import Spinner from "../../components/common/Spinner.vue";
 import MobileActions from "../../components/common/MobileActions.vue";
 import CreateEmployeeModal from "../../components/hrm/CreateEmployeeModal.vue";
 import { useEmployeeStore } from "../../stores/employee";
-import type { Employee, UpdateEmployeeRequest } from "../../services/hrm/types/employee.types";
+import type { Employee, UpdateEmployeeRequest, CreateEmployeeRequest } from "../../services/hrm/types/employee.types";
 
 const route = useRoute();
 const employeeStore = useEmployeeStore();

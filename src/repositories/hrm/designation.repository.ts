@@ -1,7 +1,7 @@
 import {
   designationService,
   type DesignationListResponse,
-} from '@/services/hrm'
+} from '../../services/hrm'
 
 export class DesignationRepository {
   async getDesignations(): Promise<DesignationListResponse> {
