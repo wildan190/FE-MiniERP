@@ -286,6 +286,19 @@ const router = createRouter({
           ] 
         },
       },
+      {
+        path: '/hrm/attendances',
+        name: 'hrm-attendances',
+        component: () => import('@/pages/AttendancesPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Attendances' }
+          ] 
+        },
+      },
   ],
 })
 
