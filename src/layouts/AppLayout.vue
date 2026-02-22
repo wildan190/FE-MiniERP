@@ -1,8 +1,8 @@
 <template>
   <div
     class="min-h-screen bg-gray-50 overflow-x-hidden"
-    @touchstart="handleTouchStart"
-    @touchmove="handleTouchMove"
+    @touchstart.passive="handleTouchStart"
+    @touchmove.passive="handleTouchMove"
     @touchend="handleTouchEnd"
   >
     <!-- Gesture Hint (Mobile Only) -->
@@ -260,6 +260,22 @@
                         <span>Office Locations</span>
                       </div>
                     </RouterLink>
+                    <div class="mt-1"></div>
+                    <RouterLink
+                      to="/hrm/attendances"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="
+                        route.path.startsWith('/hrm/attendances')
+                          ? 'bg-primary-50 text-primary-600 shadow-sm'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      "
+                    >
+                      <div class="flex items-center gap-3">
+                        <Clock class="h-5 w-5" />
+                        <span>Attendance</span>
+                      </div>
+                    </RouterLink>
                   </div>
                 </template>
               </div>
@@ -417,6 +433,13 @@
             >
               Reports
             </RouterLink>
+            <RouterLink
+              to="/hrm/attendances"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
+              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/attendances') }"
+            >
+              Attendance
+            </RouterLink>
           </template>
         </nav>
 
@@ -481,6 +504,7 @@ import {
   ClipboardList,
   BarChart3,
   MapPin,
+  Clock,
 } from "lucide-vue-next";
 
 const router = useRouter();
