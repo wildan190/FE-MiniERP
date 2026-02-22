@@ -1,9 +1,54 @@
 <template>
   <AppLayout>
     <div class="max-w-7xl mx-auto px-4 py-8">
-      <div v-if="loading" class="flex flex-col items-center justify-center py-20">
-        <Spinner class="w-10 h-10 text-primary-600" />
-        <p class="mt-4 text-gray-500 font-medium">Loading department details...</p>
+      <!-- Loading State -->
+      <div v-if="loading" class="space-y-6">
+        <!-- Header Skeleton -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div class="flex items-center gap-4">
+            <Skeleton width="4rem" height="4rem" borderRadius="0.5rem" />
+            <div class="space-y-2">
+              <Skeleton width="15rem" height="2rem" />
+              <div class="flex gap-2">
+                <Skeleton width="8rem" height="1rem" />
+                <Skeleton width="12rem" height="1rem" />
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2 w-full sm:w-auto">
+            <Skeleton width="8rem" height="2.5rem" />
+            <Skeleton width="6rem" height="2.5rem" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-6">
+            <Card>
+              <Skeleton width="15rem" height="1.5rem" customClass="mb-6" />
+              <div class="space-y-6">
+                <div class="space-y-2">
+                  <Skeleton width="5rem" height="0.75rem" />
+                  <Skeleton width="12rem" height="1.25rem" />
+                </div>
+                <div class="space-y-2">
+                  <Skeleton width="7rem" height="0.75rem" />
+                  <Skeleton width="100%" height="4rem" />
+                </div>
+              </div>
+            </Card>
+          </div>
+          <div class="space-y-6">
+            <Card>
+              <Skeleton width="8rem" height="1.5rem" customClass="mb-4" />
+              <div class="space-y-4">
+                <div v-for="i in 4" :key="i" class="space-y-2">
+                  <Skeleton width="5rem" height="0.75rem" />
+                  <Skeleton width="8rem" height="1rem" />
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
 
       <div v-else-if="department" class="space-y-6">
@@ -123,7 +168,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import AppLayout from '../../layouts/AppLayout.vue'
 import Card from '../../components/common/Card.vue'
-import Spinner from '../../components/common/Spinner.vue'
+import Skeleton from '../../components/common/Skeleton.vue'
 import CreateDepartmentModal from '../../components/hrm/CreateDepartmentModal.vue'
 import { departmentRepository } from '../../repositories/hrm/department.repository'
 import type { Department, CreateDepartmentRequest } from '../../services/hrm/types/department.types'

@@ -5,44 +5,59 @@
       <table class="w-full">
         <thead>
           <tr class="border-b border-gray-200">
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-            >
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Employee
             </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-            >
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Department
             </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-            >
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Designation
             </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-            >
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Status
             </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-            >
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Joining Date
             </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider text-right"
-            >
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider text-right">
               Actions
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="employee in employees"
-            :key="employee.id"
-            class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-          >
+          <!-- Loading State -->
+          <template v-if="loading">
+            <tr v-for="i in 5" :key="i" class="border-b border-gray-100">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <Skeleton width="2.5rem" height="2.5rem" />
+                  <div class="space-y-2">
+                    <Skeleton width="10rem" height="1rem" />
+                    <Skeleton width="6rem" height="0.75rem" />
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4"><Skeleton width="8rem" height="1rem" /></td>
+              <td class="px-6 py-4"><Skeleton width="10rem" height="1rem" /></td>
+              <td class="px-6 py-4"><Skeleton width="4rem" height="1.25rem" /></td>
+              <td class="px-6 py-4"><Skeleton width="7rem" height="1rem" /></td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex justify-end gap-2">
+                  <Skeleton width="3rem" height="1rem" />
+                  <Skeleton width="3rem" height="1rem" />
+                  <Skeleton width="3rem" height="1rem" />
+                </div>
+              </td>
+            </tr>
+          </template>
+
+          <template v-else>
+            <tr
+              v-for="employee in employees"
+              :key="employee.id"
+              class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            >
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center gap-3">
                 <div
@@ -98,14 +113,41 @@
                 Delete
               </button>
             </td>
-          </tr>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
 
     <!-- Mobile Card View -->
     <div class="md:hidden">
-      <div v-for="employee in employees" :key="employee.id" class="border-b border-gray-200">
+      <!-- Loading State -->
+      <template v-if="loading">
+        <div v-for="i in 3" :key="i" class="border-b border-gray-200 p-4 space-y-4">
+          <div class="flex items-center gap-3">
+            <Skeleton width="2.5rem" height="2.5rem" />
+            <div class="space-y-2">
+              <Skeleton width="12rem" height="1rem" />
+              <Skeleton width="8rem" height="0.75rem" />
+            </div>
+          </div>
+          <div class="space-y-2">
+            <Skeleton width="100%" height="0.875rem" />
+            <Skeleton width="80%" height="0.875rem" />
+            <Skeleton width="40%" height="1.25rem" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <Skeleton width="100%" height="2.5rem" />
+            <div class="flex gap-2">
+              <Skeleton width="50%" height="2.5rem" />
+              <Skeleton width="50%" height="2.5rem" />
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template v-else>
+        <div v-for="employee in employees" :key="employee.id" class="border-b border-gray-200">
         <div class="p-4">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-3">
@@ -164,12 +206,13 @@
               </button>
             </div>
           </div>
+          </div>
         </div>
-      </div>
+      </template>
     </div>
 
     <!-- Empty State -->
-    <div v-if="employees.length === 0" class="text-center py-12">
+    <div v-if="!loading && employees.length === 0" class="text-center py-12">
       <div class="bg-gray-50 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
         <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -190,9 +233,11 @@
 import { RouterLink } from "vue-router";
 import type { Employee } from "../../services/hrm/types/employee.types";
 import Card from "../common/Card.vue";
+import Skeleton from "../common/Skeleton.vue";
 
 interface Props {
   employees: Employee[];
+  loading?: boolean;
 }
 
 defineProps<Props>();

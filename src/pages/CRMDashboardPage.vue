@@ -6,11 +6,71 @@
       <p class="text-gray-600">Pantau metrik penjualan dan customer relationship Anda</p>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="dashboardStore.isLoading" class="flex items-center justify-center py-12">
-      <div class="flex flex-col items-center gap-4">
-        <Spinner />
-        <p class="text-gray-600">Loading CRM data...</p>
+    <!-- Skeleton Loading State -->
+    <div v-if="dashboardStore.isLoading" class="space-y-8">
+      <!-- KPI Skeletons -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card v-for="i in 4" :key="i" class="relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <div class="space-y-2">
+              <Skeleton width="6rem" height="0.75rem" />
+              <Skeleton width="4rem" height="2rem" />
+            </div>
+            <Skeleton width="3rem" height="3rem" borderRadius="0.5rem" />
+          </div>
+          <Skeleton width="8rem" height="0.75rem" customClass="mt-3" />
+        </Card>
+      </div>
+
+      <!-- Revenue Skeletons -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <Skeleton width="10rem" height="1.25rem" customClass="mb-6" />
+          <div class="space-y-4">
+            <div class="p-4 border border-gray-100 rounded-lg flex justify-between">
+              <div class="space-y-2">
+                <div class="flex flex-col gap-1">
+                  <Skeleton width="6rem" height="0.75rem" />
+                  <Skeleton width="4rem" height="1.5rem" />
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="flex flex-col gap-1 items-end">
+                  <Skeleton width="3rem" height="0.75rem" />
+                  <Skeleton width="6rem" height="1.25rem" />
+                </div>
+              </div>
+            </div>
+            <Skeleton width="100%" height="4.5rem" borderRadius="0.5rem" />
+          </div>
+        </Card>
+        <Card>
+          <Skeleton width="10rem" height="1.25rem" customClass="mb-6" />
+          <div class="space-y-3">
+            <div v-for="i in 4" :key="i" class="p-4 border border-gray-100 rounded-lg flex justify-between">
+              <div class="flex items-center gap-3">
+                <Skeleton width="0.75rem" height="0.75rem" borderRadius="9999px" />
+                <div class="space-y-1">
+                  <Skeleton width="5rem" height="0.75rem" />
+                  <Skeleton width="3rem" height="0.5rem" />
+                </div>
+              </div>
+              <div class="text-right space-y-1">
+                <Skeleton width="2rem" height="1rem" customClass="ml-auto" />
+                <Skeleton width="2rem" height="0.5rem" customClass="ml-auto" />
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <!-- Summary Skeletons -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card v-for="i in 3" :key="i" class="flex flex-col items-center py-6">
+          <Skeleton width="8rem" height="0.75rem" />
+          <Skeleton width="5rem" height="2.5rem" customClass="mt-3" />
+          <Skeleton width="10rem" height="0.75rem" customClass="mt-2" />
+        </Card>
       </div>
     </div>
 
@@ -22,8 +82,8 @@
       class="mb-6"
     />
 
-    <!-- Metrics Grid -->
-    <div v-if="crmData && !dashboardStore.isLoading" class="space-y-8">
+    <!-- KPI Cards -->
+    <div v-else-if="crmData" class="space-y-8">
       <!-- KPI Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Total Customers -->
@@ -236,9 +296,8 @@ import { computed, onMounted } from "vue";
 import { useDashboardStore } from "@/stores/dashboard";
 import AppLayout from "@/layouts/AppLayout.vue";
 import Card from "@/components/common/Card.vue";
-import Button from "@/components/common/Button.vue";
 import Alert from "@/components/common/Alert.vue";
-import Spinner from "@/components/common/Spinner.vue";
+import Skeleton from "@/components/common/Skeleton.vue";
 
 const dashboardStore = useDashboardStore();
 

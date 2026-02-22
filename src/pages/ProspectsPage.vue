@@ -27,39 +27,47 @@
           <Card>
             <div class="text-center">
               <p class="text-sm text-gray-500 font-medium">Total Prospects</p>
-              <p class="text-2xl font-bold text-gray-900 mt-1">{{ prospectStore.totalProspects }}</p>
+              <div v-if="prospectStore.isLoading" class="mt-2 flex justify-center">
+                <Skeleton width="4rem" height="1.75rem" />
+              </div>
+              <p v-else class="text-2xl font-bold text-gray-900 mt-1">{{ prospectStore.totalProspects }}</p>
             </div>
           </Card>
           <Card>
             <div class="text-center">
               <p class="text-sm text-gray-500 font-medium">In Negotiation</p>
-              <p class="text-2xl font-bold text-orange-600 mt-1">{{ countByStatus('negotiation') }}</p>
+              <div v-if="prospectStore.isLoading" class="mt-2 flex justify-center">
+                <Skeleton width="3rem" height="1.75rem" />
+              </div>
+              <p v-else class="text-2xl font-bold text-orange-600 mt-1">{{ countByStatus('negotiation') }}</p>
             </div>
           </Card>
           <Card>
             <div class="text-center">
               <p class="text-sm text-gray-500 font-medium">Won This Month</p>
-              <p class="text-2xl font-bold text-green-600 mt-1">{{ countByStatus('won') }}</p>
+              <div v-if="prospectStore.isLoading" class="mt-2 flex justify-center">
+                <Skeleton width="3rem" height="1.75rem" />
+              </div>
+              <p v-else class="text-2xl font-bold text-green-600 mt-1">{{ countByStatus('won') }}</p>
             </div>
           </Card>
           <Card>
             <div class="text-center">
               <p class="text-sm text-gray-500 font-medium">Conversion Rate</p>
-              <p class="text-2xl font-bold text-primary-600 mt-1">{{ conversionRate }}%</p>
+              <div v-if="prospectStore.isLoading" class="mt-2 flex justify-center">
+                <Skeleton width="4rem" height="1.75rem" />
+              </div>
+              <p v-else class="text-2xl font-bold text-primary-600 mt-1">{{ conversionRate }}%</p>
             </div>
           </Card>
         </div>
 
         <!-- Main Content -->
         <div class="space-y-4">
-          <div v-if="prospectStore.isLoading && prospectStore.isEmpty" class="flex flex-col items-center justify-center py-20 bg-white rounded-xl shadow-sm border border-gray-100">
-            <Spinner class="w-10 h-10 text-primary-600" />
-            <p class="mt-4 text-gray-500 font-medium">Loading prospects...</p>
-          </div>
-
-          <template v-else>
+          <div>
             <ProspectTable
               :prospects="prospectStore.prospects"
+              :loading="prospectStore.isLoading"
               @view="handleViewProspect"
               @updateStatus="handleOpenStatusModal"
               @delete="handleDeleteProspect"
@@ -67,7 +75,7 @@
 
             <!-- Pagination -->
             <ResponsivePagination
-              v-if="prospectStore.totalPages > 1"
+              v-if="!prospectStore.isLoading && prospectStore.totalPages > 1"
               :current-page="prospectStore.currentPage"
               :last-page="prospectStore.totalPages"
               :from="(prospectStore.currentPage - 1) * 10 + 1"
@@ -76,7 +84,7 @@
               :links="prospectStore.paginationLinks"
               @page-change="prospectStore.fetchProspects"
             />
-          </template>
+          </div>
         </div>
       </div>
     </div>
@@ -149,9 +157,8 @@ import { useRouter } from 'vue-router'
 import { useProspectStore } from '../stores/prospect'
 import AppLayout from '../layouts/AppLayout.vue'
 import Card from '../components/common/Card.vue'
-import Button from '../components/common/Button.vue'
 import Alert from '../components/common/Alert.vue'
-import Spinner from '../components/common/Spinner.vue'
+import Skeleton from '../components/common/Skeleton.vue'
 import ProspectTable from '../components/crm/ProspectTable.vue'
 import CreateProspectModal from '../components/crm/CreateProspectModal.vue'
 import MobileActions from '../components/common/MobileActions.vue'

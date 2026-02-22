@@ -42,8 +42,11 @@
           </div>
         </div>
 
-        <div v-if="reportStore.loadingTurnover" class="flex justify-center py-10">
-          <Spinner />
+        <div v-if="reportStore.loadingTurnover" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <Card v-for="i in 5" :key="i" class="p-5 flex flex-col items-center">
+            <Skeleton width="4rem" height="0.75rem" customClass="mb-2" />
+            <Skeleton width="3rem" height="2rem" />
+          </Card>
         </div>
 
         <div v-else-if="turnover" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -113,8 +116,21 @@
           </div>
         </div>
 
-        <div v-if="reportStore.loadingLaborCost" class="flex justify-center py-10">
-          <Spinner />
+        <div v-if="reportStore.loadingLaborCost" class="space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Card v-for="i in 3" :key="i" class="p-6 flex flex-col items-center">
+              <Skeleton width="6rem" height="0.75rem" customClass="mb-2" />
+              <Skeleton width="8rem" height="2rem" />
+            </Card>
+          </div>
+          <Card class="p-6 space-y-4">
+            <Skeleton width="10rem" height="1rem" customClass="mb-4" />
+            <div v-for="i in 6" :key="i" class="flex items-center gap-4">
+              <Skeleton width="6rem" height="1rem" />
+              <Skeleton width="100%" height="1.75rem" borderRadius="9999px" />
+              <Skeleton width="6rem" height="1rem" />
+            </div>
+          </Card>
         </div>
 
         <div v-else-if="laborCost" class="space-y-6">
@@ -203,7 +219,7 @@
 import { ref, computed, onMounted } from 'vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import Card from '../components/common/Card.vue'
-import Spinner from '../components/common/Spinner.vue'
+import Skeleton from '../components/common/Skeleton.vue'
 import { TrendingUp, DollarSign, RefreshCw, BarChart3, Building2, UserPlus, LogOut, UserMinus, Users } from 'lucide-vue-next'
 import { useHrmReportStore } from '../stores/hrm-report'
 import type { TurnoverStatistics, LaborCostStatistics } from '../services/hrm/types/hrm-report.types'

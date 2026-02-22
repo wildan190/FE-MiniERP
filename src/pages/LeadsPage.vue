@@ -33,7 +33,10 @@
               </div>
               <div>
                 <p class="text-sm font-medium text-gray-500">Total Leads</p>
-                <p class="text-2xl font-bold text-gray-900">{{ leadStore.totalLeads }}</p>
+                <div v-if="leadStore.isLoading" class="mt-1">
+                  <Skeleton width="4rem" height="1.75rem" />
+                </div>
+                <p v-else class="text-2xl font-bold text-gray-900">{{ leadStore.totalLeads }}</p>
               </div>
             </div>
           </Card>
@@ -46,7 +49,10 @@
               </div>
               <div>
                 <p class="text-sm font-medium text-gray-500">Active Sources</p>
-                <p class="text-2xl font-bold text-gray-900">{{ activeSourcesCount }}</p>
+                <div v-if="leadStore.isLoading" class="mt-1">
+                  <Skeleton width="3rem" height="1.75rem" />
+                </div>
+                <p v-else class="text-2xl font-bold text-gray-900">{{ activeSourcesCount }}</p>
               </div>
             </div>
           </Card>
@@ -60,7 +66,10 @@
                 </div>
                 <div>
                   <p class="text-sm font-medium text-gray-500">Recent Leads (24h)</p>
-                  <p class="text-2xl font-bold text-gray-900">{{ recentLeadsCount }}</p>
+                  <div v-if="leadStore.isLoading" class="mt-1">
+                    <Skeleton width="3rem" height="1.75rem" />
+                  </div>
+                  <p v-else class="text-2xl font-bold text-gray-900">{{ recentLeadsCount }}</p>
                 </div>
               </div>
             </Card>
@@ -69,14 +78,10 @@
 
         <!-- Main Content -->
         <div class="space-y-4">
-          <div v-if="leadStore.isLoading && leadStore.isEmpty" class="flex flex-col items-center justify-center py-20 bg-white rounded-xl shadow-sm border border-gray-100">
-            <Spinner class="w-10 h-10 text-primary-600" />
-            <p class="mt-4 text-gray-500 font-medium">Loading leads...</p>
-          </div>
-
-          <template v-else>
+          <div>
             <LeadTable
               :leads="leadStore.leads"
+              :loading="leadStore.isLoading"
               @view="handleViewLead"
               @convert="handleConvertLead"
               @edit="handleEditLead"
@@ -85,7 +90,7 @@
 
             <!-- Pagination -->
             <ResponsivePagination
-              v-if="leadStore.totalPages > 1"
+              v-if="!leadStore.isLoading && leadStore.totalPages > 1"
               :current-page="leadStore.currentPage"
               :last-page="leadStore.totalPages"
               :from="(leadStore.currentPage - 1) * 10 + 1"
@@ -94,7 +99,7 @@
               :links="leadStore.paginationLinks"
               @page-change="leadStore.fetchLeads"
             />
-          </template>
+          </div>
         </div>
       </div>
     </div>
@@ -123,9 +128,8 @@ import Swal from 'sweetalert2'
 import { useLeadStore } from '../stores/lead'
 import AppLayout from '../layouts/AppLayout.vue'
 import Card from '../components/common/Card.vue'
-import Button from '../components/common/Button.vue'
 import Alert from '../components/common/Alert.vue'
-import Spinner from '../components/common/Spinner.vue'
+import Skeleton from '../components/common/Skeleton.vue'
 import LeadTable from '../components/crm/LeadTable.vue'
 import CreateLeadModal from '../components/crm/CreateLeadModal.vue'
 import MobileActions from '../components/common/MobileActions.vue'

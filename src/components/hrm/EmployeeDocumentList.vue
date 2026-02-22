@@ -12,8 +12,26 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center py-8">
-      <Spinner />
+    <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div v-for="i in 3" :key="i" class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-3">
+            <Skeleton width="2.5rem" height="2.5rem" borderRadius="0.5rem" />
+            <div class="space-y-1">
+              <Skeleton width="4rem" height="0.875rem" />
+              <Skeleton width="8rem" height="0.75rem" />
+            </div>
+          </div>
+          <div class="flex gap-1">
+            <Skeleton width="2rem" height="2rem" borderRadius="0.5rem" />
+            <Skeleton width="2rem" height="2rem" borderRadius="0.5rem" />
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+          <Skeleton width="6rem" height="0.75rem" />
+          <Skeleton width="4rem" height="0.75rem" />
+        </div>
+      </div>
     </div>
 
     <!-- Empty State -->
@@ -77,7 +95,7 @@
 
 <script setup lang="ts">
 import { Upload, FileText, Trash2, Calendar, Clock, Eye } from 'lucide-vue-next'
-import Spinner from '../common/Spinner.vue'
+import Skeleton from '../common/Skeleton.vue'
 import type { EmployeeDocument } from '../../services/hrm/types/employee-document.types'
 
 interface Props {

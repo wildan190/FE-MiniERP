@@ -21,34 +21,33 @@
         <Card>
           <div class="text-center">
             <p class="text-gray-600 text-sm">Total Designations</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">{{ pagination.total }}</p>
+            <div v-if="isLoading" class="flex justify-center mt-2">
+              <Skeleton width="4rem" height="2rem" />
+            </div>
+            <p v-else class="text-3xl font-bold text-gray-900 mt-2">{{ pagination.total }}</p>
           </div>
         </Card>
       </div>
 
       <!-- Designation List -->
       <div class="space-y-4">
-        <!-- Loading State -->
-        <div v-if="isLoading" class="flex justify-center py-12">
-          <Spinner />
-        </div>
-
         <!-- Error State -->
-        <div v-else-if="error" class="bg-red-50 border-l-4 border-red-500 p-4">
+        <div v-if="!isLoading && error" class="bg-red-50 border-l-4 border-red-500 p-4">
           <p class="text-sm text-red-700">{{ error }}</p>
         </div>
 
         <!-- Table -->
-        <div v-else>
+        <div>
           <DesignationTable
             :designations="designations"
+            :loading="isLoading"
             @edit="handleEdit"
             @delete="handleDelete"
           />
 
           <!-- Pagination -->
           <ResponsivePagination
-            v-if="pagination.total > 0"
+            v-if="!isLoading && pagination.total > 0"
             :current-page="pagination.current_page"
             :last-page="pagination.last_page"
             :from="pagination.from"
@@ -88,7 +87,7 @@ import { ref, onMounted } from "vue";
 import Swal from 'sweetalert2';
 import AppLayout from "../layouts/AppLayout.vue";
 import Card from "../components/common/Card.vue";
-import Spinner from "../components/common/Spinner.vue";
+import Skeleton from "../components/common/Skeleton.vue";
 import DesignationTable from "../components/hrm/DesignationTable.vue";
 import CreateDesignationModal from "../components/hrm/CreateDesignationModal.vue";
 import MobileActions from "../components/common/MobileActions.vue";

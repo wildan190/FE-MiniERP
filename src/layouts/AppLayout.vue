@@ -228,6 +228,7 @@
                       </div>
                     </RouterLink>
                     <div class="mt-1"></div>
+                    <div class="mt-1"></div>
                     <RouterLink
                       to="/hrm/employees"
                       @click="isMobileSidebarOpen = false"
@@ -241,6 +242,22 @@
                       <div class="flex items-center gap-3">
                         <Users class="h-5 w-5" />
                         <span>Employees</span>
+                      </div>
+                    </RouterLink>
+                    <div class="mt-1"></div>
+                    <RouterLink
+                      to="/hrm/office-locations"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="
+                        route.path.startsWith('/hrm/office-locations')
+                          ? 'bg-primary-50 text-primary-600 shadow-sm'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      "
+                    >
+                      <div class="flex items-center gap-3">
+                        <MapPin class="h-5 w-5" />
+                        <span>Office Locations</span>
                       </div>
                     </RouterLink>
                   </div>
@@ -373,6 +390,13 @@
               Employees
             </RouterLink>
             <RouterLink
+              to="/hrm/office-locations"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
+              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/office-locations') }"
+            >
+              Office Locations
+            </RouterLink>
+            <RouterLink
               to="/hrm/leave-types"
               class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
               :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/leave-types') }"
@@ -456,6 +480,7 @@ import {
   CalendarDays,
   ClipboardList,
   BarChart3,
+  MapPin,
 } from "lucide-vue-next";
 
 const router = useRouter();

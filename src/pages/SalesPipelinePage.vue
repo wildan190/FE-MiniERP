@@ -21,10 +21,10 @@
 
       <Card>
         <div>
-          <SalesPipelineTable :pipelines="store.pipelines" />
+          <SalesPipelineTable :pipelines="store.pipelines" :loading="store.isLoading" />
           
           <responsive-pagination
-            v-if="store.totalPages > 1"
+            v-if="!store.isLoading && store.totalPages > 1"
             :current-page="store.currentPage"
             :last-page="store.totalPages"
             :from="(store.currentPage - 1) * store.perPage + 1"

@@ -37,8 +37,76 @@
       />
 
       <!-- Loading State -->
-      <div v-if="isLoading" class="flex justify-center py-12">
-        <Spinner />
+      <div v-if="isLoading" class="space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2">
+            <Card>
+              <div class="flex items-start gap-6">
+                <Skeleton width="5rem" height="5rem" borderRadius="0.5rem" />
+                <div class="flex-1 space-y-3">
+                  <Skeleton width="15rem" height="2rem" />
+                  <Skeleton width="10rem" height="1rem" />
+                  <Skeleton width="12rem" height="1rem" />
+                  <div class="flex items-center gap-4 mt-3">
+                    <Skeleton width="6rem" height="1.5rem" borderRadius="9999px" />
+                    <Skeleton width="8rem" height="1rem" />
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+          <div>
+            <Card>
+              <Skeleton width="8rem" height="1.5rem" customClass="mb-4" />
+              <div class="space-y-3">
+                <div v-for="i in 3" :key="i" class="flex justify-between items-center">
+                  <Skeleton width="6rem" height="1rem" />
+                  <Skeleton width="8rem" height="1rem" />
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card v-for="i in 2" :key="i">
+            <Skeleton width="12rem" height="1.5rem" customClass="mb-4" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div v-for="j in 6" :key="j" class="space-y-2">
+                <Skeleton width="5rem" height="0.875rem" />
+                <Skeleton width="8rem" height="1.25rem" />
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card v-for="i in 2" :key="i">
+            <Skeleton width="12rem" height="1.5rem" customClass="mb-4" />
+            <div class="space-y-4">
+              <div v-for="j in 2" :key="j" class="space-y-2">
+                <Skeleton width="5rem" height="0.875rem" />
+                <Skeleton width="10rem" height="1.25rem" />
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div v-for="k in 2" :key="k" class="space-y-2">
+                  <Skeleton width="8rem" height="0.875rem" />
+                  <Skeleton width="10rem" height="1.25rem" />
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        <Card>
+          <Skeleton width="10rem" height="1.5rem" customClass="mb-4" />
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div v-for="i in 3" :key="i" class="space-y-2">
+              <Skeleton width="6rem" height="0.875rem" />
+              <Skeleton width="10rem" height="1.25rem" />
+            </div>
+          </div>
+        </Card>
       </div>
 
       <!-- Error State -->
@@ -337,7 +405,7 @@ import { ArrowLeft, Edit } from "lucide-vue-next";
 import Swal from "sweetalert2";
 import AppLayout from "../../layouts/AppLayout.vue";
 import Card from "../../components/common/Card.vue";
-import Spinner from "../../components/common/Spinner.vue";
+import Skeleton from "../../components/common/Skeleton.vue";
 import MobileActions from "../../components/common/MobileActions.vue";
 import CreateEmployeeModal from "../../components/hrm/CreateEmployeeModal.vue";
 import EmployeeDocumentList from "../../components/hrm/EmployeeDocumentList.vue";

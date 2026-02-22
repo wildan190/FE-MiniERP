@@ -21,37 +21,41 @@
         <Card>
           <div class="text-center">
             <p class="text-gray-600 text-sm">Total Employees</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">{{ pagination.total }}</p>
+            <div v-if="isLoading" class="flex justify-center mt-2">
+              <Skeleton width="4rem" height="2rem" />
+            </div>
+            <p v-else class="text-3xl font-bold text-gray-900 mt-2">{{ pagination.total }}</p>
           </div>
         </Card>
         <Card>
           <div class="text-center">
             <p class="text-gray-600 text-sm">Active Employees</p>
-            <p class="text-3xl font-bold text-green-600 mt-2">{{ activeEmployeesCount }}</p>
+            <div v-if="isLoading" class="flex justify-center mt-2">
+              <Skeleton width="3rem" height="2rem" />
+            </div>
+            <p v-else class="text-3xl font-bold text-green-600 mt-2">{{ activeEmployeesCount }}</p>
           </div>
         </Card>
         <Card>
           <div class="text-center">
             <p class="text-gray-600 text-sm">Departments</p>
-            <p class="text-3xl font-bold text-blue-600 mt-2">{{ uniqueDepartmentsCount }}</p>
+            <div v-if="isLoading" class="flex justify-center mt-2">
+              <Skeleton width="3rem" height="2rem" />
+            </div>
+            <p v-else class="text-3xl font-bold text-blue-600 mt-2">{{ uniqueDepartmentsCount }}</p>
           </div>
         </Card>
       </div>
 
       <!-- Employee List -->
       <div class="space-y-4">
-        <!-- Loading State -->
-        <div v-if="isLoading" class="flex justify-center py-12">
-          <Spinner />
-        </div>
-
         <!-- Table -->
-        <div v-else>
-          <EmployeeTable :employees="employees" @edit="handleEdit" @delete="handleDelete" />
+        <div>
+          <EmployeeTable :employees="employees" :loading="isLoading" @edit="handleEdit" @delete="handleDelete" />
 
           <!-- Pagination -->
           <ResponsivePagination
-            v-if="pagination.total > 0"
+            v-if="!isLoading && pagination.total > 0"
             :current-page="pagination.current_page"
             :last-page="pagination.last_page"
             :from="pagination.from"
@@ -91,7 +95,7 @@ import { ref, computed, onMounted } from "vue";
 import Swal from "sweetalert2";
 import AppLayout from "../layouts/AppLayout.vue";
 import Card from "../components/common/Card.vue";
-import Spinner from "../components/common/Spinner.vue";
+import Skeleton from "../components/common/Skeleton.vue";
 import EmployeeTable from "../components/hrm/EmployeeTable.vue";
 import CreateEmployeeModal from "../components/hrm/CreateEmployeeModal.vue";
 import MobileActions from "../components/common/MobileActions.vue";
