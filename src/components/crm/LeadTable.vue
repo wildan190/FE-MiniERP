@@ -25,7 +25,17 @@
             </th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody v-if="loading">
+          <tr v-for="i in 5" :key="i" class="border-b border-gray-100">
+            <td class="px-6 py-4 whitespace-nowrap"><Skeleton width="10rem" height="1.25rem" /></td>
+            <td class="px-6 py-4 whitespace-nowrap"><Skeleton width="8rem" height="1.25rem" /></td>
+            <td class="px-6 py-4 whitespace-nowrap"><Skeleton width="4rem" height="1.25rem" borderRadius="9999px" /></td>
+            <td class="px-6 py-4 whitespace-nowrap"><Skeleton width="4rem" height="1.25rem" borderRadius="9999px" /></td>
+            <td class="px-6 py-4 whitespace-nowrap"><Skeleton width="6rem" height="1.25rem" /></td>
+            <td class="px-6 py-4 whitespace-nowrap text-right"><Skeleton width="10rem" height="1.25rem" customClass="ml-auto" /></td>
+          </tr>
+        </tbody>
+        <tbody v-else class="bg-white divide-y divide-gray-200">
           <tr v-for="lead in leads" :key="lead.id" class="hover:bg-gray-50 transition-colors">
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="text-sm font-medium text-gray-900">{{ lead.lead_name }}</div>
@@ -57,7 +67,7 @@
             </td>
           </tr>
           <tr v-if="leads.length === 0">
-            <td colspan="4" class="px-6 py-10 text-center text-gray-500">
+            <td colspan="6" class="px-6 py-10 text-center text-gray-500">
               No leads found.
             </td>
           </tr>
@@ -67,78 +77,89 @@
 
     <!-- Mobile List (Accordion Style) -->
     <div class="md:hidden divide-y divide-gray-200">
-      <div v-for="lead in leads" :key="lead.id" class="p-4">
-        <div @click="toggleExpand(lead.id)" class="flex justify-between items-center cursor-pointer">
-          <div>
-            <p class="text-sm font-medium text-gray-900">{{ lead.lead_name }}</p>
-            <p class="text-xs text-gray-500">{{ lead.source }}</p>
+      <template v-if="loading">
+        <div v-for="i in 3" :key="i" class="p-4 flex items-center justify-between">
+          <div class="flex-1 space-y-2">
+            <Skeleton width="10rem" height="1rem" />
+            <Skeleton width="6rem" height="0.75rem" />
           </div>
-          <svg
-            :class="{ 'rotate-180': expandedItems.has(lead.id) }"
-            class="h-5 w-5 text-gray-400 transition-transform"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
+          <Skeleton width="1.25rem" height="1.25rem" />
         </div>
-
-        <div v-if="expandedItems.has(lead.id)" class="mt-4 space-y-3 pt-3 border-t border-gray-100">
-          <div class="grid grid-cols-2 gap-2 text-sm">
-            <div class="text-gray-500">Email:</div>
-            <div class="text-gray-900">{{ lead.email || '-' }}</div>
-            <div class="text-gray-500">Phone:</div>
-            <div class="text-gray-900">{{ lead.phone || '-' }}</div>
-            <div class="text-gray-500">Company:</div>
-            <div class="text-gray-900">{{ lead.company || '-' }}</div>
-            <div class="text-gray-500">Status:</div>
+      </template>
+      <template v-else>
+        <div v-for="lead in leads" :key="lead.id" class="p-4">
+          <div @click="toggleExpand(lead.id)" class="flex justify-between items-center cursor-pointer">
             <div>
-              <span 
-                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                :class="getStatusClass(lead.status)"
-              >
-                {{ lead.status }}
-              </span>
+              <p class="text-sm font-medium text-gray-900">{{ lead.lead_name }}</p>
+              <p class="text-xs text-gray-500">{{ lead.source }}</p>
             </div>
-            <div class="text-gray-500">Created At:</div>
-            <div class="text-gray-900">{{ formatDate(lead.created_at) }}</div>
+            <svg
+              :class="{ 'rotate-180': expandedItems.has(lead.id) }"
+              class="h-5 w-5 text-gray-400 transition-transform"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
-          <div v-if="lead.notes" class="text-sm">
-            <div class="text-gray-500 mb-1">Notes:</div>
-            <div class="text-gray-900 p-2 bg-gray-50 rounded italic">{{ lead.notes }}</div>
-          </div>
-          <div class="flex flex-wrap gap-2 pt-2">
-            <button
-              @click="$emit('view', lead)"
-              class="flex-1 py-2 px-4 border border-indigo-300 rounded-md text-sm font-medium text-indigo-700 bg-white hover:bg-indigo-50"
-            >
-              View
-            </button>
-            <button
-              @click="$emit('convert', lead)"
-              class="flex-1 py-2 px-4 border border-green-300 rounded-md text-sm font-medium text-green-700 bg-white hover:bg-green-50"
-            >
-              Convert
-            </button>
-            <button
-              @click="$emit('edit', lead)"
-              class="flex-1 py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-            >
-              Edit
-            </button>
-            <button
-              @click="$emit('delete', lead)"
-              class="flex-1 py-2 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </button>
+
+          <div v-if="expandedItems.has(lead.id)" class="mt-4 space-y-3 pt-3 border-t border-gray-100">
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div class="text-gray-500">Email:</div>
+              <div class="text-gray-900">{{ lead.email || '-' }}</div>
+              <div class="text-gray-500">Phone:</div>
+              <div class="text-gray-900">{{ lead.phone || '-' }}</div>
+              <div class="text-gray-500">Company:</div>
+              <div class="text-gray-900">{{ lead.company || '-' }}</div>
+              <div class="text-gray-500">Status:</div>
+              <div>
+                <span 
+                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                  :class="getStatusClass(lead.status)"
+                >
+                  {{ lead.status }}
+                </span>
+              </div>
+              <div class="text-gray-500">Created At:</div>
+              <div class="text-gray-900">{{ formatDate(lead.created_at) }}</div>
+            </div>
+            <div v-if="lead.notes" class="text-sm">
+              <div class="text-gray-500 mb-1">Notes:</div>
+              <div class="text-gray-900 p-2 bg-gray-50 rounded italic">{{ lead.notes }}</div>
+            </div>
+            <div class="flex flex-wrap gap-2 pt-2">
+              <button
+                @click="$emit('view', lead)"
+                class="flex-1 py-2 px-4 border border-indigo-300 rounded-md text-sm font-medium text-indigo-700 bg-white hover:bg-indigo-50"
+              >
+                View
+              </button>
+              <button
+                @click="$emit('convert', lead)"
+                class="flex-1 py-2 px-4 border border-green-300 rounded-md text-sm font-medium text-green-700 bg-white hover:bg-green-50"
+              >
+                Convert
+              </button>
+              <button
+                @click="$emit('edit', lead)"
+                class="flex-1 py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Edit
+              </button>
+              <button
+                @click="$emit('delete', lead)"
+                class="flex-1 py-2 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-if="leads.length === 0" class="px-4 py-10 text-center text-gray-500">
-        No leads found.
-      </div>
+        <div v-if="leads.length === 0" class="px-4 py-10 text-center text-gray-500">
+          No leads found.
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -147,8 +168,11 @@
 import { ref } from 'vue'
 import type { Lead } from '../../services'
 
+import Skeleton from '../common/Skeleton.vue'
+
 defineProps<{
   leads: Lead[]
+  loading?: boolean
 }>()
 
 defineEmits<{

@@ -1,9 +1,70 @@
 <template>
   <AppLayout>
     <div class="max-w-7xl mx-auto px-4 py-8">
-      <div v-if="loading" class="flex flex-col items-center justify-center py-20">
-        <Spinner class="w-10 h-10 text-primary-600" />
-        <p class="mt-4 text-gray-500 font-medium">Loading prospect details...</p>
+      <!-- Skeleton Loading State -->
+      <div v-if="loading" class="space-y-6">
+        <!-- Header Skeleton -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div class="flex items-center gap-4">
+            <Skeleton width="4rem" height="4rem" borderRadius="9999px" />
+            <div class="space-y-2">
+              <Skeleton width="18rem" height="2rem" />
+              <div class="flex flex-wrap gap-2">
+                <Skeleton width="5rem" height="1.25rem" borderRadius="9999px" />
+                <Skeleton width="8rem" height="1rem" />
+                <Skeleton width="10rem" height="1rem" />
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2 w-full sm:w-auto">
+            <Skeleton width="8rem" height="2.5rem" borderRadius="0.5rem" />
+            <Skeleton width="5rem" height="2.5rem" borderRadius="0.5rem" />
+          </div>
+        </div>
+
+        <!-- Stats Grid Skeleton -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card v-for="i in 3" :key="i">
+            <Skeleton width="6rem" height="0.75rem" />
+            <Skeleton width="8rem" height="1.75rem" customClass="mt-2" />
+          </Card>
+        </div>
+
+        <!-- Tabs Skeleton -->
+        <div class="hidden md:flex gap-4 border-b border-gray-200">
+          <div v-for="i in 5" :key="i" class="px-4 py-3">
+            <Skeleton width="5rem" height="1rem" />
+          </div>
+        </div>
+
+        <!-- Main Content Skeleton -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-6">
+            <Card>
+              <Skeleton width="12rem" height="1.5rem" customClass="mb-6" />
+              <div class="space-y-4">
+                <Skeleton width="6rem" height="0.75rem" />
+                <div class="space-y-2">
+                  <Skeleton width="100%" height="1rem" />
+                  <Skeleton width="95%" height="1rem" />
+                  <Skeleton width="60%" height="1rem" />
+                </div>
+              </div>
+            </Card>
+          </div>
+          <div class="space-y-6">
+            <Card>
+              <Skeleton width="10rem" height="1.5rem" customClass="mb-4" />
+              <div class="space-y-4">
+                <div v-for="i in 3" :key="i" class="space-y-2">
+                  <Skeleton width="8rem" height="1rem" />
+                  <Skeleton width="12rem" height="0.75rem" />
+                </div>
+                <Skeleton width="100%" height="2rem" borderRadius="0.5rem" customClass="mt-4" />
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
 
       <div v-else-if="prospect" class="space-y-6">
@@ -255,7 +316,7 @@ import { useProspectStore } from '../../stores/prospect'
 import AppLayout from '../../layouts/AppLayout.vue'
 import { crmServiceInstance } from '../../services/crm'
 import Card from '../../components/common/Card.vue'
-import Spinner from '../../components/common/Spinner.vue'
+import Skeleton from '../../components/common/Skeleton.vue'
 import CreateSalesPipelineModal from '../../components/crm/CreateSalesPipelineModal.vue'
 import QuotationTable from '../../components/crm/QuotationTable.vue'
 import OrderTable from '../../components/crm/OrderTable.vue'

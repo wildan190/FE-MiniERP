@@ -27,7 +27,29 @@
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody v-if="loading">
+          <tr v-for="i in 5" :key="i" class="border-b border-gray-100">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center gap-3">
+                <Skeleton width="2.5rem" height="2.5rem" borderRadius="9999px" />
+                <div class="space-y-2">
+                  <Skeleton width="10rem" height="1rem" />
+                  <Skeleton width="4rem" height="0.75rem" />
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <Skeleton width="12rem" height="1rem" />
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <Skeleton width="8rem" height="1rem" />
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <Skeleton width="3rem" height="1rem" />
+            </td>
+          </tr>
+        </tbody>
+        <tbody v-else>
           <tr
             v-for="customer in customers"
             :key="customer.id"
@@ -67,83 +89,97 @@
 
     <!-- Mobile Accordion List View -->
     <div class="md:hidden">
-      <div
-        v-for="customer in customers"
-        :key="customer.id"
-        class="border-b border-gray-200"
-      >
-        <!-- List Item Header (Always Visible) -->
-        <div
-          @click="toggleExpand(customer.id)"
-          class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors"
-        >
-          <div class="flex items-center gap-3 flex-1 min-w-0">
-            <div
-              class="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-primary-400 to-secondary-600 flex items-center justify-center text-white font-semibold text-sm"
-            >
-              {{ customer.name.charAt(0).toUpperCase() }}
+      <template v-if="loading">
+        <div v-for="i in 3" :key="i" class="border-b border-gray-200 p-4">
+          <div class="flex items-center gap-3">
+            <Skeleton width="2.5rem" height="2.5rem" borderRadius="9999px" />
+            <div class="flex-1 space-y-2">
+              <Skeleton width="10rem" height="1rem" />
+              <Skeleton width="6rem" height="0.75rem" />
             </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold text-gray-900 truncate">{{ customer.name }}</p>
-              <p class="text-xs text-gray-600 truncate">{{ customer.email }}</p>
-            </div>
+            <Skeleton width="1.25rem" height="1.25rem" />
           </div>
-          <svg
-            :class="{ 'rotate-180': expandedItems.has(customer.id) }"
-            class="h-5 w-5 text-gray-400 transition-transform flex-shrink-0 ml-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
         </div>
-
-        <!-- Expandable Details -->
+      </template>
+      <template v-else>
         <div
-          v-if="expandedItems.has(customer.id)"
-          class="px-4 pb-4 bg-gray-50 space-y-3"
+          v-for="customer in customers"
+          :key="customer.id"
+          class="border-b border-gray-200"
         >
-          <div class="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <p class="text-xs text-gray-500">Company</p>
-              <p class="font-medium text-gray-900">{{ customer.company_name || 'N/A' }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">Phone</p>
-              <p class="font-medium text-gray-900">{{ customer.phone || 'N/A' }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">Status</p>
-              <span
-                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize"
-                :class="{
-                  'bg-green-100 text-green-800': customer.status === 'active',
-                  'bg-gray-100 text-gray-800': customer.status === 'inactive',
-                  'bg-red-100 text-red-800': customer.status === 'blocked'
-                }"
+          <!-- List Item Header (Always Visible) -->
+          <div
+            @click="toggleExpand(customer.id)"
+            class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors"
+          >
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <div
+                class="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-primary-400 to-secondary-600 flex items-center justify-center text-white font-semibold text-sm"
               >
-                {{ customer.status || 'N/A' }}
-              </span>
+                {{ customer.name.charAt(0).toUpperCase() }}
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-gray-900 truncate">{{ customer.name }}</p>
+                <p class="text-xs text-gray-600 truncate">{{ customer.email }}</p>
+              </div>
             </div>
-            <div>
-              <p class="text-xs text-gray-500">Created</p>
-              <p class="font-medium text-gray-900">{{ formatDate(customer.created_at) }}</p>
-            </div>
+            <svg
+              :class="{ 'rotate-180': expandedItems.has(customer.id) }"
+              class="h-5 w-5 text-gray-400 transition-transform flex-shrink-0 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
-          
-          <router-link
-            :to="`/crm/customers/${customer.uuid || customer.id}`"
-            class="block w-full text-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
+
+          <!-- Expandable Details -->
+          <div
+            v-if="expandedItems.has(customer.id)"
+            class="px-4 pb-4 bg-gray-50 space-y-3"
           >
-            View Details
-          </router-link>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <p class="text-xs text-gray-500">Company</p>
+                <p class="font-medium text-gray-900">{{ customer.company_name || 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Phone</p>
+                <p class="font-medium text-gray-900">{{ customer.phone || 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Status</p>
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize"
+                  :class="{
+                    'bg-green-100 text-green-800': customer.status === 'active',
+                    'bg-gray-100 text-gray-800': customer.status === 'inactive',
+                    'bg-red-100 text-red-800': customer.status === 'blocked'
+                  }"
+                >
+                  {{ customer.status || 'N/A' }}
+                </span>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Created</p>
+                <p class="font-medium text-gray-900">{{ formatDate(customer.created_at) }}</p>
+              </div>
+            </div>
+            
+            <router-link
+              :to="`/crm/customers/${customer.uuid || customer.id}`"
+              class="block w-full text-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              View Details
+            </router-link>
+          </div>
         </div>
-      </div>
+      </template>
     </div>
 
     <!-- Empty State -->
-    <div v-if="customers.length === 0" class="text-center py-12">
+    <div v-if="!loading && customers.length === 0" class="text-center py-12">
       <svg
         class="mx-auto h-12 w-12 text-gray-400"
         fill="none"
@@ -167,9 +203,11 @@
 import { ref } from 'vue';
 import type { Customer } from "../../services";
 import Card from "../common/Card.vue";
+import Skeleton from "../common/Skeleton.vue";
 
 interface Props {
   customers: Customer[];
+  loading?: boolean;
 }
 
 defineProps<Props>();

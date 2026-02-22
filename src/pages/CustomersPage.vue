@@ -28,7 +28,10 @@
         <Card>
           <div class="text-center">
             <p class="text-gray-600 text-sm">Total Customers</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">{{ pagination.total }}</p>
+            <div v-if="isLoading" class="flex justify-center mt-2">
+              <Skeleton width="4rem" height="2rem" />
+            </div>
+            <p v-else class="text-3xl font-bold text-gray-900 mt-2">{{ pagination.total }}</p>
           </div>
         </Card>
       </div>
@@ -36,18 +39,12 @@
       <!-- Customer List -->
       <Card>
         <div class="space-y-4">
-           <!-- Loading State -->
-          <div v-if="isLoading" class="flex justify-center py-12">
-            <Spinner />
-          </div>
-
-          <!-- Customer Table -->
-          <div v-else>
-            <CustomerTable :customers="customers" />
+          <div>
+            <CustomerTable :customers="customers" :loading="isLoading" />
 
             <!-- Pagination -->
             <ResponsivePagination
-              v-if="pagination.total > 0"
+              v-if="!isLoading && pagination.total > 0"
               :current-page="pagination.current_page"
               :last-page="pagination.last_page"
               :from="pagination.from"
@@ -84,7 +81,7 @@
 import { ref, onMounted } from "vue";
 import AppLayout from "../layouts/AppLayout.vue";
 import Card from "../components/common/Card.vue";
-import Spinner from "../components/common/Spinner.vue";
+import Skeleton from "../components/common/Skeleton.vue";
 import CustomerTable from "../components/crm/CustomerTable.vue";
 import CreateCustomerModal from "../components/crm/CreateCustomerModal.vue";
 import MobileActions from "../components/common/MobileActions.vue";

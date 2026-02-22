@@ -13,7 +13,19 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody v-if="loading">
+            <tr v-for="i in 5" :key="i" class="border-b border-gray-100">
+              <td class="px-6 py-4 whitespace-nowrap"><Skeleton width="2rem" height="1rem" /></td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <Skeleton width="10rem" height="1.25rem" customClass="mb-1" />
+                <Skeleton width="6rem" height="0.75rem" />
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap"><Skeleton width="6rem" height="1.5rem" borderRadius="9999px" /></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><Skeleton width="8rem" height="1rem" /></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm"><Skeleton width="3rem" height="1.25rem" /></td>
+            </tr>
+          </tbody>
+          <tbody v-else>
             <tr
               v-for="pipeline in pipelines"
               :key="pipeline.id"
@@ -41,73 +53,96 @@
                 <span v-else class="text-gray-400">N/A</span>
               </td>
             </tr>
+            <tr v-if="pipelines.length === 0">
+              <td colspan="5" class="text-center py-12 px-4">
+                <div class="bg-gray-50 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h3 class="text-sm font-semibold text-gray-900">No sales pipelines</h3>
+                <p class="text-xs text-gray-500 mt-1 max-w-[200px] mx-auto">Get started by creating a new pipeline.</p>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
 
       <!-- Mobile List View -->
       <div class="md:hidden">
-        <div 
-          v-for="pipeline in pipelines" 
-          :key="pipeline.id"
-          class="border-b border-gray-100 last:border-0"
-        >
-          <div 
-            @click="toggleExpand(pipeline.id)"
-            class="flex items-center justify-between p-4 active:bg-gray-50 transition-colors cursor-pointer"
-          >
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold text-gray-900 truncate">
-                {{ pipeline.prospect?.title || 'No Title' }}
-              </p>
-              <p class="text-xs text-gray-500 mt-0.5">#{{ pipeline.id }} • {{ formatDate(pipeline.created_at) }}</p>
+        <template v-if="loading">
+          <div v-for="i in 3" :key="i" class="p-4 flex items-center justify-between border-b border-gray-100">
+            <div class="flex-1 space-y-2">
+              <Skeleton width="12rem" height="1rem" />
+              <Skeleton width="8rem" height="0.75rem" />
             </div>
-            <div class="flex items-center gap-3">
-              <span :class="getStageBadgeClass(pipeline.stage)" class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md">
-                {{ pipeline.stage }}
-              </span>
-              <ChevronDown 
-                class="h-5 w-5 text-gray-400 transition-transform duration-200"
-                :class="{ 'rotate-180': expandedItems.has(pipeline.id) }"
-              />
+            <div class="flex items-center gap-2">
+              <Skeleton width="4rem" height="1.25rem" borderRadius="6px" />
+              <Skeleton width="1.25rem" height="1.25rem" />
             </div>
           </div>
-
+        </template>
+        <template v-else>
           <div 
-            v-if="expandedItems.has(pipeline.id)"
-            class="px-4 pb-4 bg-gray-50 space-y-3"
+            v-for="pipeline in pipelines" 
+            :key="pipeline.id"
+            class="border-b border-gray-100 last:border-0"
           >
-             <div class="grid grid-cols-2 gap-4 text-sm mt-2">
-                <div>
-                  <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Prospect ID</p>
-                  <p class="text-gray-900 font-medium">{{ pipeline.prospect_id }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Created Date</p>
-                  <p class="text-gray-900 font-medium">{{ formatDate(pipeline.created_at) }}</p>
-                </div>
-             </div>
-             
-             <router-link
-                v-if="pipeline.uuid"
-                :to="{ name: 'crm-pipeline-detail', params: { uuid: pipeline.uuid } }"
-                class="flex items-center justify-center w-full px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-semibold text-primary-600 hover:bg-white active:scale-95 transition-all shadow-sm"
-              >
-                View Details
-              </router-link>
-          </div>
-        </div>
-      </div>
+            <div 
+              @click="toggleExpand(pipeline.id)"
+              class="flex items-center justify-between p-4 active:bg-gray-50 transition-colors cursor-pointer"
+            >
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-gray-900 truncate">
+                  {{ pipeline.prospect?.title || 'No Title' }}
+                </p>
+                <p class="text-xs text-gray-500 mt-0.5">#{{ pipeline.id }} • {{ formatDate(pipeline.created_at) }}</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <span :class="getStageBadgeClass(pipeline.stage)" class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md">
+                  {{ pipeline.stage }}
+                </span>
+                <ChevronDown 
+                  class="h-5 w-5 text-gray-400 transition-transform duration-200"
+                  :class="{ 'rotate-180': expandedItems.has(pipeline.id) }"
+                />
+              </div>
+            </div>
 
-      <!-- Empty State -->
-      <div v-if="pipelines.length === 0" class="text-center py-12 px-4">
-        <div class="bg-gray-50 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        </div>
-        <h3 class="text-sm font-semibold text-gray-900">No sales pipelines</h3>
-        <p class="text-xs text-gray-500 mt-1 max-w-[200px] mx-auto">Get started by creating a new pipeline.</p>
+            <div 
+              v-if="expandedItems.has(pipeline.id)"
+              class="px-4 pb-4 bg-gray-50 space-y-3"
+            >
+               <div class="grid grid-cols-2 gap-4 text-sm mt-2">
+                  <div>
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Prospect ID</p>
+                    <p class="text-gray-900 font-medium">{{ pipeline.prospect_id }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Created Date</p>
+                    <p class="text-gray-900 font-medium">{{ formatDate(pipeline.created_at) }}</p>
+                  </div>
+               </div>
+               
+               <router-link
+                  v-if="pipeline.uuid"
+                  :to="{ name: 'crm-pipeline-detail', params: { uuid: pipeline.uuid } }"
+                  class="flex items-center justify-center w-full px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-semibold text-primary-600 hover:bg-white active:scale-95 transition-all shadow-sm"
+                >
+                  View Details
+                </router-link>
+            </div>
+          </div>
+          <div v-if="pipelines.length === 0" class="text-center py-12 px-4 shadow-sm bg-white rounded-b-lg">
+            <div class="bg-gray-50 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h3 class="text-sm font-semibold text-gray-900">No sales pipelines</h3>
+            <p class="text-xs text-gray-500 mt-1 max-w-[200px] mx-auto">Get started by creating a new pipeline.</p>
+          </div>
+        </template>
       </div>
     </div>
   </Card>
@@ -116,11 +151,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { SalesPipeline } from "../../services";
-import { ChevronDown } from "lucide-vue-next";
-import Card from "../common/Card.vue";
+import Skeleton from "../common/Skeleton.vue";
 
 interface Props {
   pipelines: SalesPipeline[];
+  loading?: boolean;
 }
 
 defineProps<Props>();

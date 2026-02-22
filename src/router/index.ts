@@ -21,6 +21,7 @@ import DepartmentsPage from '@/pages/DepartmentsPage.vue'
 import DepartmentDetailView from '@/views/hrm/DepartmentDetailView.vue'
 import EmployeesPage from '@/pages/EmployeesPage.vue'
 import EmployeeDetailView from '@/views/hrm/EmployeeDetailView.vue'
+import OfficeLocationsPage from '@/pages/OfficeLocationsPage.vue'
 // No change to file content here, just updating router.
 
 const router = createRouter({
@@ -209,7 +210,7 @@ const router = createRouter({
       {
         path: '/hrm/leave-types',
         name: 'hrm-leave-types',
-        component: () => import('@/pages/LeaveTypesPage.vue'),
+        component: () => import('@/pages/LeaveManagementPage.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -222,7 +223,7 @@ const router = createRouter({
       {
         path: '/hrm/leave-requests',
         name: 'hrm-leave-requests',
-        component: () => import('@/pages/LeaveRequestsPage.vue'),
+        component: () => import('@/pages/LeaveManagementPage.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -269,6 +270,19 @@ const router = createRouter({
             { label: 'HRM', to: '/hrm' }, 
             { label: 'Employees', to: '/hrm/employees' },
             { label: 'Detail' }
+          ] 
+        },
+      },
+      {
+        path: '/hrm/office-locations',
+        name: 'hrm-office-locations',
+        component: OfficeLocationsPage,
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Office Locations' }
           ] 
         },
       },

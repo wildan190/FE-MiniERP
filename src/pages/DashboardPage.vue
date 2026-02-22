@@ -10,12 +10,36 @@
       </p>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="dashboardStore.isLoading" class="flex items-center justify-center py-12">
-      <div class="flex flex-col items-center gap-4">
-        <Spinner />
-        <p class="text-gray-600">Loading dashboard...</p>
-      </div>
+    <!-- Skeleton Loading State -->
+    <div v-if="dashboardStore.isLoading" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <Card>
+        <div class="flex items-center gap-4">
+          <Skeleton width="4rem" height="4rem" borderRadius="0.5rem" />
+          <div class="flex-1 space-y-2">
+            <Skeleton width="10rem" height="1.25rem" />
+            <Skeleton width="12rem" height="1rem" />
+            <Skeleton width="8rem" height="0.75rem" customClass="mt-1" />
+          </div>
+        </div>
+      </Card>
+      <Card>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <Skeleton width="8rem" height="1.25rem" />
+            <Skeleton width="4rem" height="1.5rem" borderRadius="9999px" />
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <Skeleton width="6rem" height="1rem" />
+              <Skeleton width="3rem" height="1rem" />
+            </div>
+            <div class="flex justify-between items-center">
+              <Skeleton width="6rem" height="1rem" />
+              <Skeleton width="8rem" height="1rem" />
+            </div>
+          </div>
+        </div>
+      </Card>
     </div>
 
     <!-- Error State -->
@@ -28,7 +52,7 @@
 
     <!-- User Info Card -->
     <div
-      v-if="dashboardStore.dashboardData && !dashboardStore.isLoading"
+      v-else-if="dashboardStore.dashboardData"
       class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
     >
       <Card>
@@ -84,7 +108,7 @@ import { useDashboardStore } from "@/stores/dashboard";
 import AppLayout from "@/layouts/AppLayout.vue";
 import Card from "@/components/common/Card.vue";
 import Alert from "@/components/common/Alert.vue";
-import Spinner from "@/components/common/Spinner.vue";
+import Skeleton from "@/components/common/Skeleton.vue";
 
 const authStore = useAuthStore();
 const dashboardStore = useDashboardStore();
