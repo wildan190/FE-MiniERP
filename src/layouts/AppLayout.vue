@@ -148,148 +148,114 @@
 
                 <template v-if="activeModule === 'hrm'">
                   <div class="pt-2 pb-2">
-                    <RouterLink
-                      to="/hrm/departments"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="
-                        route.path.startsWith('/hrm/departments')
-                          ? 'bg-primary-50 text-primary-600 shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      "
-                    >
-                      <div class="flex items-center gap-3">
-                        <Zap class="h-5 w-5" />
-                        <span>Departments</span>
-                      </div>
-                    </RouterLink>
-                    <div class="mt-1"></div>
-                    <RouterLink
-                      to="/hrm/designations"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="
-                        route.path.startsWith('/hrm/designations')
-                          ? 'bg-primary-50 text-primary-600 shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      "
-                    >
-                      <div class="flex items-center gap-3">
-                        <Briefcase class="h-5 w-5" />
-                        <span>Designations</span>
-                      </div>
-                    </RouterLink>
-                    <div class="mt-1"></div>
-                    <RouterLink
-                      to="/hrm/leave-types"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="
-                        route.path.startsWith('/hrm/leave-types')
-                          ? 'bg-primary-50 text-primary-600 shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      "
-                    >
-                      <div class="flex items-center gap-3">
-                        <CalendarDays class="h-5 w-5" />
-                        <span>Leave Types</span>
-                      </div>
-                    </RouterLink>
-                    <div class="mt-1"></div>
-                    <RouterLink
-                      to="/hrm/leave-requests"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="
-                        route.path.startsWith('/hrm/leave-requests')
-                          ? 'bg-primary-50 text-primary-600 shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      "
-                    >
-                      <div class="flex items-center gap-3">
-                        <ClipboardList class="h-5 w-5" />
-                        <span>Leave Requests</span>
-                      </div>
-                    </RouterLink>
-                    <div class="mt-1"></div>
-                    <RouterLink
-                      to="/hrm/reports"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="
-                        route.path.startsWith('/hrm/reports')
-                          ? 'bg-primary-50 text-primary-600 shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      "
-                    >
-                      <div class="flex items-center gap-3">
-                        <BarChart3 class="h-5 w-5" />
-                        <span>Reports</span>
-                      </div>
-                    </RouterLink>
-                    <div class="mt-1"></div>
-                    <div class="mt-1"></div>
+                    <!-- Personnel Section -->
+                    <div class="px-3 mb-2 mt-4 first:mt-0">
+                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Employment</p>
+                    </div>
+                    
                     <RouterLink
                       to="/hrm/employees"
                       @click="isMobileSidebarOpen = false"
                       class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="
-                        route.path.startsWith('/hrm/employees')
-                          ? 'bg-primary-50 text-primary-600 shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      "
+                      :class="route.path.startsWith('/hrm/employees') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
                     >
                       <div class="flex items-center gap-3">
                         <Users class="h-5 w-5" />
                         <span>Employees</span>
                       </div>
                     </RouterLink>
-                    <div class="mt-1"></div>
+
+                    <RouterLink
+                      to="/hrm/departments"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/hrm/departments') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <Zap class="h-5 w-5" />
+                        <span>Departments</span>
+                      </div>
+                    </RouterLink>
+
+                    <RouterLink
+                      to="/hrm/designations"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/hrm/designations') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <Briefcase class="h-5 w-5" />
+                        <span>Designations</span>
+                      </div>
+                    </RouterLink>
+
                     <RouterLink
                       to="/hrm/office-locations"
                       @click="isMobileSidebarOpen = false"
                       class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="
-                        route.path.startsWith('/hrm/office-locations')
-                          ? 'bg-primary-50 text-primary-600 shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      "
+                      :class="route.path.startsWith('/hrm/office-locations') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
                     >
                       <div class="flex items-center gap-3">
                         <MapPin class="h-5 w-5" />
                         <span>Office Locations</span>
                       </div>
                     </RouterLink>
-                    <div class="mt-1"></div>
+
+                    <!-- Tracking Section -->
+                    <div class="px-3 mb-2 mt-6">
+                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Time Tracking</p>
+                    </div>
+
                     <RouterLink
                       to="/hrm/attendances"
                       @click="isMobileSidebarOpen = false"
                       class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="
-                        route.path.startsWith('/hrm/attendances')
-                          ? 'bg-primary-50 text-primary-600 shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      "
+                      :class="route.path.startsWith('/hrm/attendances') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
                     >
                       <div class="flex items-center gap-3">
                         <Clock class="h-5 w-5" />
                         <span>Attendance</span>
                       </div>
                     </RouterLink>
-                    <div class="mt-1"></div>
+
                     <RouterLink
                       to="/hrm/shifts"
                       @click="isMobileSidebarOpen = false"
                       class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="
-                        route.path.startsWith('/hrm/shifts')
-                          ? 'bg-primary-50 text-primary-600 shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      "
+                      :class="route.path.startsWith('/hrm/shifts') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
                     >
                       <div class="flex items-center gap-3">
                         <CalendarRange class="h-5 w-5" />
                         <span>Shifts</span>
+                      </div>
+                    </RouterLink>
+
+                    <RouterLink
+                      to="/hrm/leave-requests"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/hrm/leave-requests') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <ClipboardList class="h-5 w-5" />
+                        <span>Leave Management</span>
+                      </div>
+                    </RouterLink>
+
+                    <!-- Analytics Section -->
+                    <div class="px-3 mb-2 mt-6">
+                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Analytics</p>
+                    </div>
+
+                    <RouterLink
+                      to="/hrm/reports"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/hrm/reports') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <BarChart3 class="h-5 w-5" />
+                        <span>Reports</span>
                       </div>
                     </RouterLink>
                   </div>
@@ -400,68 +366,47 @@
           </template>
 
           <template v-if="activeModule === 'hrm'">
-            <RouterLink
-              to="/hrm/departments"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/departments') }"
-            >
-              Departments
-            </RouterLink>
-            <RouterLink
-              to="/hrm/designations"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/designations') }"
-            >
-              Designations
-            </RouterLink>
-            <RouterLink
-              to="/hrm/employees"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/employees') }"
-            >
-              Employees
-            </RouterLink>
-            <RouterLink
-              to="/hrm/office-locations"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/office-locations') }"
-            >
-              Office Locations
-            </RouterLink>
-            <RouterLink
-              to="/hrm/leave-types"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/leave-types') }"
-            >
-              Leave Types
-            </RouterLink>
-            <RouterLink
-              to="/hrm/leave-requests"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/leave-requests') }"
-            >
-              Leave Requests
-            </RouterLink>
+            <!-- Employment Dropdown -->
+            <div class="relative dropdown-container">
+              <button 
+                @click="toggleDropdown('employment')"
+                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                :class="{ 'bg-primary-50 text-primary-600': isHrmGroupActive('employment') }"
+              >
+                <span>Employment</span>
+                <ChevronDown class="h-4 w-4 transition-transform" :class="{ 'rotate-180': activeDropdown === 'employment' }" />
+              </button>
+              <div v-if="activeDropdown === 'employment'" class="absolute left-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50">
+                <RouterLink to="/hrm/employees" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Employees</RouterLink>
+                <RouterLink to="/hrm/departments" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Departments</RouterLink>
+                <RouterLink to="/hrm/designations" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Designations</RouterLink>
+                <RouterLink to="/hrm/office-locations" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Office Locations</RouterLink>
+              </div>
+            </div>
+
+            <!-- Time Tracking Dropdown -->
+            <div class="relative dropdown-container">
+              <button 
+                @click="toggleDropdown('tracking')"
+                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                :class="{ 'bg-primary-50 text-primary-600': isHrmGroupActive('tracking') }"
+              >
+                <span>Time Tracking</span>
+                <ChevronDown class="h-4 w-4 transition-transform" :class="{ 'rotate-180': activeDropdown === 'tracking' }" />
+              </button>
+              <div v-if="activeDropdown === 'tracking'" class="absolute left-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50">
+                <RouterLink to="/hrm/attendances" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Attendance</RouterLink>
+                <RouterLink to="/hrm/shifts" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Shifts</RouterLink>
+                <RouterLink to="/hrm/leave-requests" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Leave Management</RouterLink>
+              </div>
+            </div>
+
             <RouterLink
               to="/hrm/reports"
               class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
               :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/reports') }"
             >
               Reports
-            </RouterLink>
-            <RouterLink
-              to="/hrm/attendances"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/attendances') }"
-            >
-              Attendance
-            </RouterLink>
-            <RouterLink
-              to="/hrm/shifts"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/shifts') }"
-            >
-              Shifts
             </RouterLink>
           </template>
         </nav>
@@ -509,7 +454,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute, RouterLink } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import Breadcrumb from "@/components/common/Breadcrumb.vue";
@@ -523,12 +468,12 @@ import {
   Box,
   ChevronRight,
   Briefcase,
-  CalendarDays,
   ClipboardList,
   BarChart3,
   MapPin,
   Clock,
   CalendarRange,
+  ChevronDown,
 } from "lucide-vue-next";
 
 const router = useRouter();
@@ -536,17 +481,57 @@ const route = useRoute();
 const authStore = useAuthStore();
 const showUserMenu = ref(false);
 
-const activeModule = computed(() => {
-  const p = route.path;
-  if (p.startsWith('/hrm')) return 'hrm';
-  if (
-    p.startsWith('/crm') || 
-    p.startsWith('/customers') || 
-    p.startsWith('/leads') || 
-    p.startsWith('/prospects')
-  ) return 'crm';
-  return 'dashboard';
+const activeModule = ref(route.path.startsWith("/hrm") ? "hrm" : "crm");
+
+// Dropdown logic for desktop
+const activeDropdown = ref<string | null>(null);
+
+const toggleDropdown = (name: string) => {
+  activeDropdown.value = activeDropdown.value === name ? null : name;
+};
+
+const closeDropdowns = (e: MouseEvent) => {
+  if (!(e.target as Element).closest('.dropdown-container')) {
+    activeDropdown.value = null;
+  }
+};
+
+const isHrmGroupActive = (group: string) => {
+  if (group === 'employment') {
+    return ['/hrm/employees', '/hrm/departments', '/hrm/designations', '/hrm/office-locations'].some(p => route.path.startsWith(p));
+  }
+  if (group === 'tracking') {
+    return ['/hrm/attendances', '/hrm/shifts', '/hrm/leave-requests'].some(p => route.path.startsWith(p));
+  }
+  return false;
+};
+
+onMounted(() => {
+  window.addEventListener('click', closeDropdowns);
 });
+
+onUnmounted(() => {
+  window.removeEventListener('click', closeDropdowns);
+});
+
+watch(
+  () => route.path,
+  (newPath) => {
+    if (newPath.startsWith("/hrm")) {
+      activeModule.value = "hrm";
+    } else if (
+      newPath.startsWith('/crm') || 
+      newPath.startsWith('/customers') || 
+      newPath.startsWith('/leads') || 
+      newPath.startsWith('/prospects')
+    ) {
+      activeModule.value = "crm";
+    } else {
+      activeModule.value = "dashboard";
+    }
+    activeDropdown.value = null; // Close dropdowns on navigation
+  }
+);
 
 // Mobile Sidebar Logic
 const isMobileSidebarOpen = ref(false);
