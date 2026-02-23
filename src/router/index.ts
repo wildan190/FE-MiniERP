@@ -299,6 +299,19 @@ const router = createRouter({
           ] 
         },
       },
+      {
+        path: '/hrm/shifts',
+        name: 'hrm-shifts',
+        component: () => import('@/pages/ShiftsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Shifts' }
+          ] 
+        },
+      },
   ],
 })
 
