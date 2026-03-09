@@ -318,97 +318,39 @@
 
         <!-- Navigation -->
         <nav class="hidden md:flex items-center gap-1">
-          <template v-if="activeModule === 'crm'">
-            <RouterLink
-              to="/crm"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-              :class="{
-                'bg-primary-50 text-primary-600': route.path === '/crm',
-              }"
+          <!-- Render Groups (Dropdowns) -->
+          <div v-for="(groupItems, groupName) in moduleConfig.groups" :key="groupName" class="relative dropdown-container">
+            <button 
+              @click="toggleDropdown(groupName)"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+              :class="{ 'bg-primary-50 text-primary-600': isGroupActive(groupItems) }"
             >
-              Dashboard
-            </RouterLink>
-            <RouterLink
-              to="/customers"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/customers') }"
-            >
-              Customers
-            </RouterLink>
-            <RouterLink
-              to="/leads"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/leads') }"
-            >
-              Leads
-            </RouterLink>
-            <RouterLink
-              to="/prospects"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/prospects') }"
-            >
-              Prospects
-            </RouterLink>
-            <RouterLink
-              to="/crm/quotations"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/crm/quotations') }"
-            >
-              Quotations
-            </RouterLink>
-            <RouterLink
-              to="/crm/pipelines"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/crm/pipelines') }"
-            >
-              Pipelines
-            </RouterLink>
-          </template>
-
-          <template v-if="activeModule === 'hrm'">
-            <!-- Employment Dropdown -->
-            <div class="relative dropdown-container">
-              <button 
-                @click="toggleDropdown('employment')"
-                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
-                :class="{ 'bg-primary-50 text-primary-600': isHrmGroupActive('employment') }"
+              <span class="capitalize">{{ groupName.replace('-', ' ') }}</span>
+              <ChevronDown class="h-4 w-4 transition-transform" :class="{ 'rotate-180': activeDropdown === groupName }" />
+            </button>
+            <div v-if="activeDropdown === groupName" class="absolute left-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50">
+              <RouterLink 
+                v-for="item in groupItems"
+                :key="item.to"
+                :to="item.to" 
+                class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600"
+                :class="{ 'text-primary-600 font-semibold bg-primary-50': route.path.startsWith(item.to) }"
               >
-                <span>Employment</span>
-                <ChevronDown class="h-4 w-4 transition-transform" :class="{ 'rotate-180': activeDropdown === 'employment' }" />
-              </button>
-              <div v-if="activeDropdown === 'employment'" class="absolute left-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50">
-                <RouterLink to="/hrm/employees" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Employees</RouterLink>
-                <RouterLink to="/hrm/departments" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Departments</RouterLink>
-                <RouterLink to="/hrm/designations" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Designations</RouterLink>
-                <RouterLink to="/hrm/office-locations" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Office Locations</RouterLink>
-              </div>
+                {{ item.label }}
+              </RouterLink>
             </div>
+          </div>
 
-            <!-- Time Tracking Dropdown -->
-            <div class="relative dropdown-container">
-              <button 
-                @click="toggleDropdown('tracking')"
-                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
-                :class="{ 'bg-primary-50 text-primary-600': isHrmGroupActive('tracking') }"
-              >
-                <span>Time Tracking</span>
-                <ChevronDown class="h-4 w-4 transition-transform" :class="{ 'rotate-180': activeDropdown === 'tracking' }" />
-              </button>
-              <div v-if="activeDropdown === 'tracking'" class="absolute left-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50">
-                <RouterLink to="/hrm/attendances" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Attendance</RouterLink>
-                <RouterLink to="/hrm/shifts" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Shifts</RouterLink>
-                <RouterLink to="/hrm/leave-requests" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600">Leave Management</RouterLink>
-              </div>
-            </div>
-
-            <RouterLink
-              to="/hrm/reports"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors block"
-              :class="{ 'bg-primary-50 text-primary-600': route.path.startsWith('/hrm/reports') }"
-            >
-              Reports
-            </RouterLink>
-          </template>
+          <!-- Render Individual Items -->
+          <RouterLink
+            v-for="item in moduleConfig.items"
+            :key="item.to"
+            :to="item.to"
+            class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+            :class="{ 'bg-primary-50 text-primary-600': route.path === item.to || (item.to !== '/' && route.path.startsWith(item.to)) }"
+          >
+            {{ item.label }}
+          </RouterLink>
         </nav>
 
         <!-- User Menu -->
@@ -459,6 +401,7 @@ import { useRouter, useRoute, RouterLink } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import Breadcrumb from "@/components/common/Breadcrumb.vue";
 import GestureHint from "@/components/common/GestureHint.vue";
+import { NAVIGATION_CONFIG, getModuleByPath } from "@/config/navigation.config";
 import {
   LayoutGrid,
   LogOut,
@@ -481,7 +424,8 @@ const route = useRoute();
 const authStore = useAuthStore();
 const showUserMenu = ref(false);
 
-const activeModule = ref(route.path.startsWith("/hrm") ? "hrm" : "crm");
+const activeModule = computed(() => getModuleByPath(route.path));
+const moduleConfig = computed(() => NAVIGATION_CONFIG[activeModule.value] || NAVIGATION_CONFIG.default);
 
 // Dropdown logic for desktop
 const activeDropdown = ref<string | null>(null);
@@ -491,44 +435,26 @@ const toggleDropdown = (name: string) => {
 };
 
 const closeDropdowns = (e: MouseEvent) => {
-  if (!(e.target as Element).closest('.dropdown-container')) {
+  if (!(e.target as Element).closest(".dropdown-container")) {
     activeDropdown.value = null;
   }
 };
 
-const isHrmGroupActive = (group: string) => {
-  if (group === 'employment') {
-    return ['/hrm/employees', '/hrm/departments', '/hrm/designations', '/hrm/office-locations'].some(p => route.path.startsWith(p));
-  }
-  if (group === 'tracking') {
-    return ['/hrm/attendances', '/hrm/shifts', '/hrm/leave-requests'].some(p => route.path.startsWith(p));
-  }
-  return false;
+const isGroupActive = (items: any[]) => {
+  return items.some(item => route.path.startsWith(item.to));
 };
 
 onMounted(() => {
-  window.addEventListener('click', closeDropdowns);
+  window.addEventListener("click", closeDropdowns);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('click', closeDropdowns);
+  window.removeEventListener("click", closeDropdowns);
 });
 
 watch(
   () => route.path,
-  (newPath) => {
-    if (newPath.startsWith("/hrm")) {
-      activeModule.value = "hrm";
-    } else if (
-      newPath.startsWith('/crm') || 
-      newPath.startsWith('/customers') || 
-      newPath.startsWith('/leads') || 
-      newPath.startsWith('/prospects')
-    ) {
-      activeModule.value = "crm";
-    } else {
-      activeModule.value = "dashboard";
-    }
+  () => {
     activeDropdown.value = null; // Close dropdowns on navigation
   }
 );

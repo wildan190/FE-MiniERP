@@ -145,6 +145,33 @@ export const useEmployeeStore = defineStore('employee', () => {
     }
   }
 
+  async function enrollFace(uuid: string, faceImage: File) {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const formData = new FormData()
+      formData.append('face_image', faceImage)
+      const response = await employeeRepository.enrollFace(uuid, formData)
+      // Update currentEmployee if it matches
+      if (currentEmployee.value?.uuid === uuid) {
+        currentEmployee.value = response.data
+      }
+      // Update in list if present
+      const index = employees.value.findIndex(emp => emp.uuid === uuid)
+      if (index !== -1) {
+        employees.value[index] = response.data
+      }
+      return response.data
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to enroll face'
+      console.error('Error enrolling face:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   function clearError() {
     error.value = null
   }
@@ -176,6 +203,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     fetchEmployeeDocuments,
     uploadEmployeeDocument,
     deleteEmployeeDocument,
+    enrollFace,
     clearError,
     clearCurrentEmployee,
   }

@@ -6,6 +6,7 @@ import {
   type UpdateEmployeeRequest,
   type UpdateEmployeeResponse,
   type EmployeeDetailResponse,
+  type EnrollFaceResponse,
   type EmployeeDocumentListResponse,
   type CreateEmployeeDocumentResponse,
 } from '../../services/hrm'
@@ -37,6 +38,10 @@ export class EmployeeRepository {
 
   async deleteEmployeeDocument(documentUuid: string): Promise<{ message: string }> {
     return await employeeService.deleteEmployeeDocument(documentUuid)
+  }
+
+  async enrollFace(uuid: string, data: FormData): Promise<EnrollFaceResponse> {
+    return await employeeService.enrollFace(uuid, data)
   }
 }
 
