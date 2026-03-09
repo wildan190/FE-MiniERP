@@ -49,7 +49,7 @@
       <!-- Real-time Clock Timer -->
       <div class="mb-8 p-6 bg-gradient-to-br from-primary-600 to-indigo-700 rounded-2xl shadow-xl text-white overflow-hidden relative group">
         <div class="absolute top-0 right-0 p-8 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-700">
-          <Clock class="h-32 w-32" />
+          <Clock class="h-32 w-32 animate-pulse-slow" />
         </div>
         <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div class="text-center sm:text-left">
@@ -57,17 +57,25 @@
               <Calendar class="h-4 w-4" />
               {{ currentDateFormatted }}
             </h2>
-            <p class="text-sm text-primary-200 capitalize tracking-wide">{{ currentDay }}</p>
+            <p class="text-sm text-primary-200 capitalize tracking-wide font-medium">{{ currentDay }}</p>
           </div>
-          <div class="flex items-baseline gap-2">
-            <span class="text-5xl sm:text-6xl font-black tracking-tight font-mono tabular-nums leading-none">
-              {{ currentTime }}
-            </span>
-            <span class="text-xl font-bold opacity-80 uppercase tracking-widest">{{ currentAmPm }}</span>
+          <div class="flex flex-col items-center sm:items-end gap-1">
+            <div class="flex items-baseline gap-2">
+              <span class="text-5xl sm:text-7xl font-black tracking-tighter font-mono tabular-nums leading-none drop-shadow-lg">
+                {{ currentTime }}
+              </span>
+              <span class="text-xl font-bold opacity-80 uppercase tracking-widest">{{ currentAmPm }}</span>
+            </div>
+            <div class="h-1 w-24 bg-white/20 rounded-full overflow-hidden mt-2">
+              <div class="h-full bg-white/60 animate-progress" style="width: 100%"></div>
+            </div>
           </div>
           <div class="hidden lg:block border-l border-white/20 pl-6 py-2">
             <p class="text-xs text-primary-200 uppercase tracking-widest font-bold mb-1">Company Time</p>
-            <p class="text-sm font-medium">Automatic Sync Enabled</p>
+            <p class="text-sm font-medium flex items-center gap-2">
+              <span class="h-2 w-2 bg-green-400 rounded-full animate-pulse"></span>
+              Live Sync
+            </p>
           </div>
         </div>
       </div>
@@ -234,3 +242,23 @@ onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval)
 })
 </script>
+
+<style scoped>
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.1; transform: scale(1) translate(1rem, -1rem); }
+  50% { opacity: 0.15; transform: scale(1.1) translate(1.5rem, -1.5rem); }
+}
+
+@keyframes progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s infinite ease-in-out;
+}
+
+.animate-progress {
+  animation: progress 1s linear;
+}
+</style>
