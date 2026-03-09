@@ -125,6 +125,11 @@ export interface UpdateEmployeeResponse {
   data: Employee
 }
 
+export interface EnrollFaceResponse {
+  message: string
+  data: Employee
+}
+
 export interface EmployeeDetailResponse {
   message: string
   data: Employee
