@@ -312,6 +312,19 @@ const router = createRouter({
           ] 
         },
       },
+      {
+        path: '/hrm/reimbursements',
+        name: 'hrm-reimbursements',
+        component: () => import('@/pages/ReimbursementPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Reimbursements' }
+          ] 
+        },
+      },
   ],
 })
 

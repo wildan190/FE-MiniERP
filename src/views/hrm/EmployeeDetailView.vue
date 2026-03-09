@@ -16,6 +16,13 @@
         </div>
         <div class="flex gap-3">
           <button
+            @click="openEnrollFaceModal"
+            class="hidden md:flex px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium items-center gap-2"
+          >
+            <Camera class="h-5 w-5" />
+            Enroll Face
+          </button>
+          <button
             @click="openEditModal"
             class="hidden md:flex px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium items-center gap-2"
           >
@@ -140,6 +147,10 @@
                     </span>
                     <span class="text-sm text-gray-600">
                       Code: {{ employee.emp_code || "N/A" }}
+                    </span>
+                    <span v-if="employee.requires_face_verification" class="inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
+                      <ShieldCheck class="h-4 w-4" />
+                      Face Enrolled
                     </span>
                   </div>
                 </div>
@@ -373,6 +384,13 @@
           icon: Edit,
           onClick: openEditModal,
         }"
+        :secondary-actions="[
+          {
+            label: 'Enroll Face',
+            icon: Camera,
+            onClick: openEnrollFaceModal,
+          }
+        ]"
       />
       
       <!-- Edit Employee Modal -->
@@ -394,6 +412,15 @@
         @close="closeUploadModal"
         @submit="handleUploadDocument"
       />
+
+      <!-- Enroll Face Modal -->
+      <EnrollFaceModal
+        :is-open="isEnrollFaceModalOpen"
+        :loading="isEnrolling"
+        :errors="enrollErrors"
+        @close="closeEnrollFaceModal"
+        @submit="handleEnrollFace"
+      />
     </div>
   </AppLayout>
 </template>
@@ -401,16 +428,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRoute, RouterLink } from "vue-router";
-import { ArrowLeft, Edit } from "lucide-vue-next";
 import Swal from "sweetalert2";
-import AppLayout from "../../layouts/AppLayout.vue";
-import Card from "../../components/common/Card.vue";
-import Skeleton from "../../components/common/Skeleton.vue";
-import MobileActions from "../../components/common/MobileActions.vue";
 import CreateEmployeeModal from "../../components/hrm/CreateEmployeeModal.vue";
 import EmployeeDocumentList from "../../components/hrm/EmployeeDocumentList.vue";
 import UploadDocumentModal from "../../components/hrm/UploadDocumentModal.vue";
+import EnrollFaceModal from "../../components/hrm/EnrollFaceModal.vue";
 import { useEmployeeStore } from "../../stores/employee";
+import { Camera, ShieldCheck, ArrowLeft, Edit } from "lucide-vue-next";
 import type { Employee, UpdateEmployeeRequest, CreateEmployeeRequest } from "../../services/hrm/types/employee.types";
 import type { EmployeeDocument } from "../../services/hrm/types/employee-document.types";
 
@@ -433,6 +457,11 @@ const isEditModalOpen = ref(false);
 const isUpdating = ref(false);
 const updateErrors = ref<Record<string, string[]> | null>(null);
 const updateErrorMessage = ref<string | null>(null);
+
+// Enroll face state
+const isEnrollFaceModalOpen = ref(false);
+const isEnrolling = ref(false);
+const enrollErrors = ref<Record<string, string[]> | null>(null);
 
 const getFullName = (emp: Employee) => {
   if (emp.user) {
@@ -499,6 +528,16 @@ const closeUploadModal = () => {
   uploadErrors.value = null;
 };
 
+const openEnrollFaceModal = () => {
+  enrollErrors.value = null;
+  isEnrollFaceModalOpen.value = true;
+};
+
+const closeEnrollFaceModal = () => {
+  isEnrollFaceModalOpen.value = false;
+  enrollErrors.value = null;
+};
+
 const fetchDocuments = async (uuid: string) => {
   if (!uuid) return;
   isDocumentsLoading.value = true;
@@ -543,6 +582,41 @@ const handleUploadDocument = async (data: FormData) => {
     }
   } finally {
     isUploading.value = false;
+  }
+};
+
+const handleEnrollFace = async (file: File) => {
+  if (!employee.value) return;
+
+  isEnrolling.value = true;
+  enrollErrors.value = null;
+
+  try {
+    await employeeStore.enrollFace(employee.value.uuid, file);
+    await Swal.fire({
+      title: "Success!",
+      text: "Face enrolled successfully",
+      icon: "success",
+      confirmButtonColor: "#10b981",
+    });
+    closeEnrollFaceModal();
+    // Refresh employee data
+    await employeeStore.fetchEmployeeDetail(employee.value.uuid);
+    employee.value = employeeStore.currentEmployee;
+  } catch (error: any) {
+    console.error("Failed to enroll face:", error);
+    if (error.response?.status === 422) {
+      enrollErrors.value = error.response.data.errors;
+    } else {
+      Swal.fire({
+        title: "Error!",
+        text: error.response?.data?.message || "Failed to enroll face",
+        icon: "error",
+        confirmButtonColor: "#ef4444",
+      });
+    }
+  } finally {
+    isEnrolling.value = false;
   }
 };
 

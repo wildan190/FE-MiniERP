@@ -203,6 +203,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     fetchEmployeeDocuments,
     uploadEmployeeDocument,
     deleteEmployeeDocument,
+    enrollFace,
     clearError,
     clearCurrentEmployee,
   }

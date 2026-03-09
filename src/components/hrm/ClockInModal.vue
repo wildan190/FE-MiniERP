@@ -93,9 +93,23 @@
           </div>
 
           <!-- Status / Error -->
-          <div v-if="locationError" class="p-3 bg-red-50 border border-red-100 rounded-lg flex items-start gap-2">
-            <AlertCircle class="h-5 w-5 text-red-600 flex-shrink-0" />
-            <p class="text-xs text-red-600">{{ locationError }}</p>
+          <div v-if="locationError" class="p-3 bg-red-50 border border-red-100 rounded-lg">
+            <div class="flex items-start gap-2">
+              <AlertCircle class="h-5 w-5 text-red-600 flex-shrink-0" />
+              <p class="text-xs text-red-600">{{ locationError }}</p>
+            </div>
+            <button type="button" @click="getLocation" class="mt-2 text-xs text-primary-600 font-bold underline flex items-center gap-1">
+              <RefreshCw class="h-3 w-3" /> Retry GPS
+            </button>
+          </div>
+
+          <!-- Success Location -->
+          <div v-if="form.latitude" class="p-3 bg-green-50 border border-green-100 rounded-lg flex items-center gap-2">
+            <CheckCircle2 class="h-5 w-5 text-green-600 flex-shrink-0" />
+            <div class="flex-1">
+              <p class="text-xs text-green-800 font-medium">Location Fixed</p>
+              <p class="text-[10px] text-green-600 font-mono">{{ form.latitude.toFixed(6) }}, {{ form.longitude?.toFixed(6) }}</p>
+            </div>
           </div>
 
           <div class="flex gap-3 pt-2">
@@ -108,7 +122,7 @@
             </button>
             <button
               type="submit"
-              :disabled="loading || isGettingLocation || !imagePreview || !form.office_location_uuid"
+              :disabled="loading || isGettingLocation || !imagePreview || !form.office_location_uuid || !form.latitude"
               class="flex-1 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors flex items-center justify-center gap-2"
             >
               <template v-if="loading">
@@ -120,6 +134,16 @@
               </template>
             </button>
           </div>
+
+          <!-- Help Text when button is disabled -->
+          <div v-if="!loading && (isGettingLocation || !imagePreview || !form.office_location_uuid)" class="bg-blue-50 p-2 rounded-lg">
+            <p class="text-[10px] text-blue-700 text-center">
+              To Clock In: 
+              <span :class="form.office_location_uuid ? 'line-through text-gray-400' : 'font-bold'">1. Select Location</span> • 
+              <span :class="imagePreview ? 'line-through text-gray-400' : 'font-bold'">2. Take Photo</span> • 
+              <span :class="form.latitude ? 'line-through text-gray-400' : 'font-bold'">3. Wait for GPS</span>
+            </p>
+          </div>
         </form>
       </div>
     </div>
@@ -130,7 +154,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { X, Camera, Trash2, AlertCircle, Loader2 } from 'lucide-vue-next'
+import { X, Camera, Trash2, AlertCircle, Loader2, RefreshCw, CheckCircle2 } from 'lucide-vue-next'
 import type { OfficeLocation } from '../../services/hrm/types/office-location.types'
 
 const props = defineProps<{
@@ -147,6 +171,8 @@ const form = ref({
   face_image: null as File | null,
   latitude: null as number | null,
   longitude: null as number | null,
+  location_lat: '' as string,
+  location_long: '' as string,
 })
 
 const imagePreview = ref<string | null>(null)
@@ -222,16 +248,41 @@ const getLocation = () => {
   }
 
   isGettingLocation.value = true
+  locationError.value = null
+
   navigator.geolocation.getCurrentPosition(
     (position) => {
       form.value.latitude = position.coords.latitude
       form.value.longitude = position.coords.longitude
+      // Also set the alternate field names if expected by backend
+      form.value.location_lat = position.coords.latitude.toString()
+      form.value.location_long = position.coords.longitude.toString()
+      
       isGettingLocation.value = false
+      locationError.value = null
     },
     (error) => {
       console.error('Location error:', error)
-      locationError.value = 'Failed to get location. Please enable location access.'
+      let msg = 'Failed to get location.'
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          msg = 'Location access denied. Please enable it in settings.'
+          break
+        case error.POSITION_UNAVAILABLE:
+          msg = 'Location information is unavailable.'
+          break
+        case error.TIMEOUT:
+          msg = 'Location request timed out. Retrying...'
+          // Try again once with lower accuracy if it timed out
+          break
+      }
+      locationError.value = msg
       isGettingLocation.value = false
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000, // 10 seconds timeout
+      maximumAge: 0
     }
   )
 }
@@ -249,10 +300,27 @@ watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     getLocation()
     startCamera()
+    
+    // Auto select office if only one exists
+    const locs = props.officeLocations
+    if (locs && locs.length === 1 && !form.value.office_location_uuid) {
+      form.value.office_location_uuid = locs[0].uuid
+    }
   } else {
     stopCamera()
+    // Reset form? Usually better to keep it if they just closed and reopened, 
+    // but face preview should be reset for security
+    imagePreview.value = null
+    form.value.face_image = null
   }
 })
+
+// Also watch officeLocations in case they load after modal is open
+watch(() => props.officeLocations, (newVal) => {
+  if (newVal && newVal.length === 1 && props.isOpen && !form.value.office_location_uuid) {
+    form.value.office_location_uuid = newVal[0].uuid
+  }
+}, { immediate: true })
 
 // Ensure video source is set when ref becomes available
 watch(videoRef, (newRef) => {

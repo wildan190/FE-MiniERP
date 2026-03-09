@@ -9,7 +9,8 @@ import {
   BarChart3,
   MapPin,
   Clock,
-  CalendarRange
+  CalendarRange,
+  Banknote
 } from 'lucide-vue-next';
 
 export interface NavItem {
@@ -45,6 +46,9 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
         { label: 'Attendance', to: '/hrm/attendances', icon: Clock },
         { label: 'Shifts', to: '/hrm/shifts', icon: CalendarRange },
         { label: 'Leave Management', to: '/hrm/leave-requests', icon: ClipboardList },
+      ],
+      claims: [
+        { label: 'Reimbursements', to: '/hrm/reimbursements', icon: Banknote },
       ]
     }
   },

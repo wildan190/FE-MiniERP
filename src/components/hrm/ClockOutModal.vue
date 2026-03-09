@@ -83,9 +83,23 @@
           </div>
 
           <!-- Status / Error -->
-          <div v-if="locationError" class="p-3 bg-red-50 border border-red-100 rounded-lg flex items-start gap-2">
-            <AlertCircle class="h-5 w-5 text-red-600 flex-shrink-0" />
-            <p class="text-xs text-red-600">{{ locationError }}</p>
+          <div v-if="locationError" class="p-3 bg-red-50 border border-red-100 rounded-lg">
+            <div class="flex items-start gap-2">
+              <AlertCircle class="h-5 w-5 text-red-600 flex-shrink-0" />
+              <p class="text-xs text-red-600">{{ locationError }}</p>
+            </div>
+            <button type="button" @click="getLocation" class="mt-2 text-xs text-primary-600 font-bold underline flex items-center gap-1">
+              <RefreshCw class="h-3 w-3" /> Retry GPS
+            </button>
+          </div>
+
+          <!-- Success Location -->
+          <div v-if="form.latitude" class="p-3 bg-green-50 border border-green-100 rounded-lg flex items-center gap-2">
+            <CheckCircle2 class="h-5 w-5 text-green-600 flex-shrink-0" />
+            <div class="flex-1">
+              <p class="text-xs text-green-800 font-medium">Location Fixed</p>
+              <p class="text-[10px] text-green-600 font-mono">{{ form.latitude.toFixed(6) }}, {{ form.longitude?.toFixed(6) }}</p>
+            </div>
           </div>
 
           <div class="flex gap-3 pt-2">
@@ -98,7 +112,7 @@
             </button>
             <button
               type="submit"
-              :disabled="loading || isGettingLocation"
+              :disabled="loading || isGettingLocation || !form.latitude"
               class="flex-1 px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors flex items-center justify-center gap-2"
             >
               <template v-if="loading">
@@ -110,6 +124,14 @@
               </template>
             </button>
           </div>
+
+          <!-- Help Text when button is disabled -->
+          <div v-if="!loading && (isGettingLocation || !form.latitude)" class="bg-blue-50 p-2 rounded-lg">
+            <p class="text-[10px] text-blue-700 text-center">
+              To Clock Out: 
+              <span :class="form.latitude ? 'line-through text-gray-400' : 'font-bold'">Wait for GPS Signal</span>
+            </p>
+          </div>
         </form>
       </div>
     </div>
@@ -120,7 +142,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { X, Camera, Trash2, AlertCircle, Loader2 } from 'lucide-vue-next'
+import { X, Camera, Trash2, AlertCircle, Loader2, RefreshCw, CheckCircle2 } from 'lucide-vue-next'
 
 const props = defineProps<{
   isOpen: boolean
@@ -134,6 +156,8 @@ const form = ref({
   face_image: null as File | null,
   latitude: null as number | null,
   longitude: null as number | null,
+  location_lat: '' as string,
+  location_long: '' as string,
 })
 
 const imagePreview = ref<string | null>(null)
@@ -209,22 +233,50 @@ const getLocation = () => {
   }
 
   isGettingLocation.value = true
+  locationError.value = null
+
   navigator.geolocation.getCurrentPosition(
     (position) => {
       form.value.latitude = position.coords.latitude
       form.value.longitude = position.coords.longitude
+      // Also set the alternate field names if expected by backend
+      form.value.location_lat = position.coords.latitude.toString()
+      form.value.location_long = position.coords.longitude.toString()
+
       isGettingLocation.value = false
+      locationError.value = null
     },
     (error) => {
       console.error('Location error:', error)
-      locationError.value = 'Failed to get location. Please enable location access.'
+      let msg = 'Failed to get location.'
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          msg = 'Location access denied. Please enable it in settings.'
+          break
+        case error.POSITION_UNAVAILABLE:
+          msg = 'Location information is unavailable.'
+          break
+        case error.TIMEOUT:
+          msg = 'Location request timed out. Retrying...'
+          break
+      }
+      locationError.value = msg
       isGettingLocation.value = false
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000, // 10 seconds timeout
+      maximumAge: 0
     }
   )
 }
 
 const handleSubmit = () => {
-  emit('submit', { ...form.value })
+  const submissionData = { ...form.value }
+  if (!submissionData.notes || submissionData.notes.trim() === '') {
+    submissionData.notes = 'Clocked out'
+  }
+  emit('submit', submissionData)
 }
 
 const handleClose = () => {
