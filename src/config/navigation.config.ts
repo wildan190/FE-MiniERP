@@ -49,6 +49,9 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
       ],
       claims: [
         { label: 'Reimbursements', to: '/hrm/reimbursements', icon: Banknote },
+      ],
+      payroll: [
+        { label: 'Payroll Periods', to: '/hrm/payroll-periods', icon: Banknote },
       ]
     }
   },

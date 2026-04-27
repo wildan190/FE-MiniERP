@@ -325,6 +325,19 @@ const router = createRouter({
           ] 
         },
       },
+      {
+        path: '/hrm/payroll-periods',
+        name: 'hrm-payroll-periods',
+        component: () => import('@/pages/PayrollPeriodsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Payroll Periods' }
+          ] 
+        },
+      },
   ],
 })
 
