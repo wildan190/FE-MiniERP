@@ -338,6 +338,33 @@ const router = createRouter({
           ] 
         },
       },
+      {
+        path: '/hrm/payrolls',
+        name: 'hrm-payrolls',
+        component: () => import('@/pages/PayrollsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Payrolls' }
+          ] 
+        },
+      },
+      {
+        path: '/hrm/payrolls/:uuid',
+        name: 'hrm-payroll-detail',
+        component: () => import('@/views/hrm/PayrollDetailView.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Payrolls', to: '/hrm/payrolls' },
+            { label: 'Detail' }
+          ] 
+        },
+      },
   ],
 })
 
