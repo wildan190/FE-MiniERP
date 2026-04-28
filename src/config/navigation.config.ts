@@ -10,7 +10,8 @@ import {
   MapPin,
   Clock,
   CalendarRange,
-  Banknote
+  Banknote,
+  FileX
 } from 'lucide-vue-next';
 
 export interface NavItem {
@@ -40,6 +41,7 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
         { label: 'Employees', to: '/hrm/employees', icon: Users },
         { label: 'Departments', to: '/hrm/departments', icon: Zap },
         { label: 'Designations', to: '/hrm/designations', icon: Briefcase },
+        { label: 'Resignations', to: '/hrm/resignations', icon: FileX },
         { label: 'Office Locations', to: '/hrm/office-locations', icon: MapPin },
       ],
       tracking: [

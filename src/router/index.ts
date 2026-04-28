@@ -392,6 +392,33 @@ const router = createRouter({
           ]
         },
       },
+      {
+        path: '/hrm/resignations',
+        name: 'hrm-resignations',
+        component: () => import('@/views/hrm/ResignationsView.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'HRM', to: '/hrm' },
+            { label: 'Resignations' }
+          ]
+        },
+      },
+      {
+        path: '/hrm/resignations/:uuid',
+        name: 'hrm-resignation-detail',
+        component: () => import('@/views/hrm/ResignationDetailView.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'HRM', to: '/hrm' },
+            { label: 'Resignations', to: '/hrm/resignations' },
+            { label: 'Detail' }
+          ]
+        },
+      },
   ],
 })
 
