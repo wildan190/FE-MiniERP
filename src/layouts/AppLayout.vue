@@ -271,6 +271,18 @@
                       </div>
                     </RouterLink>
 
+                    <RouterLink
+                      to="/hrm/salary-components"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/hrm/salary-components') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <Banknote class="h-5 w-5" />
+                        <span>Salary Components</span>
+                      </div>
+                    </RouterLink>
+
                     <!-- Analytics Section -->
                     <div class="px-3 mb-2 mt-6">
                       <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Analytics</p>
