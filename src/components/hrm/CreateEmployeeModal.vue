@@ -464,64 +464,114 @@ const loadDesignations = async () => {
   }
 };
 
+// Helper: convert ISO timestamp like "2026-02-23T00:00:00.000000Z" to "2026-02-23"
+const toDateInputValue = (dateStr: string | null | undefined): string => {
+  if (!dateStr) return "";
+  // Already in YYYY-MM-DD format
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+  // Parse and convert ISO timestamp
+  try {
+    return new Date(dateStr).toISOString().split("T")[0];
+  } catch {
+    return "";
+  }
+};
+
+// Populate form from employee object
+const populateForm = (emp: any) => {
+  // Resolve department UUID: prefer nested object, fallback to matching by id
+  const deptUuid =
+    emp.department?.uuid ||
+    departments.value.find((d: any) => d.id === emp.department_id)?.uuid ||
+    "";
+
+  // Resolve designation UUID: prefer nested object, fallback to matching by id
+  const desigUuid =
+    emp.designation?.uuid ||
+    designations.value.find((d: any) => d.id === emp.designation_id)?.uuid ||
+    "";
+
+  formData.value = {
+    first_name: emp.first_name || "",
+    last_name: emp.last_name || "",
+    email: emp.user?.email || "",
+    password: "",
+    user_uuid: emp.user?.uuid || "",
+    department_uuid: deptUuid,
+    designation_uuid: desigUuid,
+    emp_code: emp.emp_code || "",
+    joining_date: toDateInputValue(emp.joining_date),
+    status: emp.status || "active",
+    nik: emp.nik || "",
+    place_of_birth: emp.place_of_birth || "",
+    date_of_birth: toDateInputValue(emp.date_of_birth),
+    gender: emp.gender || undefined,
+    marital_status: emp.marital_status || undefined,
+    religion: emp.religion || "",
+    address: emp.address || "",
+    phone: emp.phone || "",
+    emergency_contact_name: emp.emergency_contact_name || "",
+    emergency_contact_phone: emp.emergency_contact_phone || "",
+  };
+};
+
+const resetForm = () => {
+  formData.value = {
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    user_uuid: "",
+    department_uuid: "",
+    designation_uuid: "",
+    emp_code: "",
+    joining_date: "",
+    status: "active",
+    nik: "",
+    place_of_birth: "",
+    date_of_birth: "",
+    gender: undefined,
+    marital_status: undefined,
+    religion: "",
+    address: "",
+    phone: "",
+    emergency_contact_name: "",
+    emergency_contact_phone: "",
+  };
+};
+
+// Watch modal open to load dropdowns
 watch(
   () => props.isOpen,
   async (newVal) => {
     if (newVal) {
-      // Load departments and designations when modal opens
       await Promise.all([loadDepartments(), loadDesignations()]);
-
+      // After dropdowns are loaded, populate the form if editing
       if (props.editingEmployee) {
-        // Populate form with existing employee data for editing
-        formData.value = {
-          first_name: props.editingEmployee.first_name || "",
-          last_name: props.editingEmployee.last_name || "",
-          email: props.editingEmployee.user?.email || "",
-          password: "", // Don't populate password for security
-          user_uuid: props.editingEmployee.user?.uuid || "",
-          department_uuid: props.editingEmployee.department?.uuid || "",
-          designation_uuid: props.editingEmployee.designation?.uuid || "",
-          emp_code: props.editingEmployee.emp_code || "",
-          joining_date: props.editingEmployee.joining_date || "",
-          status: props.editingEmployee.status || "active",
-          nik: props.editingEmployee.nik || "",
-          place_of_birth: props.editingEmployee.place_of_birth || "",
-          date_of_birth: props.editingEmployee.date_of_birth || "",
-          gender: props.editingEmployee.gender || undefined,
-          marital_status: props.editingEmployee.marital_status || undefined,
-          religion: props.editingEmployee.religion || "",
-          address: props.editingEmployee.address || "",
-          phone: props.editingEmployee.phone || "",
-          emergency_contact_name: props.editingEmployee.emergency_contact_name || "",
-          emergency_contact_phone: props.editingEmployee.emergency_contact_phone || "",
-        };
+        populateForm(props.editingEmployee);
       } else {
-        formData.value = {
-          first_name: "",
-          last_name: "",
-          email: "",
-          password: "",
-          user_uuid: "",
-          department_uuid: "",
-          designation_uuid: "",
-          emp_code: "",
-          joining_date: "",
-          status: "active",
-          nik: "",
-          place_of_birth: "",
-          date_of_birth: "",
-          gender: undefined,
-          marital_status: undefined,
-          religion: "",
-          address: "",
-          phone: "",
-          emergency_contact_name: "",
-          emergency_contact_phone: "",
-        };
+        resetForm();
       }
     }
-  },
+  }
 );
+
+// Watch editingEmployee separately — handles case where prop updates after isOpen
+watch(
+  () => props.editingEmployee,
+  (newEmployee) => {
+    if (props.isOpen) {
+      if (newEmployee) {
+        populateForm(newEmployee);
+      } else {
+        resetForm();
+      }
+    }
+  }
+);
+
+
+
 
 const handleSubmit = () => {
   emit("submit", { ...formData.value });
