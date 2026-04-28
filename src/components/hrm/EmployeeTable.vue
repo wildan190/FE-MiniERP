@@ -106,6 +106,12 @@
               >
                 Edit
               </button>
+              <RouterLink
+                :to="`/hrm/employees/${employee.uuid}/salary-components`"
+                class="text-purple-600 hover:text-purple-900 font-medium transition-colors mr-3"
+              >
+                Salary
+              </RouterLink>
               <button
                 @click="$emit('delete', employee.uuid)"
                 class="text-red-600 hover:text-red-900 font-medium transition-colors"
@@ -198,6 +204,12 @@
               >
                 Edit
               </button>
+              <RouterLink
+                :to="`/hrm/employees/${employee.uuid}/salary-components`"
+                class="flex-1 text-center px-4 py-2 bg-purple-50 text-purple-700 text-sm font-medium rounded-lg hover:bg-purple-100 transition-colors"
+              >
+                Salary
+              </RouterLink>
               <button
                 @click="$emit('delete', employee.uuid)"
                 class="flex-1 px-4 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors"
