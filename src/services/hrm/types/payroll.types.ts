@@ -22,6 +22,9 @@ export interface Payroll {
   net_salary: string
   status: string
   payment_date: string | null
+  expected_work_days: number
+  actual_presence: number
+  absence_days: number
   created_at: string
   updated_at: string
   deleted_at: string | null

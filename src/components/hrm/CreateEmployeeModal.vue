@@ -203,6 +203,19 @@
                         {{ errors.status[0] }}
                       </p>
                     </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2"> Basic Salary </label>
+                      <input
+                        v-model="formData.basic_salary"
+                        type="number"
+                        step="0.01"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="Enter basic salary"
+                      />
+                      <p v-if="errors?.basic_salary" class="mt-1 text-xs text-red-600">
+                        {{ errors.basic_salary[0] }}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -444,6 +457,7 @@ const formData = ref<EmployeeFormData>({
   phone: "",
   emergency_contact_name: "",
   emergency_contact_phone: "",
+  basic_salary: "",
 });
 
 const loadDepartments = async () => {
@@ -512,6 +526,7 @@ const populateForm = (emp: any) => {
     phone: emp.phone || "",
     emergency_contact_name: emp.emergency_contact_name || "",
     emergency_contact_phone: emp.emergency_contact_phone || "",
+    basic_salary: emp.basic_salary || "",
   };
 };
 
@@ -537,6 +552,7 @@ const resetForm = () => {
     phone: "",
     emergency_contact_name: "",
     emergency_contact_phone: "",
+    basic_salary: "",
   };
 };
 

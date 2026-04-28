@@ -111,6 +111,33 @@
                 </div>
               </div>
             </Card>
+
+            <Card class="border-indigo-100 bg-indigo-50/20">
+              <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Clock class="h-5 w-5 text-indigo-500" />
+                Attendance Stats
+              </h3>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white p-3 rounded-xl border border-indigo-50 shadow-sm">
+                  <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Expected</p>
+                  <p class="text-lg font-black text-gray-900">{{ payroll.expected_work_days }} <span class="text-xs font-medium text-gray-400">days</span></p>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-indigo-50 shadow-sm">
+                  <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Presence</p>
+                  <p class="text-lg font-black text-green-600">{{ payroll.actual_presence }} <span class="text-xs font-medium text-gray-400">days</span></p>
+                </div>
+                <div class="col-span-2 bg-white p-3 rounded-xl border border-indigo-50 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-0.5">Absence</p>
+                    <p class="text-lg font-black text-red-600">{{ payroll.absence_days }} <span class="text-xs font-medium text-gray-400">days</span></p>
+                  </div>
+                  <div v-if="payroll.absence_days > 0" class="text-right">
+                    <p class="text-[10px] text-red-500 uppercase font-bold mb-0.5">Deduction applied</p>
+                    <p class="text-xs font-medium text-gray-400">Calculated based on basic salary</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
           </div>
 
           <!-- Items Table -->
@@ -178,7 +205,7 @@ import Swal from 'sweetalert2'
 import AppLayout from '../../layouts/AppLayout.vue'
 import Card from '../../components/common/Card.vue'
 import Skeleton from '../../components/common/Skeleton.vue'
-import { CheckCircle, Calendar, Receipt } from 'lucide-vue-next'
+import { CheckCircle, Calendar, Receipt, Clock } from 'lucide-vue-next'
 
 import { payrollRepository } from '../../repositories/hrm/payroll.repository'
 import type { Payroll } from '../../services/hrm/types/payroll.types'
