@@ -92,6 +92,7 @@ export interface CreateEmployeeRequest {
   phone?: string
   emergency_contact_name?: string
   emergency_contact_phone?: string
+  basic_salary?: string | number
 }
 
 export interface UpdateEmployeeRequest {
@@ -113,6 +114,7 @@ export interface UpdateEmployeeRequest {
   phone?: string
   emergency_contact_name?: string
   emergency_contact_phone?: string
+  basic_salary?: string | number
 }
 
 export interface CreateEmployeeResponse {
@@ -156,4 +158,5 @@ export interface EmployeeFormData {
   phone?: string
   emergency_contact_name?: string
   emergency_contact_phone?: string
+  basic_salary?: string | number
 }

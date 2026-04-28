@@ -172,7 +172,7 @@
                 <div class="flex justify-between items-center">
                   <span class="text-sm text-gray-600">Basic Salary</span>
                   <span class="text-sm font-medium">
-                    {{ employee.basic_salary ? `$${employee.basic_salary}` : "N/A" }}
+                    {{ formatCurrency(employee.basic_salary) }}
                   </span>
                 </div>
                 <div class="flex justify-between items-center">
@@ -180,6 +180,33 @@
                   <span class="text-sm font-medium">
                     {{ formatDate(employee.created_at) }}
                   </span>
+                </div>
+              </div>
+            </Card>
+
+            <!-- Salary Components Summary -->
+            <Card class="mt-6 border-primary-100 bg-primary-50/30">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Salary Overview</h3>
+                <RouterLink 
+                  :to="`/hrm/employees/${employee.uuid}/salary-components`"
+                  class="text-xs font-semibold text-primary-600 hover:text-primary-700"
+                >
+                  Manage Components
+                </RouterLink>
+              </div>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Earnings</span>
+                  <span class="text-sm font-bold text-green-600">+{{ formatCurrency(totalEarnings) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Deductions</span>
+                  <span class="text-sm font-bold text-red-600">-{{ formatCurrency(totalDeductions) }}</span>
+                </div>
+                <div class="pt-3 border-t border-gray-200 flex justify-between items-center">
+                  <span class="text-sm font-bold text-gray-900">Take Home Pay</span>
+                  <span class="text-sm font-black text-primary-600">{{ formatCurrency(takeHomePay) }}</span>
                 </div>
               </div>
             </Card>
@@ -267,7 +294,7 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700">Basic Salary</label>
                 <p class="mt-1 text-sm text-gray-900">
-                  {{ employee.basic_salary ? `$${employee.basic_salary}` : "N/A" }}
+                  {{ formatCurrency(employee.basic_salary) }}
                 </p>
               </div>
               <div>
@@ -426,7 +453,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRoute, RouterLink } from "vue-router";
 import Swal from "sweetalert2";
 import CreateEmployeeModal from "../../components/hrm/CreateEmployeeModal.vue";
@@ -435,7 +462,9 @@ import UploadDocumentModal from "../../components/hrm/UploadDocumentModal.vue";
 import EnrollFaceModal from "../../components/hrm/EnrollFaceModal.vue";
 import { useEmployeeStore } from "../../stores/employee";
 import { Camera, ShieldCheck, ArrowLeft, Edit } from "lucide-vue-next";
+import { employeeSalaryComponentRepository } from "../../repositories/hrm/employee-salary-component.repository";
 import type { Employee, UpdateEmployeeRequest, CreateEmployeeRequest } from "../../services/hrm/types/employee.types";
+import type { EmployeeSalaryComponent } from "../../services/hrm/types/employee-salary-component.types";
 import type { EmployeeDocument } from "../../services/hrm/types/employee-document.types";
 
 const route = useRoute();
@@ -462,6 +491,23 @@ const updateErrorMessage = ref<string | null>(null);
 const isEnrollFaceModalOpen = ref(false);
 const isEnrolling = ref(false);
 const enrollErrors = ref<Record<string, string[]> | null>(null);
+
+// Salary components overview state
+const assignedComponents = ref<EmployeeSalaryComponent[]>([]);
+const totalEarnings = computed(() => 
+  assignedComponents.value
+    .filter(c => c.type === 'earning')
+    .reduce((sum, c) => sum + parseFloat(c.effective_value || '0'), 0)
+);
+const totalDeductions = computed(() => 
+  assignedComponents.value
+    .filter(c => c.type === 'deduction')
+    .reduce((sum, c) => sum + parseFloat(c.effective_value || '0'), 0)
+);
+const takeHomePay = computed(() => {
+  const basic = parseFloat(employee.value?.basic_salary || '0');
+  return basic + totalEarnings.value - totalDeductions.value;
+});
 
 const getFullName = (emp: Employee) => {
   if (emp.user) {
@@ -506,6 +552,17 @@ const formatDate = (dateString: string) => {
   });
 };
 
+const formatCurrency = (amount: string | number | null | undefined) => {
+  if (amount === undefined || amount === null || amount === "") return "Rp 0";
+  const val = typeof amount === "string" ? parseFloat(amount) : amount;
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(val);
+};
+
 const openEditModal = () => {
   updateErrors.value = null;
   updateErrorMessage.value = null;
@@ -536,6 +593,15 @@ const openEnrollFaceModal = () => {
 const closeEnrollFaceModal = () => {
   isEnrollFaceModalOpen.value = false;
   enrollErrors.value = null;
+};
+
+const fetchSalaryOverview = async (uuid: string) => {
+  try {
+    const response = await employeeSalaryComponentRepository.getEmployeeSalaryComponents(uuid);
+    assignedComponents.value = response.data;
+  } catch (error) {
+    console.error("Failed to load salary overview:", error);
+  }
 };
 
 const fetchDocuments = async (uuid: string) => {
@@ -700,7 +766,8 @@ onMounted(async () => {
   if (uuid) {
     await Promise.all([
       employeeStore.fetchEmployeeDetail(uuid),
-      fetchDocuments(uuid)
+      fetchDocuments(uuid),
+      fetchSalaryOverview(uuid)
     ]);
     employee.value = employeeStore.currentEmployee;
     error.value = employeeStore.error;
