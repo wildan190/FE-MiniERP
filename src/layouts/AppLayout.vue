@@ -360,7 +360,7 @@
         <!-- Navigation -->
         <nav class="hidden md:flex items-center gap-1">
           <!-- Render Groups (Dropdowns) -->
-          <div v-for="(groupItems, groupName) in moduleConfig.groups" :key="groupName" class="relative dropdown-container">
+          <div v-for="(groupItems, groupName) in moduleConfig?.groups" :key="groupName" class="relative dropdown-container">
             <button 
               @click="toggleDropdown(groupName)"
               class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
@@ -384,7 +384,7 @@
 
           <!-- Render Individual Items -->
           <RouterLink
-            v-for="item in moduleConfig.items"
+            v-for="item in moduleConfig?.items"
             :key="item.to"
             :to="item.to"
             class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
