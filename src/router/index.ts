@@ -365,6 +365,19 @@ const router = createRouter({
           ] 
         },
       },
+      {
+        path: '/hrm/salary-components',
+        name: 'hrm-salary-components',
+        component: () => import('@/pages/SalaryComponentsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Salary Components' }
+          ] 
+        },
+      },
   ],
 })
 
