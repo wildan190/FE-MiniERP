@@ -126,11 +126,15 @@
               <h3 class="text-sm font-bold text-indigo-900 mb-4 uppercase tracking-wider">Handover Person</h3>
               <div class="flex items-center gap-3">
                 <div class="h-10 w-10 rounded-full bg-white border border-indigo-100 flex items-center justify-center text-indigo-600 text-xs font-bold">
-                  {{ getInitials('Person') }}
+                  {{ typeof resignation.handover_to === 'object' ? getInitials(resignation.handover_to.user?.name || resignation.handover_to.first_name || 'HP') : 'HP' }}
                 </div>
                 <div>
-                  <p class="text-sm font-bold text-indigo-900">ID: {{ resignation.handover_to }}</p>
-                  <p class="text-[10px] text-indigo-500">Designated Handover</p>
+                  <p class="text-sm font-bold text-indigo-900">
+                    {{ typeof resignation.handover_to === 'object' ? (resignation.handover_to.user?.name || (resignation.handover_to.first_name + ' ' + resignation.handover_to.last_name)) : 'ID: ' + resignation.handover_to }}
+                  </p>
+                  <p class="text-[10px] text-indigo-500">
+                    {{ typeof resignation.handover_to === 'object' ? resignation.handover_to.emp_code : 'Designated Handover' }}
+                  </p>
                 </div>
               </div>
             </Card>

@@ -5,7 +5,15 @@
       <table class="w-full">
         <thead>
           <tr class="border-b border-gray-200 bg-gray-50">
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider rounded-tl-lg">
+            <th class="px-6 py-3 text-left rounded-tl-lg w-10">
+              <input 
+                type="checkbox" 
+                @change="toggleSelectAll"
+                :checked="isAllSelected"
+                class="rounded border-gray-300 text-primary-600 focus:ring-primary-500 h-4 w-4"
+              />
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Employee
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
@@ -13,6 +21,9 @@
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Net Salary
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              Work Days
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Status
@@ -26,6 +37,7 @@
           <!-- Loading State -->
           <template v-if="loading">
             <tr v-for="i in 5" :key="i" class="border-b border-gray-100">
+              <td class="px-6 py-4"><Skeleton width="1rem" height="1rem" /></td>
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   <Skeleton width="2.5rem" height="2.5rem" />
@@ -47,7 +59,17 @@
               v-for="payroll in payrolls"
               :key="payroll.id"
               class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+              :class="{ 'bg-primary-50/30': isSelected(payroll.uuid) }"
             >
+              <td class="px-6 py-4 whitespace-nowrap">
+                <input 
+                  type="checkbox" 
+                  :value="payroll.uuid"
+                  v-model="selectedInternal"
+                  :disabled="payroll.status === 'paid'"
+                  class="rounded border-gray-300 text-primary-600 focus:ring-primary-500 h-4 w-4 disabled:opacity-30"
+                />
+              </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-3">
                   <div
@@ -68,6 +90,14 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span class="text-sm font-semibold text-gray-900">{{ formatCurrency(payroll.net_salary) }}</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center gap-1.5">
+                  <span :class="payroll.actual_presence < payroll.expected_work_days ? 'text-orange-600 font-bold' : 'text-green-600 font-medium'" class="text-sm">
+                    {{ payroll.actual_presence }}
+                  </span>
+                  <span class="text-gray-400 text-xs">/ {{ payroll.expected_work_days }}</span>
+                </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
@@ -111,9 +141,16 @@
       </template>
 
       <template v-else>
-        <div v-for="payroll in payrolls" :key="payroll.id" class="border-b border-gray-200 p-4">
+        <div v-for="payroll in payrolls" :key="payroll.id" class="border-b border-gray-200 p-4" :class="{ 'bg-primary-50/30': isSelected(payroll.uuid) }">
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-3">
+              <input 
+                type="checkbox" 
+                :value="payroll.uuid"
+                v-model="selectedInternal"
+                :disabled="payroll.status === 'paid'"
+                class="rounded border-gray-300 text-primary-600 focus:ring-primary-500 h-4 w-4 disabled:opacity-30"
+              />
               <div
                 class="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm"
               >
@@ -139,6 +176,12 @@
             </p>
             <p class="text-sm text-gray-600">
               <span class="font-medium">Net Salary:</span> <span class="font-bold text-gray-900">{{ formatCurrency(payroll.net_salary) }}</span>
+            </p>
+            <p class="text-sm text-gray-600">
+              <span class="font-medium">Work Days:</span> 
+              <span :class="payroll.actual_presence < payroll.expected_work_days ? 'text-orange-600 font-bold' : 'text-green-600 font-medium'">
+                {{ payroll.actual_presence }} / {{ payroll.expected_work_days }}
+              </span>
             </p>
           </div>
           <div class="flex">
@@ -172,6 +215,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import type { Payroll } from "../../services/hrm/types/payroll.types";
 import Card from "../common/Card.vue";
@@ -180,9 +224,33 @@ import Skeleton from "../common/Skeleton.vue";
 interface Props {
   payrolls: Payroll[];
   loading?: boolean;
+  selectedUuids: string[];
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+const emit = defineEmits(['update:selectedUuids']);
+
+const selectedInternal = computed({
+  get: () => props.selectedUuids,
+  set: (val) => emit('update:selectedUuids', val)
+})
+
+const isAllSelected = computed(() => {
+  const selectable = props.payrolls.filter(p => p.status !== 'paid')
+  return selectable.length > 0 && selectedInternal.value.length === selectable.length
+})
+
+const toggleSelectAll = () => {
+  if (isAllSelected.value) {
+    selectedInternal.value = []
+  } else {
+    selectedInternal.value = props.payrolls
+      .filter(p => p.status !== 'paid')
+      .map(p => p.uuid)
+  }
+}
+
+const isSelected = (uuid: string) => selectedInternal.value.includes(uuid)
 
 const getInitials = (name: string) => {
   return (

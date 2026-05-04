@@ -22,6 +22,14 @@ export class PayrollRepository {
   async markAsPaid(uuid: string): Promise<PayPayrollResponse> {
     return await payrollService.markAsPaid(uuid)
   }
+
+  async batchPay(uuids: string[]): Promise<{ message: string }> {
+    return await payrollService.batchPay(uuids)
+  }
+
+  getPayslipUrl(uuid: string): string {
+    return payrollService.getPayslipUrl(uuid)
+  }
 }
 
 export const payrollRepository = new PayrollRepository()
