@@ -188,6 +188,18 @@
                         <span>Designations</span>
                       </div>
                     </RouterLink>
+                    
+                    <RouterLink
+                      to="/hrm/resignations"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/hrm/resignations') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <FileX class="h-5 w-5" />
+                        <span>Resignations</span>
+                      </div>
+                    </RouterLink>
 
                     <RouterLink
                       to="/hrm/office-locations"
@@ -268,6 +280,18 @@
                       <div class="flex items-center gap-3">
                         <Banknote class="h-5 w-5" />
                         <span>Payrolls</span>
+                      </div>
+                    </RouterLink>
+
+                    <RouterLink
+                      to="/hrm/payslips"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path === '/hrm/payslips' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <Banknote class="h-5 w-5" />
+                        <span>Payslips</span>
                       </div>
                     </RouterLink>
 
@@ -459,6 +483,7 @@ import {
   CalendarRange,
   ChevronDown,
   Banknote,
+  FileX,
 } from "lucide-vue-next";
 
 const router = useRouter();

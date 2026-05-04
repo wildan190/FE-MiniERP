@@ -48,6 +48,14 @@
           
           <div class="flex gap-3">
             <button
+              v-if="payroll.status === 'paid'"
+              @click="handleDownloadPayslip"
+              class="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2 hover:-translate-y-0.5"
+            >
+              <Download class="h-5 w-5" />
+              Download Payslip
+            </button>
+            <button
               v-if="payroll.status !== 'paid'"
               @click="handleMarkAsPaid"
               :disabled="isPaying"
@@ -205,7 +213,7 @@ import Swal from 'sweetalert2'
 import AppLayout from '../../layouts/AppLayout.vue'
 import Card from '../../components/common/Card.vue'
 import Skeleton from '../../components/common/Skeleton.vue'
-import { CheckCircle, Calendar, Receipt, Clock } from 'lucide-vue-next'
+import { CheckCircle, Calendar, Receipt, Clock, Download } from 'lucide-vue-next'
 
 import { payrollRepository } from '../../repositories/hrm/payroll.repository'
 import type { Payroll } from '../../services/hrm/types/payroll.types'
@@ -272,6 +280,12 @@ const handleMarkAsPaid = async () => {
       isPaying.value = false
     }
   }
+}
+
+const handleDownloadPayslip = () => {
+  if (!payroll.value) return
+  const url = payrollRepository.getPayslipUrl(payroll.value.uuid)
+  window.open(url, '_blank')
 }
 
 const getInitials = (name: string) => {

@@ -113,12 +113,22 @@
                   </span>
                 </td>
                 <td class="py-4 px-6 text-right">
-                  <RouterLink
-                    :to="`/hrm/resignations/${resignation.uuid}`"
-                    class="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all inline-block"
-                  >
-                    <Eye class="h-5 w-5" />
-                  </RouterLink>
+                  <div class="flex items-center justify-end gap-2">
+                    <button
+                      v-if="resignation.status === 'pending'"
+                      @click="handleWithdraw(resignation.uuid)"
+                      class="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all"
+                      title="Withdraw Request"
+                    >
+                      <RotateCcw class="h-5 w-5" />
+                    </button>
+                    <RouterLink
+                      :to="`/hrm/resignations/${resignation.uuid}`"
+                      class="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all"
+                    >
+                      <Eye class="h-5 w-5" />
+                    </RouterLink>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -231,7 +241,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed } from 'vue'
-import { Plus, Eye, FileText, Clock, CheckCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { Plus, Eye, FileText, Clock, CheckCircle, XCircle, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-vue-next'
 import AppLayout from '../../layouts/AppLayout.vue'
 import Card from '../../components/common/Card.vue'
 import Modal from '../../components/common/Modal.vue'
@@ -315,6 +325,38 @@ const handleSubmit = async () => {
   }
 }
 
+const handleWithdraw = async (uuid: string) => {
+  const result = await Swal.fire({
+    title: 'Withdraw Request?',
+    text: 'Are you sure you want to withdraw this resignation request?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f97316',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, withdraw it'
+  })
+
+  if (result.isConfirmed) {
+    try {
+      await resignationStore.updateStatus(uuid, { status: 'withdrawn' })
+      await Swal.fire({
+        title: 'Withdrawn!',
+        text: 'Your resignation request has been withdrawn.',
+        icon: 'success',
+        confirmButtonColor: '#f97316',
+      })
+    } catch (err: any) {
+      console.error(err)
+      Swal.fire({
+        title: 'Error!',
+        text: err.response?.data?.message || 'Failed to withdraw request.',
+        icon: 'error',
+        confirmButtonColor: '#4f46e5',
+      })
+    }
+  }
+}
+
 const formatDate = (dateString: string) => {
   if (!dateString) return '-'
   return new Date(dateString).toLocaleDateString('en-GB', {
@@ -339,7 +381,10 @@ const getStatusClass = (status: string) => {
 
 onMounted(async () => {
   isLoading.value = true
-  await resignationStore.fetchResignations()
+  await Promise.all([
+    resignationStore.fetchResignations(),
+    employeeStore.fetchEmployees(1) // Fetch employees for handover selection
+  ])
   isLoading.value = false
 })
 </script>

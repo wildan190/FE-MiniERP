@@ -59,8 +59,41 @@
 
       <!-- Table -->
       <div class="space-y-4">
+        <!-- Batch Actions -->
+        <div v-if="selectedUuids.length > 0" class="flex items-center justify-between p-4 bg-primary-50 rounded-2xl border border-primary-100 shadow-sm animate-fade-in">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-primary-600 flex items-center justify-center text-white shadow-sm">
+              <CheckCircle class="h-6 w-6" />
+            </div>
+            <div>
+              <p class="text-sm font-bold text-primary-900">{{ selectedUuids.length }} Payrolls Selected</p>
+              <p class="text-xs text-primary-600">You can mark all selected records as paid at once.</p>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button
+              @click="clearSelection"
+              class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="handleBatchPay"
+              :disabled="isBatchPaying"
+              class="px-6 py-2.5 bg-green-600 text-white text-sm font-bold rounded-xl hover:bg-green-700 transition-all shadow-md flex items-center gap-2 hover:-translate-y-0.5 active:scale-95 disabled:opacity-50"
+            >
+              <Banknote class="h-5 w-5" />
+              {{ isBatchPaying ? 'Processing...' : 'Mark as Paid' }}
+            </button>
+          </div>
+        </div>
+
         <div>
-          <PayrollTable :payrolls="payrolls" :loading="isLoading" />
+          <PayrollTable 
+            :payrolls="payrolls" 
+            :loading="isLoading" 
+            v-model:selectedUuids="selectedUuids"
+          />
 
           <!-- Pagination -->
           <ResponsivePagination
@@ -86,7 +119,7 @@ import AppLayout from '../layouts/AppLayout.vue'
 import Card from '../components/common/Card.vue'
 import PayrollTable from '../components/hrm/PayrollTable.vue'
 import ResponsivePagination from '../components/common/ResponsivePagination.vue'
-import { Calendar, ChevronDown, Tag } from 'lucide-vue-next'
+import { Calendar, ChevronDown, Tag, CheckCircle, Banknote } from 'lucide-vue-next'
 
 import { payrollRepository } from '../repositories/hrm/payroll.repository'
 import { payrollPeriodRepository } from '../repositories/hrm/payroll-period.repository'
@@ -96,6 +129,8 @@ import type { PaginationLink } from '../services/types'
 
 const payrolls = ref<Payroll[]>([])
 const isLoading = ref(false)
+const selectedUuids = ref<string[]>([])
+const isBatchPaying = ref(false)
 
 const payrollPeriods = ref<PayrollPeriod[]>([])
 const isLoadingPeriods = ref(false)
@@ -158,7 +193,51 @@ const loadData = async (page = 1) => {
 }
 
 const handleFilterChange = () => {
+  selectedUuids.value = []
   loadData(1)
+}
+
+const clearSelection = () => {
+  selectedUuids.value = []
+}
+
+const handleBatchPay = async () => {
+  if (selectedUuids.value.length === 0) return
+
+  const result = await Swal.fire({
+    title: 'Batch Mark as Paid?',
+    text: `Are you sure you want to mark ${selectedUuids.value.length} selected payrolls as paid? This will set today's date as the payment date.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#10b981',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, mark all as paid'
+  })
+
+  if (result.isConfirmed) {
+    isBatchPaying.value = true
+    try {
+      const response = await payrollRepository.batchPay(selectedUuids.value)
+      await Swal.fire({
+        title: 'Success!',
+        text: response.message,
+        icon: 'success',
+        confirmButtonColor: '#10b981',
+      })
+      selectedUuids.value = []
+      loadData(pagination.value.current_page)
+    } catch (error: any) {
+      console.error('Batch pay failed:', error)
+      Swal.fire({
+        title: 'Error!',
+        text: error.response?.data?.message || 'Failed to process batch payment.',
+        icon: 'error',
+        confirmButtonColor: '#ef4444',
+      })
+    } finally {
+      isBatchPaying.value = false
+    }
+  }
 }
 
 onMounted(() => {
