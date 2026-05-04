@@ -40,8 +40,29 @@ export class PayrollService {
   }
 
   getPayslipUrl(uuid: string): string {
-    return `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/platform/hrm/payrolls/${uuid}/payslip`
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001/api/platform';
+    return `${baseUrl}/hrm/payrolls/${uuid}/payslip`
+  }
+
+  async downloadPayslip(uuid: string, filename: string = 'payslip.pdf'): Promise<void> {
+    const response = await apiClient.getClient().get(`/hrm/payrolls/${uuid}/payslip`, {
+      responseType: 'blob',
+    })
+    
+    // Create blob link to download
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', filename)
+    document.body.appendChild(link)
+    link.click()
+    
+    // Clean up
+    link.parentNode?.removeChild(link)
+    window.URL.revokeObjectURL(url)
   }
 }
+
+
 
 export const payrollService = new PayrollService()

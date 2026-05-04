@@ -30,6 +30,11 @@ export class PayrollRepository {
   getPayslipUrl(uuid: string): string {
     return payrollService.getPayslipUrl(uuid)
   }
+
+  async downloadPayslip(uuid: string, filename?: string): Promise<void> {
+    return await payrollService.downloadPayslip(uuid, filename)
+  }
 }
+
 
 export const payrollRepository = new PayrollRepository()
