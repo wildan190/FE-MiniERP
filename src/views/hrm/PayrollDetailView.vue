@@ -282,11 +282,23 @@ const handleMarkAsPaid = async () => {
   }
 }
 
-const handleDownloadPayslip = () => {
+const handleDownloadPayslip = async () => {
   if (!payroll.value) return
-  const url = payrollRepository.getPayslipUrl(payroll.value.uuid)
-  window.open(url, '_blank')
+  
+  try {
+    const filename = `payslip-${payroll.value.employee?.emp_code || 'employee'}-${payroll.value.payroll_period?.name?.replace(/\s+/g, '-')}.pdf`
+    await payrollRepository.downloadPayslip(payroll.value.uuid, filename)
+  } catch (error) {
+    console.error('Failed to download payslip:', error)
+    Swal.fire({
+      title: 'Error!',
+      text: 'Failed to download payslip. Please try again.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+    })
+  }
 }
+
 
 const getInitials = (name: string) => {
   return (

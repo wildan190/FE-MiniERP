@@ -83,8 +83,9 @@
                   </td>
                   <td class="px-6 py-4 text-right">
                     <button
-                      @click="handleDownload(payroll.uuid)"
+                      @click="handleDownload(payroll)"
                       class="inline-flex items-center gap-2 px-4 py-2 bg-primary-50 text-primary-600 rounded-xl text-xs font-bold hover:bg-primary-600 hover:text-white transition-all group"
+
                     >
                       <Download class="h-4 w-4 group-hover:scale-110 transition-transform" />
                       Download PDF
@@ -145,10 +146,16 @@ const filteredPayrolls = computed(() => {
   )
 })
 
-const handleDownload = (uuid: string) => {
-  const url = payrollRepository.getPayslipUrl(uuid)
-  window.open(url, '_blank')
+const handleDownload = async (payroll: Payroll) => {
+  try {
+    const filename = `payslip-${payroll.employee?.emp_code || 'employee'}-${payroll.payroll_period?.name?.replace(/\s+/g, '-')}.pdf`
+    await payrollRepository.downloadPayslip(payroll.uuid, filename)
+  } catch (error) {
+    console.error('Failed to download payslip:', error)
+    // Could add Swal here, but console error is fine for now
+  }
 }
+
 
 const getInitials = (name: string) => {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)

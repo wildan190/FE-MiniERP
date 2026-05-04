@@ -136,8 +136,9 @@ const handleView = (doc: EmployeeDocument) => {
   // Construct the file URL based on the backend storage URL.
   // Tries to derive the base URL from the current app or fallback to localhost.
   const apiBase = (window as any).__API_BASE__ || 
-    (window.location.hostname === 'localhost' ? 'http://localhost:8000' : window.location.origin);
+    (window.location.hostname === 'localhost' ? 'http://localhost:8001' : window.location.origin);
   const url = `${apiBase}/storage/${doc.file_path}`;
+
   
   window.open(url, '_blank');
 };
