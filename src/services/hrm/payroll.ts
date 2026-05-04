@@ -47,7 +47,11 @@ export class PayrollService {
   async downloadPayslip(uuid: string, filename: string = 'payslip.pdf'): Promise<void> {
     const response = await apiClient.getClient().get(`/hrm/payrolls/${uuid}/payslip`, {
       responseType: 'blob',
+      headers: {
+        'Accept': 'application/json'
+      }
     })
+
     
     // Create blob link to download
     const url = window.URL.createObjectURL(new Blob([response.data]))
