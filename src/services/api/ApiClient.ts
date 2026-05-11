@@ -1,7 +1,7 @@
 import axios, { type AxiosInstance } from 'axios'
 
 // @ts-ignore: TS doesn't recognize import.meta.env properly due to tsconfig limitations in this setup
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001/api/platform'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:8001/api/platform`
 
 export class ApiClient {
   private client: AxiosInstance
