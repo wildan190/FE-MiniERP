@@ -11,7 +11,8 @@ import {
   Clock,
   CalendarRange,
   Banknote,
-  FileX
+  FileX,
+  TrendingUp,
 } from 'lucide-vue-next';
 
 export interface NavItem {
@@ -60,17 +61,34 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
       ]
     }
   },
+  finance: {
+    items: [
+      { label: 'Finance Dashboard', to: '/finance', icon: LayoutDashboard },
+      { label: 'Reports', to: '/finance/reports', icon: BarChart3 },
+    ],
+    groups: {
+      ledger: [
+        { label: 'Chart of Accounts', to: '/finance/ledger/accounts', icon: Box },
+        { label: 'General Ledger', to: '/finance/ledger/items', icon: ClipboardList },
+      ],
+      analytics: [
+        { label: 'AI Analytics', to: '/finance/analytics', icon: Zap },
+      ]
+    }
+  },
   default: {
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
       { label: 'CRM', to: '/crm', icon: Users },
       { label: 'HRM', to: '/hrm/departments', icon: Zap },
+      { label: 'Finance', to: '/finance', icon: Banknote },
     ]
   }
 };
 
 export const getModuleByPath = (path: string): string => {
   if (path.startsWith('/hrm')) return 'hrm';
+  if (path.startsWith('/finance')) return 'finance';
   if (path.startsWith('/crm') || 
       path.startsWith('/customers') || 
       path.startsWith('/leads') || 

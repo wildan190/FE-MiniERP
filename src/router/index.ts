@@ -432,6 +432,70 @@ const router = createRouter({
           ]
         },
       },
+      {
+        path: '/finance',
+        name: 'finance-dashboard',
+        component: () => import('@/pages/FinanceDashboardPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Finance' }
+          ] 
+        },
+      },
+      {
+        path: '/finance/ledger/accounts',
+        name: 'finance-ledger-accounts',
+        component: () => import('@/pages/finance/LedgerAccountsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Finance', to: '/finance' },
+            { label: 'Chart of Accounts' }
+          ] 
+        },
+      },
+      {
+        path: '/finance/ledger/items',
+        name: 'finance-ledger-items',
+        component: () => import('@/pages/finance/LedgerItemsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Finance', to: '/finance' },
+            { label: 'General Ledger' }
+          ] 
+        },
+      },
+      {
+        path: '/finance/reports',
+        name: 'finance-reports',
+        component: () => import('@/pages/finance/FinancialReportsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Finance', to: '/finance' },
+            { label: 'Reports' }
+          ] 
+        },
+      },
+      {
+        path: '/finance/analytics',
+        name: 'finance-analytics',
+        component: () => import('@/pages/finance/AIAnalyticsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Finance', to: '/finance' },
+            { label: 'AI Analytics' }
+          ] 
+        },
+      },
   ],
 })
 

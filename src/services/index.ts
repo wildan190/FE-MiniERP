@@ -18,3 +18,4 @@ export {
   crmServiceInstance,
 } from './crm'
 export * from './hrm'
+export * from './finance/finance.service'
