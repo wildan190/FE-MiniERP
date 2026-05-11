@@ -146,6 +146,78 @@
                   </RouterLink>
                 </template>
 
+                <template v-if="activeModule === 'finance'">
+                  <div class="pt-2 pb-2">
+                    <RouterLink
+                      to="/finance"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path === '/finance' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <LayoutDashboard class="h-5 w-5" />
+                        <span>Finance Dashboard</span>
+                      </div>
+                    </RouterLink>
+
+                    <RouterLink
+                      to="/finance/reports"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/finance/reports') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <BarChart3 class="h-5 w-5" />
+                        <span>Reports</span>
+                      </div>
+                    </RouterLink>
+
+                    <div class="px-3 mb-2 mt-6">
+                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Ledger</p>
+                    </div>
+
+                    <RouterLink
+                      to="/finance/ledger/accounts"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/finance/ledger/accounts') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <Box class="h-5 w-5" />
+                        <span>Chart of Accounts</span>
+                      </div>
+                    </RouterLink>
+
+                    <RouterLink
+                      to="/finance/ledger/items"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/finance/ledger/items') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <ClipboardList class="h-5 w-5" />
+                        <span>General Ledger</span>
+                      </div>
+                    </RouterLink>
+
+                    <div class="px-3 mb-2 mt-6">
+                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">AI Insights</p>
+                    </div>
+
+                    <RouterLink
+                      to="/finance/analytics"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/finance/analytics') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <Zap class="h-5 w-5" />
+                        <span>AI Analytics</span>
+                      </div>
+                    </RouterLink>
+                  </div>
+                </template>
+
                 <template v-if="activeModule === 'hrm'">
                   <div class="pt-2 pb-2">
                     <!-- Personnel Section -->
