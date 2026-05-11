@@ -40,7 +40,8 @@ export class PayrollService {
   }
 
   getPayslipUrl(uuid: string): string {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001/api/platform';
+    const defaultBase = `http://${window.location.hostname}:8001/api/platform`;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || defaultBase;
     const token = localStorage.getItem('auth_token');
     return `${baseUrl}/hrm/payrolls/${uuid}/payslip?token=${token || ''}`
   }
