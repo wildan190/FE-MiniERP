@@ -496,6 +496,173 @@ const router = createRouter({
           ] 
         },
       },
+      {
+        path: '/purchasing',
+        name: 'purchasing-dashboard',
+        component: () => import('@/pages/purchasing/PurchasingDashboard.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Purchasing' }
+          ] 
+        },
+      },
+      {
+        path: '/purchasing/suppliers',
+        name: 'purchasing-suppliers',
+        component: () => import('@/pages/purchasing/SuppliersPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Purchasing', to: '/purchasing' },
+            { label: 'Suppliers' }
+          ] 
+        },
+      },
+      {
+        path: '/purchasing/requests',
+        name: 'purchasing-requests',
+        component: () => import('@/pages/purchasing/PurchaseRequestsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Purchasing', to: '/purchasing' },
+            { label: 'Requests' }
+          ] 
+        },
+      },
+      {
+        path: '/purchasing/orders',
+        name: 'purchasing-orders',
+        component: () => import('@/pages/purchasing/PurchaseOrdersPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Purchasing', to: '/purchasing' },
+            { label: 'Orders' }
+          ] 
+        },
+      },
+      {
+        path: '/purchasing/receipts',
+        name: 'purchasing-receipts',
+        component: () => import('@/pages/purchasing/GoodsReceiptsPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Purchasing', to: '/purchasing' },
+            { label: 'Receipts' }
+          ] 
+        },
+      },
+      {
+        path: '/purchasing/invoices',
+        name: 'purchasing-invoices',
+        component: () => import('@/pages/purchasing/PurchaseInvoicesPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Purchasing', to: '/purchasing' },
+            { label: 'Invoices' }
+          ] 
+        },
+      },
+      {
+        path: '/project',
+        name: 'project-dashboard',
+        component: () => import('@/pages/project/ProjectDashboard.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Project' }
+          ] 
+        },
+      },
+      {
+        path: '/project/list',
+        name: 'project-list',
+        component: () => import('@/pages/project/ProjectListPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Project', to: '/project' },
+            { label: 'List' }
+          ] 
+        },
+      },
+      {
+        path: '/project/kanban',
+        name: 'project-kanban',
+        component: () => import('@/pages/project/TaskKanbanPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Project', to: '/project' },
+            { label: 'Kanban' }
+          ] 
+        },
+      },
+      {
+        path: '/project/tasks',
+        name: 'project-tasks',
+        component: () => import('@/pages/project/TasksPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Project', to: '/project' },
+            { label: 'Tasks' }
+          ] 
+        },
+      },
+      {
+        path: '/project/resources',
+        name: 'project-resources',
+        component: () => import('@/pages/project/ResourcesPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Project', to: '/project' },
+            { label: 'Resources' }
+          ] 
+        },
+      },
+      {
+        path: '/project/budget',
+        name: 'project-budget',
+        component: () => import('@/pages/project/BudgetCostPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Project', to: '/project' },
+            { label: 'Budget & Cost' }
+          ] 
+        },
+      },
+      {
+        path: '/project/timesheets',
+        name: 'project-timesheets',
+        component: () => import('@/pages/project/TimesheetPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'Project', to: '/project' },
+            { label: 'Timesheets' }
+          ] 
+        },
+      },
   ],
 })
 

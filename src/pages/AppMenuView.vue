@@ -70,7 +70,9 @@ import {
   Settings,
   LogOut,
   Zap,
-  Banknote
+  Banknote,
+  ShoppingCart,
+  LayoutGrid
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
@@ -81,6 +83,8 @@ const apps = [
   { name: "CRM", path: "/crm", icon: Users, color: "bg-gradient-to-br from-emerald-500 to-teal-700" },
   { name: "HRM", path: "/hrm/departments", icon: Zap, color: "bg-gradient-to-br from-purple-500 to-indigo-700" },
   { name: "Finance", path: "/finance", icon: Banknote, color: "bg-gradient-to-br from-blue-600 to-primary-800" },
+  { name: "Purchasing", path: "/purchasing", icon: ShoppingCart, color: "bg-gradient-to-br from-amber-500 to-orange-700" },
+  { name: "Project", path: "/project", icon: LayoutGrid, color: "bg-gradient-to-br from-rose-500 to-pink-700" },
   { name: "Inventory", path: "#", icon: Box, color: "bg-gradient-to-br from-orange-500 to-red-700 opacity-50 cursor-not-allowed" },
   { name: "Settings", path: "#", icon: Settings, color: "bg-gradient-to-br from-slate-500 to-gray-700 opacity-50 cursor-not-allowed" },
 ];

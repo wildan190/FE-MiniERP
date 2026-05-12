@@ -76,12 +76,47 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
       ]
     }
   },
+  purchasing: {
+    items: [
+      { label: 'Purchasing Dashboard', to: '/purchasing', icon: LayoutDashboard },
+      { label: 'Suppliers', to: '/purchasing/suppliers', icon: Users },
+    ],
+    groups: {
+      procurement: [
+        { label: 'Purchase Requests', to: '/purchasing/requests', icon: ClipboardList },
+        { label: 'Purchase Orders', to: '/purchasing/orders', icon: Box },
+      ],
+      financial: [
+        { label: 'Goods Receipts', to: '/purchasing/receipts', icon: Box },
+        { label: 'Supplier Invoices', to: '/purchasing/invoices', icon: Banknote },
+      ]
+    }
+  },
+  project: {
+    items: [
+      { label: 'Project Dashboard', to: '/project', icon: LayoutDashboard },
+      { label: 'Projects', to: '/project/list', icon: Box },
+    ],
+    groups: {
+      execution: [
+        { label: 'Tasks', to: '/project/tasks', icon: ClipboardList },
+        { label: 'Kanban Board', to: '/project/kanban', icon: LayoutGrid },
+        { label: 'Timesheets', to: '/project/timesheets', icon: Clock },
+      ],
+      management: [
+        { label: 'Resources', to: '/project/resources', icon: Users },
+        { label: 'Budget & Cost', to: '/project/budget', icon: Banknote },
+      ]
+    }
+  },
   default: {
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
       { label: 'CRM', to: '/crm', icon: Users },
       { label: 'HRM', to: '/hrm/departments', icon: Zap },
       { label: 'Finance', to: '/finance', icon: Banknote },
+      { label: 'Purchasing', to: '/purchasing', icon: Box },
+      { label: 'Project', to: '/project', icon: LayoutGrid },
     ]
   }
 };
@@ -89,6 +124,8 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
 export const getModuleByPath = (path: string): string => {
   if (path.startsWith('/hrm')) return 'hrm';
   if (path.startsWith('/finance')) return 'finance';
+  if (path.startsWith('/purchasing')) return 'purchasing';
+  if (path.startsWith('/project')) return 'project';
   if (path.startsWith('/crm') || 
       path.startsWith('/customers') || 
       path.startsWith('/leads') || 
