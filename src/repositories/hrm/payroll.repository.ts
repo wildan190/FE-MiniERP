@@ -11,6 +11,7 @@ export class PayrollRepository {
     payroll_period_uuid?: string
     employee_uuid?: string
     status?: string
+    per_page?: number
   }): Promise<PayrollListResponse> {
     return await payrollService.getPayrolls(params)
   }

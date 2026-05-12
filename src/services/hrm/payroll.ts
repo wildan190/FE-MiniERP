@@ -17,6 +17,7 @@ export class PayrollService {
     payroll_period_uuid?: string
     employee_uuid?: string
     status?: string
+    per_page?: number
   }): Promise<PayrollListResponse> {
     const response = await apiClient.getClient().get('/hrm/payrolls', { params })
     return response.data

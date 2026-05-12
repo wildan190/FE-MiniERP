@@ -91,7 +91,14 @@ import ResponsivePagination from '@/components/common/ResponsivePagination.vue'
 
 const financeStore = useFinanceStore()
 
-const itemsData = computed(() => financeStore.ledgerItems || { data: [], total: 0, current_page: 1, last_page: 1, per_page: 20 })
+const itemsData = computed(() => {
+  const defaultState = { data: [], total: 0, current_page: 1, last_page: 1, per_page: 20, from: 0, to: 0, links: [] }
+  if (!financeStore.ledgerItems) return defaultState
+  if (Array.isArray(financeStore.ledgerItems)) {
+    return { ...defaultState, data: financeStore.ledgerItems, total: financeStore.ledgerItems.length }
+  }
+  return financeStore.ledgerItems
+})
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('id-ID', {
