@@ -143,7 +143,6 @@
           </div>
         </Card>
 
-        <!-- Recent Transactions -->
         <Card>
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-semibold text-gray-900">Recent Transactions</h3>
@@ -159,7 +158,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
-                <tr v-for="tx in financeStore.dashboardData?.recent_transactions || []" :key="tx.uuid">
+                <tr v-for="tx in paginatedTransactions" :key="tx.uuid">
                   <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ tx.record_date }}</td>
                   <td class="px-4 py-4 text-sm text-gray-900">{{ tx.description }}</td>
                   <td class="px-4 py-4 whitespace-nowrap text-sm text-right font-semibold" :class="tx.type === 'revenue' ? 'text-green-600' : 'text-red-600'">
@@ -169,6 +168,29 @@
               </tbody>
             </table>
           </div>
+          
+          <!-- Client-side Pagination -->
+          <div v-if="allTransactions.length > pageSize" class="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
+            <p class="text-xs text-gray-500">
+              Showing <span class="font-bold text-gray-900">{{ startIndex + 1 }}</span> to <span class="font-bold text-gray-900">{{ endIndex }}</span> of <span class="font-bold text-gray-900">{{ allTransactions.length }}</span>
+            </p>
+            <div class="flex gap-2">
+              <button 
+                @click="currentPage--" 
+                :disabled="currentPage === 1"
+                class="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+              </button>
+              <button 
+                @click="currentPage++" 
+                :disabled="currentPage === totalPages"
+                class="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
+          </div>
         </Card>
       </div>
     </div>
@@ -176,7 +198,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useFinanceStore } from '@/stores/finance'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Card from '@/components/common/Card.vue'
@@ -184,6 +206,19 @@ import Alert from '@/components/common/Alert.vue'
 import Skeleton from '@/components/common/Skeleton.vue'
 
 const financeStore = useFinanceStore()
+
+// Pagination State
+const currentPage = ref(1)
+const pageSize = ref(10)
+
+const allTransactions = computed(() => financeStore.dashboardData?.recent_transactions || [])
+const totalPages = computed(() => Math.ceil(allTransactions.value.length / pageSize.value))
+const startIndex = computed(() => (currentPage.value - 1) * pageSize.value)
+const endIndex = computed(() => Math.min(startIndex.value + pageSize.value, allTransactions.value.length))
+
+const paginatedTransactions = computed(() => {
+  return allTransactions.value.slice(startIndex.value, endIndex.value)
+})
 
 const formatFullCurrency = (value: number) => {
   return new Intl.NumberFormat('id-ID', {

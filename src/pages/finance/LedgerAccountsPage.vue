@@ -39,7 +39,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="account in financeStore.accounts" :key="account.uuid" class="hover:bg-gray-50">
+              <tr v-for="account in paginatedAccounts" :key="account.uuid" class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ account.code }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ account.name }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -58,13 +58,36 @@
                   <button class="text-red-600 hover:text-red-900">Delete</button>
                 </td>
               </tr>
-              <tr v-if="financeStore.accounts.length === 0">
+              <tr v-if="allAccounts.length === 0">
                 <td colspan="5" class="px-6 py-10 text-center text-gray-500">
                   No accounts found.
                 </td>
               </tr>
             </tbody>
           </table>
+          
+          <!-- Client-side Pagination -->
+          <div v-if="allAccounts.length > pageSize" class="flex items-center justify-between border-t border-gray-100 px-6 py-4">
+            <p class="text-sm text-gray-700">
+              Showing <span class="font-medium">{{ startIndex + 1 }}</span> to <span class="font-medium">{{ endIndex }}</span> of <span class="font-medium">{{ allAccounts.length }}</span> results
+            </p>
+            <div class="flex gap-2">
+              <button 
+                @click="currentPage--" 
+                :disabled="currentPage === 1"
+                class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <button 
+                @click="currentPage++" 
+                :disabled="currentPage === totalPages"
+                class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       </Card>
     </div>
@@ -72,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useFinanceStore } from '@/stores/finance'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Card from '@/components/common/Card.vue'
@@ -81,6 +104,19 @@ import Skeleton from '@/components/common/Skeleton.vue'
 import { Plus } from 'lucide-vue-next'
 
 const financeStore = useFinanceStore()
+
+// Pagination State
+const currentPage = ref(1)
+const pageSize = ref(15)
+
+const allAccounts = computed(() => financeStore.accounts || [])
+const totalPages = computed(() => Math.ceil(allAccounts.value.length / pageSize.value))
+const startIndex = computed(() => (currentPage.value - 1) * pageSize.value)
+const endIndex = computed(() => Math.min(startIndex.value + pageSize.value, allAccounts.value.length))
+
+const paginatedAccounts = computed(() => {
+  return allAccounts.value.slice(startIndex.value, endIndex.value)
+})
 
 const getTypeClass = (type: string) => {
   switch (type) {
