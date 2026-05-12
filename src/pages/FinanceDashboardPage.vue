@@ -122,22 +122,27 @@
         <Card>
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-semibold text-gray-900">Monthly Trends</h3>
-            <span class="text-xs text-gray-500">Last 12 Months</span>
+            <button 
+              @click="showAllTrends = !showAllTrends"
+              class="text-xs font-bold text-primary-600 hover:text-primary-700 uppercase tracking-wider"
+            >
+              {{ showAllTrends ? 'Show Less' : 'View All' }}
+            </button>
           </div>
-          <div class="space-y-4">
-            <div v-for="trend in financeStore.dashboardData?.monthly_trends || []" :key="trend.month" class="space-y-2">
-              <div class="flex justify-between text-xs font-medium">
-                <span class="text-gray-600">{{ trend.month }}</span>
-                <span class="text-gray-900">{{ formatFullCurrency(trend.revenue) }}</span>
+          <div class="space-y-6">
+            <div v-for="trend in displayedTrends" :key="trend.month" class="group">
+              <div class="flex justify-between text-[10px] font-bold uppercase tracking-tighter mb-1.5">
+                <span class="text-gray-500 group-hover:text-primary-600 transition-colors">{{ trend.month }}</span>
+                <div class="flex gap-3">
+                  <span class="text-blue-600">REV: {{ formatFullCurrency(trend.revenue) }}</span>
+                  <span class="text-red-500">EXP: {{ formatFullCurrency(trend.expense) }}</span>
+                </div>
               </div>
-              <div class="relative h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+              <div class="relative h-2 w-full bg-gray-100 rounded-full overflow-hidden shadow-inner">
                 <div 
-                  class="absolute left-0 top-0 h-full bg-blue-500" 
+                  class="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-1000 ease-out shadow-sm" 
                   :style="{ width: getTrendPercentage(trend.revenue, trend.expense) + '%' }"
                 ></div>
-              </div>
-              <div class="flex justify-end text-[10px] text-gray-400">
-                Expense: {{ formatFullCurrency(trend.expense) }}
               </div>
             </div>
           </div>
@@ -180,14 +185,14 @@
                 :disabled="currentPage === 1"
                 class="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                <ChevronLeft class="h-4 w-4" />
               </button>
               <button 
                 @click="currentPage++" 
                 :disabled="currentPage === totalPages"
                 class="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                <ChevronRight class="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -204,12 +209,14 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import Card from '@/components/common/Card.vue'
 import Alert from '@/components/common/Alert.vue'
 import Skeleton from '@/components/common/Skeleton.vue'
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 
 const financeStore = useFinanceStore()
 
 // Pagination State
 const currentPage = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(5)
+const showAllTrends = ref(false)
 
 const allTransactions = computed(() => financeStore.dashboardData?.recent_transactions || [])
 const totalPages = computed(() => Math.ceil(allTransactions.value.length / pageSize.value))
@@ -218,6 +225,11 @@ const endIndex = computed(() => Math.min(startIndex.value + pageSize.value, allT
 
 const paginatedTransactions = computed(() => {
   return allTransactions.value.slice(startIndex.value, endIndex.value)
+})
+
+const displayedTrends = computed(() => {
+  const trends = financeStore.dashboardData?.monthly_trends || []
+  return showAllTrends.value ? trends : trends.slice(0, 5)
 })
 
 const formatFullCurrency = (value: number) => {
