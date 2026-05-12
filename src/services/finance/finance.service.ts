@@ -13,7 +13,7 @@ export const financeService = {
 
   async getLedgerItems(page = 1) {
     const response = await financeRepository.getLedgerItems(page)
-    // Ledger items might be paginated, check if success wraps it
+    // Return the whole pagination object (which should be in response.data.data)
     return response.data.data || response.data
   },
 
