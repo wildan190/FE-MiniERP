@@ -218,6 +218,90 @@
                   </div>
                 </template>
 
+                <template v-if="activeModule === 'purchasing'">
+                  <div class="pt-2 pb-2">
+                    <RouterLink
+                      to="/purchasing"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path === '/purchasing' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <LayoutDashboard class="h-5 w-5" />
+                        <span>Purchasing Dashboard</span>
+                      </div>
+                    </RouterLink>
+
+                    <RouterLink
+                      to="/purchasing/suppliers"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/purchasing/suppliers') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <Users class="h-5 w-5" />
+                        <span>Suppliers</span>
+                      </div>
+                    </RouterLink>
+
+                    <div class="px-3 mb-2 mt-6">
+                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Procurement</p>
+                    </div>
+
+                    <RouterLink
+                      to="/purchasing/requests"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/purchasing/requests') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <ClipboardList class="h-5 w-5" />
+                        <span>Purchase Requests</span>
+                      </div>
+                    </RouterLink>
+
+                    <RouterLink
+                      to="/purchasing/orders"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/purchasing/orders') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <Box class="h-5 w-5" />
+                        <span>Purchase Orders</span>
+                      </div>
+                    </RouterLink>
+
+                    <div class="px-3 mb-2 mt-6">
+                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Financial</p>
+                    </div>
+
+                    <RouterLink
+                      to="/purchasing/receipts"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/purchasing/receipts') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <Box class="h-5 w-5" />
+                        <span>Goods Receipts</span>
+                      </div>
+                    </RouterLink>
+
+                    <RouterLink
+                      to="/purchasing/invoices"
+                      @click="isMobileSidebarOpen = false"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/purchasing/invoices') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <Banknote class="h-5 w-5" />
+                        <span>Supplier Invoices</span>
+                      </div>
+                    </RouterLink>
+                  </div>
+                </template>
+
                 <template v-if="activeModule === 'hrm'">
                   <div class="pt-2 pb-2">
                     <!-- Personnel Section -->
@@ -443,6 +527,17 @@
             />
           </RouterLink>
 
+          <!-- Mobile Hamburger (md:hidden) -->
+          <button
+            class="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-all active:scale-95"
+            @click="isMobileSidebarOpen = true"
+            title="Open Menu"
+          >
+            <svg class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
           <div class="flex items-center gap-2">
             <div
               class="flex items-center justify-center h-8 w-8 rounded-lg bg-primary-600 text-white shadow-sm"
@@ -484,7 +579,7 @@
             :key="item.to"
             :to="item.to"
             class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{ 'bg-primary-50 text-primary-600': route.path === item.to || (item.to !== '/' && route.path.startsWith(item.to)) }"
+            :class="{ 'bg-primary-50 text-primary-600': isItemActive(item.to) }"
           >
             {{ item.label }}
           </RouterLink>
@@ -577,6 +672,13 @@ const closeDropdowns = (e: MouseEvent) => {
   if (!(e.target as Element).closest(".dropdown-container")) {
     activeDropdown.value = null;
   }
+};
+
+const isItemActive = (path: string) => {
+  if (path === '/finance' || path === '/crm' || path === '/dashboard' || path === '/purchasing' || path === '/project') {
+    return route.path === path;
+  }
+  return route.path.startsWith(path);
 };
 
 const isGroupActive = (items: any[]) => {
