@@ -484,7 +484,7 @@
             :key="item.to"
             :to="item.to"
             class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{ 'bg-primary-50 text-primary-600': route.path === item.to || (item.to !== '/' && route.path.startsWith(item.to)) }"
+            :class="{ 'bg-primary-50 text-primary-600': isItemActive(item.to) }"
           >
             {{ item.label }}
           </RouterLink>
@@ -577,6 +577,13 @@ const closeDropdowns = (e: MouseEvent) => {
   if (!(e.target as Element).closest(".dropdown-container")) {
     activeDropdown.value = null;
   }
+};
+
+const isItemActive = (path: string) => {
+  if (path === '/finance' || path === '/crm' || path === '/dashboard') {
+    return route.path === path;
+  }
+  return route.path.startsWith(path);
 };
 
 const isGroupActive = (items: any[]) => {
