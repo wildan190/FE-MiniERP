@@ -7,7 +7,7 @@ export interface Resignation {
   resignation_date: string
   reason: string
   status: 'pending' | 'approved' | 'rejected' | 'withdrawn'
-  handover_to: number | null
+  handover_to: number | Employee | null
   remarks: string | null
   created_at: string
   updated_at: string

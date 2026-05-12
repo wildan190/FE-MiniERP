@@ -272,7 +272,7 @@ const stats = computed(() => {
 
 const formData = reactive<CreateResignationRequest>({
   employee_uuid: '',
-  notice_date: new Date().toISOString().split('T')[0],
+  notice_date: new Date().toISOString().slice(0, 10),
   resignation_date: '',
   reason: '',
   handover_to_uuid: null
@@ -293,7 +293,7 @@ const closeResignationModal = () => {
 
 const resetForm = () => {
   formData.employee_uuid = ''
-  formData.notice_date = new Date().toISOString().split('T')[0]
+  formData.notice_date = new Date().toISOString().slice(0, 10)
   formData.resignation_date = ''
   formData.reason = ''
   formData.handover_to_uuid = null

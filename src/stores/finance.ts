@@ -5,7 +5,7 @@ import { financeService } from '@/services'
 export const useFinanceStore = defineStore('finance', () => {
   const dashboardData = ref<any>(null)
   const accounts = ref<any[]>([])
-  const ledgerItems = ref<any[]>([])
+  const ledgerItems = ref<any>(null)
   const reports = ref<any>({
     profitLoss: null,
     balanceSheet: null,
