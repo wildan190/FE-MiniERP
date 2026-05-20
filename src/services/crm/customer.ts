@@ -23,6 +23,11 @@ export class CustomerService {
     const response = await apiClient.getClient().post<CreateCustomerResponse>('/crm/customers', data)
     return response.data
   }
+
+  async updateCustomer(uuid: string, data: Partial<CreateCustomerRequest>): Promise<{ data: Customer }> {
+    const response = await apiClient.getClient().put<{ data: Customer }>(`/crm/customers/${uuid}`, data)
+    return response.data
+  }
 }
 
 export const customerService = new CustomerService()
