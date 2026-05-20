@@ -24,7 +24,7 @@
               </svg>
               Print
             </button>
-            <button class="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-center">
+            <button @click="isEditModalOpen = true" class="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-center">
               Edit
             </button>
             <button class="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
@@ -51,7 +51,7 @@
               </svg>
               Print
             </button>
-            <button class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
+            <button @click="isEditModalOpen = true" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
               Edit
             </button>
             <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
@@ -360,6 +360,14 @@
       <div v-else class="text-center py-12">
         <p class="text-red-600">Quotation not found</p>
       </div>
+
+      <CreateQuotationModal
+        v-if="isEditModalOpen"
+        :is-open="isEditModalOpen"
+        :quotation="quotation || undefined"
+        @close="isEditModalOpen = false"
+        @created="handleQuotationUpdated"
+      />
     </div>
   </AppLayout>
 </template>
@@ -370,10 +378,12 @@ import { useRoute } from 'vue-router'
 import { quotationService, type Quotation } from '../../services'
 import AppLayout from '../../layouts/AppLayout.vue'
 import Card from '../../components/common/Card.vue'
+import CreateQuotationModal from '../../components/crm/CreateQuotationModal.vue'
 
 const route = useRoute()
 const quotation = ref<Quotation | null>(null)
 const loading = ref(false)
+const isEditModalOpen = ref(false)
 
 const fetchQuotation = async () => {
   loading.value = true
@@ -386,6 +396,11 @@ const fetchQuotation = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handleQuotationUpdated = () => {
+  isEditModalOpen.value = false
+  fetchQuotation()
 }
 
 const handlePrint = () => {

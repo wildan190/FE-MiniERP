@@ -70,9 +70,12 @@
               {{ formatDate(quotation.created_at) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm">
-              <button class="text-primary-600 hover:text-primary-900 font-medium transition-colors">
+              <RouterLink 
+                :to="'/quotations/' + (quotation.uuid || quotation.id)"
+                class="text-primary-600 hover:text-primary-900 font-medium transition-colors"
+              >
                 View
-              </button>
+              </RouterLink>
             </td>
           </tr>
         </tbody>

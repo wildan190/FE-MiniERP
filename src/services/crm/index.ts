@@ -20,6 +20,7 @@ export const crmServiceInstance = {
   getCustomerById: async (id: number) => await customerService.getCustomerById(id),
   getCustomerByUuid: async (uuid: string) => await customerService.getCustomerByUuid(uuid),
   createCustomer: async (data: any) => await customerService.createCustomer(data),
+  updateCustomer: async (uuid: string, data: any) => await customerService.updateCustomer(uuid, data),
 
   // Lead methods
   getLeads: async (page = 1) => (await leadService.getLeads(page)).data.data,

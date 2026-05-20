@@ -304,9 +304,11 @@
                 rows="6"
               />
               <button
-                class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+                @click="saveNotes"
+                :disabled="isSavingNotes"
+                class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium disabled:opacity-50"
               >
-                Save Notes
+                {{ isSavingNotes ? 'Saving...' : 'Save Notes' }}
               </button>
             </div>
           </Card>
@@ -335,6 +337,7 @@ const customerQuotations = ref<Quotation[]>([]);
 const customerOrders = ref<Order[]>([]);
 const customerInteractions = ref<Interaction[]>([]);
 const notes = ref<string>("");
+const isSavingNotes = ref<boolean>(false);
 const activeTab = ref<string>("Details");
 const tabs = ["Details", "Quotations", "Orders", "Interactions", "Notes"];
 
@@ -371,12 +374,28 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
+const saveNotes = async () => {
+  if (!customer.value?.uuid) return;
+  try {
+    isSavingNotes.value = true;
+    await crmServiceInstance.updateCustomer(customer.value.uuid, {
+      notes: notes.value
+    });
+    // Optional: show a success message
+  } catch (error) {
+    console.error("Failed to save notes:", error);
+  } finally {
+    isSavingNotes.value = false;
+  }
+};
+
 // Load customer details
 const loadCustomerDetails = async () => {
   try {
     customer.value = await crmServiceInstance.getCustomerByUuid(customerUuid);
     
     if (customer.value) {
+      notes.value = customer.value.notes || "";
       // Use the numeric ID for other services that still require it
       const customerId = customer.value.id;
       

@@ -9,7 +9,9 @@
         <div class="bg-white px-3 py-4 sm:px-6 sm:py-6">
           <div class="sm:flex sm:items-start">
             <div class="text-left w-full">
-              <h3 class="text-lg leading-6 font-bold text-gray-900 mb-6" id="modal-title">Create Quotation</h3>
+              <h3 class="text-lg leading-6 font-bold text-gray-900 mb-6" id="modal-title">
+                {{ quotation ? 'Edit Quotation' : 'Create Quotation' }}
+              </h3>
               
               <div v-if="errorMessage" class="mb-4 bg-red-50 border-l-4 border-red-500 p-4">
                 <div class="flex">
@@ -236,7 +238,7 @@
             :disabled="loading"
             class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
           >
-            {{ loading ? 'Creating...' : 'Create Quotation' }}
+            {{ loading ? 'Saving...' : (quotation ? 'Update Quotation' : 'Create Quotation') }}
           </button>
           <button
             type="button"
@@ -252,12 +254,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { quotationService, customerService } from '../../services'
-import type { Customer } from '../../services'
+import type { Customer, Quotation } from '../../services'
 
 interface Props {
   isOpen: boolean
+  quotation?: Quotation
 }
 
 interface Emits {
@@ -294,6 +297,49 @@ const formData = ref({
     }
   ] as QuotationItemForm[]
 })
+
+watch(() => props.quotation, (newQuotation) => {
+  if (newQuotation) {
+    formData.value = {
+      customer_id: newQuotation.customer_id.toString(), // sometimes customer_id might be numeric in the model, but we need it as string for the select or just match the uuid if possible. Wait, the select uses customer.uuid.
+      valid_until: newQuotation.valid_until ? new Date(newQuotation.valid_until).toISOString().split('T')[0] : '',
+      status: (newQuotation.status as any) || 'draft',
+      discount_amount: Number(newQuotation.discount_amount) || 0,
+      terms: newQuotation.terms || '',
+      items: newQuotation.items ? newQuotation.items.map(i => ({
+        description: i.description,
+        quantity: Number(i.quantity),
+        unit_price: Number(i.unit_price),
+        tax_rate: Number(i.tax_rate)
+      })) : []
+    }
+    // We need to set customer_id to UUID if the customer is loaded. We'll handle this in fetchCustomers if needed, 
+    // or we can set it to newQuotation.customer?.uuid if populated.
+    if (newQuotation.customer?.uuid) {
+      formData.value.customer_id = newQuotation.customer.uuid;
+    }
+  } else {
+    resetForm();
+  }
+}, { immediate: true })
+
+const resetForm = () => {
+  formData.value = {
+    customer_id: '',
+    valid_until: '',
+    status: 'draft',
+    discount_amount: 0,
+    terms: '',
+    items: [
+      {
+        description: '',
+        quantity: 1,
+        unit_price: 0,
+        tax_rate: 0
+      }
+    ]
+  }
+}
 
 const fetchCustomers = async () => {
   try {
@@ -377,7 +423,7 @@ const handleSubmit = async () => {
 
   loading.value = true
   try {
-    await quotationService.createQuotation({
+    const payload = {
       customer_id: formData.value.customer_id,
       valid_until: formData.value.valid_until,
       status: formData.value.status,
@@ -387,7 +433,13 @@ const handleSubmit = async () => {
         ...item,
         quantity: Math.floor(item.quantity)
       }))
-    })
+    }
+
+    if (props.quotation?.uuid) {
+      await quotationService.updateQuotation(props.quotation.uuid, payload)
+    } else {
+      await quotationService.createQuotation(payload)
+    }
     
     emit('created')
     handleClose()
@@ -399,22 +451,7 @@ const handleSubmit = async () => {
 }
 
 const handleClose = () => {
-  // Reset form
-  formData.value = {
-    customer_id: '',
-    valid_until: '',
-    status: 'draft',
-    discount_amount: 0,
-    terms: '',
-    items: [
-      {
-        description: '',
-        quantity: 1,
-        unit_price: 0,
-        tax_rate: 0
-      }
-    ]
-  }
+  resetForm()
   errorMessage.value = ''
   emit('close')
 }
