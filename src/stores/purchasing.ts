@@ -28,9 +28,11 @@ export const usePurchasingStore = defineStore('purchasing', () => {
     isLoading.value = true
     try {
       const response = await purchasingRepository.getSuppliers()
-      suppliers.value = response.data.data
+      const data = response.data?.data
+      suppliers.value = Array.isArray(data) ? data : (data?.data || [])
     } catch (err: any) {
       error.value = err.message
+      suppliers.value = []
     } finally {
       isLoading.value = false
     }
@@ -76,9 +78,11 @@ export const usePurchasingStore = defineStore('purchasing', () => {
     isLoading.value = true
     try {
       const response = await purchasingRepository.getOrders()
-      orders.value = response.data.data.data || response.data.data
+      const data = response.data?.data
+      orders.value = Array.isArray(data) ? data : (data?.data || [])
     } catch (err: any) {
       error.value = err.message
+      orders.value = []
     } finally {
       isLoading.value = false
     }
