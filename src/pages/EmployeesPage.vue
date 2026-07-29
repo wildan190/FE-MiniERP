@@ -51,7 +51,14 @@
       <div class="space-y-4">
         <!-- Table -->
         <div>
-          <EmployeeTable :employees="employees" :loading="isLoading" @edit="handleEdit" @delete="handleDelete" />
+          <EmployeeTable
+            :employees="employees"
+            :loading="isLoading"
+            :search-query="searchQuery"
+            @search="handleSearch"
+            @edit="handleEdit"
+            @delete="handleDelete"
+          />
 
           <!-- Pagination -->
           <ResponsivePagination
@@ -91,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import Swal from "sweetalert2";
 import AppLayout from "../layouts/AppLayout.vue";
 import Card from "../components/common/Card.vue";
@@ -110,6 +117,8 @@ const isLoading = ref(false);
 const isSubmitting = ref(false);
 const isModalOpen = ref(false);
 const selectedEmployee = ref<Employee | null>(null);
+const searchQuery = ref('');
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 const pagination = ref({
   current_page: 1,
@@ -142,7 +151,7 @@ const uniqueDepartmentsCount = computed(() => {
 const loadData = async (page = 1) => {
   isLoading.value = true;
   try {
-    const response = await employeeRepository.getEmployees(page);
+    const response = await employeeRepository.getEmployees(page, searchQuery.value);
 
     employees.value = response.data.data;
     pagination.value = {
@@ -170,6 +179,14 @@ const loadData = async (page = 1) => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const handleSearch = (query: string) => {
+  searchQuery.value = query;
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => {
+    loadData(1);
+  }, 400);
 };
 
 const openCreateModal = () => {

@@ -1,5 +1,29 @@
 <template>
   <Card>
+    <!-- Search Bar -->
+    <div class="px-4 pt-4 pb-2 md:px-6">
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search class="h-4 w-4 text-gray-400" />
+        </div>
+        <input
+          id="employee-search"
+          type="text"
+          :value="searchQuery"
+          @input="$emit('search', ($event.target as HTMLInputElement).value)"
+          placeholder="Search by name, employee code, or email..."
+          class="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white placeholder-gray-400 transition"
+        />
+        <button
+          v-if="searchQuery"
+          @click="$emit('search', '')"
+          class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+        >
+          <X class="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+
     <!-- Desktop Table View -->
     <div class="hidden md:block overflow-x-auto">
       <table class="w-full">
@@ -235,8 +259,12 @@
           />
         </svg>
       </div>
-      <h3 class="text-sm font-medium text-gray-900">No employees found</h3>
-      <p class="mt-1 text-sm text-gray-600">Get started by creating a new employee.</p>
+      <h3 class="text-sm font-medium text-gray-900">
+        {{ searchQuery ? `No employees found for "${searchQuery}"` : 'No employees found' }}
+      </h3>
+      <p class="mt-1 text-sm text-gray-600">
+        {{ searchQuery ? 'Try a different search term.' : 'Get started by creating a new employee.' }}
+      </p>
     </div>
   </Card>
 </template>
@@ -246,16 +274,19 @@ import { RouterLink } from "vue-router";
 import type { Employee } from "../../services/hrm/types/employee.types";
 import Card from "../common/Card.vue";
 import Skeleton from "../common/Skeleton.vue";
+import { Search, X } from "lucide-vue-next";
 
 interface Props {
   employees: Employee[];
   loading?: boolean;
+  searchQuery?: string;
 }
 
 defineProps<Props>();
 defineEmits<{
   (e: "edit", employee: Employee): void;
   (e: "delete", uuid: string): void;
+  (e: "search", query: string): void;
 }>();
 
 const getFullName = (employee: Employee) => {

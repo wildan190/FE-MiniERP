@@ -49,36 +49,24 @@ export const quotationService = {
   },
 
   async getCustomerQuotations(customerId: number | string): Promise<Quotation[]> {
-    const id = Number(customerId)
     try {
-      // 1. Try base list with query param (common pattern: /crm/quotation?customer_id=X)
+      // Fetch quotations with customer_id query param
       const response = await apiClient.getClient().get<QuotationListResponse>('/crm/quotation', {
-        params: { customer_id: id }
+        params: { customer_id: customerId }
       })
       
-      // response.data.data is PaginatedResponse<Quotation>
       const paginatedData = response.data.data
-      const quotations = paginatedData.data
+      const quotations = paginatedData.data || []
       
-      // If the response is filtered correctly, return it.
-      if (quotations.length > 0 && quotations.every((q: Quotation) => Number(q.customer_id) === id)) {
-        return quotations
-      }
-      
-      // 2. Try specific singular customer endpoint (pattern: /crm/customers/{id}/quotation)
-      const responseSub = await apiClient.getClient().get<{ data: Quotation[] | Quotation }>(`/crm/customers/${id}/quotation`)
-      const subData = responseSub.data.data
-      return Array.isArray(subData) ? subData : [subData]
+      // Return filtered quotations
+      return quotations.filter((q: Quotation) => 
+        String(q.customer_id) === String(customerId) || 
+        q.customer?.uuid === String(customerId) ||
+        String(q.customer?.id) === String(customerId)
+      )
     } catch (err) {
-      // 3. Fallback to filter first page of full list
-      try {
-        const resp = await this.getQuotations(1)
-        const all = resp.data.data // data field of PaginatedResponse
-        return all.filter((q) => Number(q.customer_id) === id)
-      } catch (err2) {
-        console.error('Failed all attempts to fetch customer quotations:', err2)
-        return []
-      }
+      console.error('Failed to fetch customer quotations:', err)
+      return []
     }
   },
 }
