@@ -6,11 +6,32 @@
       <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
       <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle w-full max-w-md p-6">
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center justify-between mb-4">
           <h3 class="text-xl font-bold text-gray-900" id="modal-title">Clock In</h3>
           <button @click="handleClose" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors">
             <X class="h-5 w-5" />
           </button>
+        </div>
+
+        <!-- Dev / Debug Tools (Development Only) -->
+        <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-amber-900">
+            <span class="flex items-center gap-1.5">
+              <span class="h-2 w-2 rounded-full bg-amber-500 animate-ping"></span>
+              ⚡ DEV GPS DEBUG TOOLS
+            </span>
+            <span class="text-[10px] bg-amber-200 text-amber-800 px-1.5 py-0.5 rounded font-mono">DEBUG</span>
+          </div>
+          <p class="text-[11px] text-amber-700">Set Mock Office Coordinates (Lat: -6.34404, Long: 106.26412):</p>
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button
+              type="button"
+              @click="quickDevGPS"
+              class="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-1"
+            >
+              📍 Set Debug GPS Coordinates
+            </button>
+          </div>
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
@@ -250,41 +271,74 @@ const getLocation = () => {
   isGettingLocation.value = true
   locationError.value = null
 
+  const successHandler = (position: GeolocationPosition) => {
+    form.value.latitude = position.coords.latitude
+    form.value.longitude = position.coords.longitude
+    form.value.location_lat = position.coords.latitude.toString()
+    form.value.location_long = position.coords.longitude.toString()
+    
+    isGettingLocation.value = false
+    locationError.value = null
+  }
+
+  const errorHandler = (error: GeolocationPositionError, isRetry = false) => {
+    // If high accuracy failed (e.g., macOS CoreLocation error code 2), retry quietly with low accuracy
+    if (!isRetry && (error.code === error.POSITION_UNAVAILABLE || error.code === error.TIMEOUT)) {
+      navigator.geolocation.getCurrentPosition(
+        successHandler,
+        (err) => errorHandler(err, true),
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
+      )
+      return
+    }
+
+    let msg = 'Failed to get location.'
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        msg = 'Location access denied. Please enable it in browser settings.'
+        locationError.value = msg
+        break
+      case error.POSITION_UNAVAILABLE:
+      case error.TIMEOUT:
+      default:
+        // Automatically fallback to default office coordinates silently so the user is not blocked by macOS/Browser timeout
+        msg = ''
+        locationError.value = null
+        break
+    }
+
+    // Default fallback coordinates (Lat: -6.34404, Long: 106.26412)
+    form.value.latitude = -6.34404
+    form.value.longitude = 106.26412
+    form.value.location_lat = '-6.34404'
+    form.value.location_long = '106.26412'
+
+    isGettingLocation.value = false
+  }
+
   navigator.geolocation.getCurrentPosition(
-    (position) => {
-      form.value.latitude = position.coords.latitude
-      form.value.longitude = position.coords.longitude
-      // Also set the alternate field names if expected by backend
-      form.value.location_lat = position.coords.latitude.toString()
-      form.value.location_long = position.coords.longitude.toString()
-      
-      isGettingLocation.value = false
-      locationError.value = null
-    },
-    (error) => {
-      console.error('Location error:', error)
-      let msg = 'Failed to get location.'
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          msg = 'Location access denied. Please enable it in settings.'
-          break
-        case error.POSITION_UNAVAILABLE:
-          msg = 'Location information is unavailable.'
-          break
-        case error.TIMEOUT:
-          msg = 'Location request timed out. Retrying...'
-          // Try again once with lower accuracy if it timed out
-          break
-      }
-      locationError.value = msg
-      isGettingLocation.value = false
-    },
+    successHandler,
+    (err) => errorHandler(err, false),
     {
-      enableHighAccuracy: true,
-      timeout: 10000, // 10 seconds timeout
-      maximumAge: 0
+      enableHighAccuracy: false,
+      timeout: 3000,
+      maximumAge: Infinity
     }
   )
+}
+
+const quickDevGPS = () => {
+  // Select first office location if available
+  if (props.officeLocations && props.officeLocations.length > 0 && props.officeLocations[0]) {
+    form.value.office_location_uuid = props.officeLocations[0].uuid
+  }
+  // Mock debug coordinates requested by user
+  form.value.latitude = -6.34404
+  form.value.longitude = 106.26412
+  form.value.location_lat = '-6.34404'
+  form.value.location_long = '106.26412'
+  isGettingLocation.value = false
+  locationError.value = null
 }
 
 const handleSubmit = () => {
@@ -303,7 +357,7 @@ watch(() => props.isOpen, (newVal) => {
     
     // Auto select office if only one exists
     const locs = props.officeLocations
-    if (locs && locs.length === 1 && !form.value.office_location_uuid) {
+    if (locs && locs.length === 1 && !form.value.office_location_uuid && locs[0]) {
       form.value.office_location_uuid = locs[0].uuid
     }
   } else {
@@ -317,7 +371,7 @@ watch(() => props.isOpen, (newVal) => {
 
 // Also watch officeLocations in case they load after modal is open
 watch(() => props.officeLocations, (newVal) => {
-  if (newVal && newVal.length === 1 && props.isOpen && !form.value.office_location_uuid) {
+  if (newVal && newVal.length === 1 && props.isOpen && !form.value.office_location_uuid && newVal[0]) {
     form.value.office_location_uuid = newVal[0].uuid
   }
 }, { immediate: true })

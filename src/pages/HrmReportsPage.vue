@@ -216,7 +216,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, h } from 'vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import Card from '../components/common/Card.vue'
 import Skeleton from '../components/common/Skeleton.vue'
@@ -224,17 +224,22 @@ import { TrendingUp, DollarSign, RefreshCw, BarChart3, Building2, UserPlus, LogO
 import { useHrmReportStore } from '../stores/hrm-report'
 import type { TurnoverStatistics, LaborCostStatistics } from '../services/hrm/types/hrm-report.types'
 
-// Inline stat card to keep it simple
-const StatCard = {
-  props: ['label', 'value', 'color', 'icon', 'showSign'],
-  template: `
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 text-center">
-      <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">{{ label }}</p>
-      <p class="text-3xl font-extrabold" :class="'text-' + color + '-600'">
-        {{ showSign && value > 0 ? '+' : '' }}{{ value }}
-      </p>
-    </div>
-  `,
+// Stat card component using h() render function (no runtime template compiler required)
+const StatCard = (props: { label: string; value: number; color: string; showSign?: boolean }) => {
+  const colorMap: Record<string, string> = {
+    emerald: 'text-emerald-600',
+    amber: 'text-amber-600',
+    red: 'text-red-600',
+    orange: 'text-orange-600',
+    violet: 'text-violet-600',
+  }
+  const colorClass = colorMap[props.color] || 'text-gray-900'
+  const displayVal = (props.showSign && props.value > 0 ? '+' : '') + props.value
+
+  return h('div', { class: 'bg-white rounded-xl border border-gray-200 shadow-sm p-5 text-center' }, [
+    h('p', { class: 'text-xs font-medium text-gray-500 uppercase tracking-wide mb-2' }, props.label),
+    h('p', { class: `text-3xl font-extrabold ${colorClass}` }, displayVal),
+  ])
 }
 
 const reportStore = useHrmReportStore()

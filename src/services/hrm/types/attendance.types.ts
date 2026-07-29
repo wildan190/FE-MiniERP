@@ -37,6 +37,7 @@ export interface Attendance {
 }
 
 export interface AttendanceFilters {
+  search?: string
   employee_uuid?: string
   date?: string
   department_uuid?: string

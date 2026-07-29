@@ -26,22 +26,52 @@
       </div>
 
       <!-- Filters -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 bg-white p-4 rounded-xl border border-gray-200">
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Search Employee</label>
+          <input
+            v-model="filters.search"
+            type="text"
+            placeholder="Search by name..."
+            @keyup.enter="handleSearch"
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm"
+          />
+        </div>
+
         <div>
           <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Date</label>
           <input
             v-model="filters.date"
             type="date"
-            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm"
           />
         </div>
-        <!-- Department Filter could go here -->
-        <div class="flex items-end">
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Department</label>
+          <select
+            v-model="filters.department_uuid"
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm"
+          >
+            <option value="">All Departments</option>
+            <option v-for="dept in departments" :key="dept.uuid" :value="dept.uuid">
+              {{ dept.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="flex items-end gap-2">
           <button
             @click="handleSearch"
-            class="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+            class="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm flex items-center justify-center gap-1.5"
           >
-            Search
+            <Search class="h-4 w-4" /> Search
+          </button>
+          <button
+            @click="handleReset"
+            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm"
+          >
+            Reset
           </button>
         </div>
       </div>
@@ -124,14 +154,17 @@ import AttendanceTable from '../components/hrm/AttendanceTable.vue'
 import ClockInModal from '../components/hrm/ClockInModal.vue'
 import ClockOutModal from '../components/hrm/ClockOutModal.vue'
 import ResponsivePagination from '../components/common/ResponsivePagination.vue'
-import { LogIn, LogOut, Clock, Calendar } from 'lucide-vue-next'
+import { LogIn, LogOut, Clock, Calendar, Search } from 'lucide-vue-next'
 import { useAttendanceStore } from '../stores/attendance'
 import { officeLocationRepository } from '../repositories/hrm/office-location.repository'
+import { departmentRepository } from '../repositories/hrm/department.repository'
 import type { OfficeLocation } from '../services/hrm/types/office-location.types'
+import type { Department } from '../services/hrm/types/department.types'
 import type { ClockInRequest, ClockOutRequest } from '../services/hrm/types/attendance.types'
 
 const attendanceStore = useAttendanceStore()
 const officeLocations = ref<OfficeLocation[]>([])
+const departments = ref<Department[]>([])
 const isClockInModalOpen = ref(false)
 const isClockOutModalOpen = ref(false)
 const isSubmitting = ref(false)
@@ -168,6 +201,7 @@ const currentDay = computed(() => {
 })
 
 const filters = ref({
+  search: '',
   date: new Date().toISOString().split('T')[0],
   employee_uuid: '',
   department_uuid: '',
@@ -200,7 +234,33 @@ const loadOfficeLocations = async () => {
   }
 }
 
+const loadDepartments = async () => {
+  try {
+    const response = await departmentRepository.getDepartments()
+    if (response && response.data) {
+      const responseData = response.data;
+      if (Array.isArray(responseData)) {
+        departments.value = responseData;
+      } else if (responseData && Array.isArray((responseData as any).data)) {
+        departments.value = (responseData as any).data;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load departments:', err)
+  }
+}
+
 const handleSearch = () => {
+  loadData(1)
+}
+
+const handleReset = () => {
+  filters.value = {
+    search: '',
+    date: '',
+    employee_uuid: '',
+    department_uuid: '',
+  }
   loadData(1)
 }
 
@@ -235,6 +295,7 @@ const handleClockOut = async (data: ClockOutRequest) => {
 onMounted(() => {
   loadData()
   loadOfficeLocations()
+  loadDepartments()
   timerInterval = setInterval(updateTime, 1000)
 })
 
