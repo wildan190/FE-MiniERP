@@ -154,6 +154,11 @@ const router = createRouter({
         },
       },
       {
+        path: '/hrm',
+        name: 'hrm-dashboard',
+        redirect: '/hrm/employees',
+      },
+      {
         path: '/hrm/departments',
         name: 'hrm-departments',
         component: DepartmentsPage,
@@ -666,8 +671,8 @@ const router = createRouter({
   ],
 })
 
-// Navigation Guard
-router.beforeEach((to, from, next) => {
+// Navigation Guard (Vue Router 4 Modern Syntax)
+router.beforeEach((to) => {
   const authStore = useAuthStore()
   authStore.loadUser()
 
@@ -676,15 +681,11 @@ router.beforeEach((to, from, next) => {
 
   // If route requires auth and user is not authenticated, redirect to login
   if (requiresAuth && !isAuthenticated) {
-    next('/login')
+    return '/login'
   }
   // If user is authenticated and trying to access login page, redirect to menu
-  else if (to.path === '/login' && isAuthenticated) {
-    next('/')
-  }
-  // Otherwise, allow navigation
-  else {
-    next()
+  if (to.path === '/login' && isAuthenticated) {
+    return '/'
   }
 })
 
