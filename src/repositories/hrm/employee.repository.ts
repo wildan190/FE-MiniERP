@@ -12,8 +12,8 @@ import {
 } from '../../services/hrm'
 
 export class EmployeeRepository {
-  async getEmployees(page: number = 1): Promise<EmployeeListResponse> {
-    return await employeeService.getEmployees(page)
+  async getEmployees(page: number = 1, search: string = ''): Promise<EmployeeListResponse> {
+    return await employeeService.getEmployees(page, search)
   }
 
   async getEmployeeDetail(uuid: string): Promise<EmployeeDetailResponse> {

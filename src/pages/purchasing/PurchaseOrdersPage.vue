@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { usePurchasingStore } from '@/stores/purchasing';
 import { Box, Plus, Search, X, Trash2, Calendar } from 'lucide-vue-next';
 import AppLayout from '@/layouts/AppLayout.vue';
 
 const purchasingStore = usePurchasingStore();
 const isAddModalOpen = ref(false);
+
+const supplierList = computed(() => {
+  const sups = purchasingStore.suppliers;
+  if (!sups) return [];
+  if (Array.isArray(sups)) return sups.filter(Boolean);
+  if (typeof sups === 'object' && Array.isArray((sups as any).data)) return (sups as any).data.filter(Boolean);
+  return [];
+});
 
 const newOrder = ref({
   supplier_uuid: '',
@@ -71,10 +79,10 @@ const handleCreateOrder = async () => {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-50">
-            <tr v-for="order in purchasingStore.orders" :key="order.uuid" class="hover:bg-gray-50/50 transition-colors">
-              <td class="px-6 py-4 font-medium text-gray-900">{{ order.number }}</td>
-              <td class="px-6 py-4 text-gray-600">{{ order.supplier?.name }}</td>
-              <td class="px-6 py-4 font-bold text-primary-700">Rp {{ order.total_amount.toLocaleString() }}</td>
+            <tr v-for="order in purchasingStore.orders" :key="order?.uuid || order?.id" class="hover:bg-gray-50/50 transition-colors">
+              <td class="px-6 py-4 font-medium text-gray-900">{{ order?.number || '-' }}</td>
+              <td class="px-6 py-4 text-gray-600">{{ order?.supplier?.name || '-' }}</td>
+              <td class="px-6 py-4 font-bold text-primary-700">Rp {{ (order?.total_amount || 0).toLocaleString() }}</td>
               <td class="px-6 py-4 text-gray-500 text-sm">
                 {{ order.expected_delivery_date ? new Date(order.expected_delivery_date).toLocaleDateString() : 'N/A' }}
               </td>
@@ -119,7 +127,7 @@ const handleCreateOrder = async () => {
                   <label class="text-sm font-semibold text-gray-700">Select Supplier</label>
                   <select v-model="newOrder.supplier_uuid" required class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500">
                     <option value="" disabled>Choose a supplier...</option>
-                    <option v-for="s in purchasingStore.suppliers" :key="s.uuid" :value="s.uuid">{{ s.name }}</option>
+                    <option v-for="s in supplierList" :key="s?.uuid || s?.id" :value="s?.uuid || s?.id">{{ s?.name }}</option>
                   </select>
                 </div>
                 <div class="space-y-1.5">

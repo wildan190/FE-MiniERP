@@ -14,9 +14,9 @@ import type {
 } from './types/employee-document.types'
 
 export class EmployeeService {
-  async getEmployees(page: number = 1): Promise<EmployeeListResponse> {
+  async getEmployees(page: number = 1, search: string = ''): Promise<EmployeeListResponse> {
     const response = await apiClient.getClient().get('/hrm/employees', {
-      params: { page },
+      params: { page, ...(search ? { search } : {}) },
     })
     return response.data
   }
