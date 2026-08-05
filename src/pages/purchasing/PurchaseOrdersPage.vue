@@ -17,10 +17,11 @@ const supplierList = computed(() => {
 
 const newOrder = ref({
   supplier_uuid: '',
-  description: '',
-  expected_delivery_date: '',
+  date: new Date().toISOString().split('T')[0], // required by backend
+  eta: '',                                       // expected_delivery_date → eta
+  notes: '',                                     // description → notes
   items: [
-    { item_name: '', quantity: 1, unit_price: 0 }
+    { item_name: '', qty: 1, unit_price: 0 }     // quantity → qty
   ]
 });
 
@@ -30,7 +31,7 @@ onMounted(async () => {
 });
 
 const addItem = () => {
-  newOrder.value.items.push({ item_name: '', quantity: 1, unit_price: 0 });
+  newOrder.value.items.push({ item_name: '', qty: 1, unit_price: 0 });
 };
 
 const removeItem = (index: number) => {
@@ -38,14 +39,26 @@ const removeItem = (index: number) => {
 };
 
 const handleCreateOrder = async () => {
-  await purchasingStore.createOrder(newOrder.value);
+  // Map frontend model to backend contract before sending
+  const payload = {
+    supplier_uuid: newOrder.value.supplier_uuid,
+    date:          newOrder.value.date,
+    eta:           newOrder.value.eta || undefined,
+    notes:         newOrder.value.notes || undefined,
+    items: newOrder.value.items.map(item => ({
+      item_name: item.item_name,
+      qty:       item.qty,
+      price:     item.unit_price,
+    })),
+  };
+  await purchasingStore.createOrder(payload);
   isAddModalOpen.value = false;
-  // Reset form
   newOrder.value = {
     supplier_uuid: '',
-    description: '',
-    expected_delivery_date: '',
-    items: [{ item_name: '', quantity: 1, unit_price: 0 }]
+    date: new Date().toISOString().split('T')[0],
+    eta: '',
+    notes: '',
+    items: [{ item_name: '', qty: 1, unit_price: 0 }],
   };
 };
 </script>
@@ -84,7 +97,7 @@ const handleCreateOrder = async () => {
               <td class="px-6 py-4 text-gray-600">{{ order?.supplier?.name || '-' }}</td>
               <td class="px-6 py-4 font-bold text-primary-700">Rp {{ (order?.total_amount || 0).toLocaleString() }}</td>
               <td class="px-6 py-4 text-gray-500 text-sm">
-                {{ order.expected_delivery_date ? new Date(order.expected_delivery_date).toLocaleDateString() : 'N/A' }}
+                {{ order.eta ? new Date(order.eta).toLocaleDateString() : 'N/A' }}
               </td>
               <td class="px-6 py-4">
                 <span 
@@ -131,12 +144,16 @@ const handleCreateOrder = async () => {
                   </select>
                 </div>
                 <div class="space-y-1.5">
-                  <label class="text-sm font-semibold text-gray-700">Expected Delivery Date</label>
-                  <input v-model="newOrder.expected_delivery_date" type="date" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500" />
+                  <label class="text-sm font-semibold text-gray-700">Order Date <span class="text-rose-500">*</span></label>
+                  <input v-model="newOrder.date" type="date" required class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500" />
                 </div>
-                <div class="col-span-2 space-y-1.5">
-                  <label class="text-sm font-semibold text-gray-700">Description / Note</label>
-                  <textarea v-model="newOrder.description" rows="2" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500"></textarea>
+                <div class="space-y-1.5">
+                  <label class="text-sm font-semibold text-gray-700">Expected Delivery (ETA)</label>
+                  <input v-model="newOrder.eta" type="date" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500" />
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-sm font-semibold text-gray-700">Notes</label>
+                  <textarea v-model="newOrder.notes" rows="1" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500"></textarea>
                 </div>
               </div>
 
@@ -156,11 +173,11 @@ const handleCreateOrder = async () => {
                     </div>
                     <div class="col-span-2 space-y-1">
                       <label class="text-[10px] font-bold text-gray-400 uppercase">Qty</label>
-                      <input v-model.number="item.quantity" type="number" min="1" required class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm" />
+                      <input v-model.number="item.qty" type="number" min="1" required class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm" />
                     </div>
                     <div class="col-span-3 space-y-1">
                       <label class="text-[10px] font-bold text-gray-400 uppercase">Unit Price</label>
-                      <input v-model.number="item.unit_price" type="number" required class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm" />
+                      <input v-model.number="item.unit_price" type="number" min="0" required class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm" />
                     </div>
                     <div class="col-span-1 pb-1 text-center">
                       <button @click="removeItem(index)" type="button" class="p-1.5 text-gray-400 hover:text-rose-600">
