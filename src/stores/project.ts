@@ -53,7 +53,8 @@ export const useProjectStore = defineStore('project', () => {
     isLoading.value = true
     try {
       const response = await projectRepository.getProjects()
-      projects.value = response.data.data
+      const resData = response.data.data
+      projects.value = Array.isArray(resData) ? resData : (resData?.data || [])
     } catch (err: any) {
       error.value = err.message
     } finally {
