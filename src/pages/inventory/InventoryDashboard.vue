@@ -165,7 +165,7 @@ async function onSaved() {
             </div>
             <div v-if="!store.dashboardData?.low_stock_items?.length"
               class="text-center py-8 text-gray-400 text-sm">
-              ✅ All stock levels healthy
+              All stock levels healthy
             </div>
           </div>
         </div>
