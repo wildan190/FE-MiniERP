@@ -17,6 +17,8 @@ import {
   Warehouse,
   ArrowRightLeft,
   RefreshCw,
+  ShieldCheck,
+  ShieldAlert,
 } from 'lucide-vue-next';
 
 export interface NavItem {
@@ -128,6 +130,12 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
       ],
     }
   },
+  system: {
+    items: [
+      { label: 'Role & Permissions', to: '/system/roles', icon: ShieldCheck },
+      { label: 'Approval Center', to: '/system/approvals', icon: ShieldAlert },
+    ]
+  },
   default: {
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
@@ -137,6 +145,7 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
       { label: 'Purchasing', to: '/purchasing', icon: Box },
       { label: 'Project', to: '/project', icon: LayoutGrid },
       { label: 'Inventory', to: '/inventory', icon: Package },
+      { label: 'System', to: '/system/roles', icon: ShieldCheck },
     ]
   }
 };
@@ -147,6 +156,7 @@ export const getModuleByPath = (path: string): string => {
   if (path.startsWith('/purchasing')) return 'purchasing';
   if (path.startsWith('/project')) return 'project';
   if (path.startsWith('/inventory')) return 'inventory';
+  if (path.startsWith('/system')) return 'system';
   if (path.startsWith('/crm') || 
       path.startsWith('/customers') || 
       path.startsWith('/leads') || 

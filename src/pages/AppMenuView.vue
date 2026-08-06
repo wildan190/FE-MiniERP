@@ -74,6 +74,8 @@ import {
   ShoppingCart,
   LayoutGrid,
   Package,
+  ShieldCheck,
+  ShieldAlert,
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
@@ -87,7 +89,8 @@ const apps = [
   { name: "Purchasing", path: "/purchasing", icon: ShoppingCart, color: "bg-gradient-to-br from-amber-500 to-orange-700" },
   { name: "Project", path: "/project", icon: LayoutGrid, color: "bg-gradient-to-br from-rose-500 to-pink-700" },
   { name: "Inventory", path: "/inventory", icon: Package, color: "bg-gradient-to-br from-teal-500 to-cyan-700" },
-  { name: "Settings", path: "#", icon: Settings, color: "bg-gradient-to-br from-slate-500 to-gray-700 opacity-50 cursor-not-allowed" },
+  { name: "Approvals", path: "/system/approvals", icon: ShieldAlert, color: "bg-gradient-to-br from-violet-600 to-purple-800" },
+  { name: "Roles & RBAC", path: "/system/roles", icon: ShieldCheck, color: "bg-gradient-to-br from-indigo-600 to-slate-800" },
 ];
 
 const handleLogout = async () => {

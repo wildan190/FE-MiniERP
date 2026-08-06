@@ -733,6 +733,33 @@ const router = createRouter({
           ]
         },
       },
+      // ── System Administration ─────────────────────────────────────────────
+      {
+        path: '/system/roles',
+        name: 'system-roles',
+        component: () => import('@/pages/system/RoleManagementPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'System', to: '/system/roles' },
+            { label: 'Role & Permissions' }
+          ]
+        },
+      },
+      {
+        path: '/system/approvals',
+        name: 'system-approvals',
+        component: () => import('@/pages/system/ApprovalCenterPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'System', to: '/system/approvals' },
+            { label: 'Approval Center' }
+          ]
+        },
+      },
   ],
 })
 

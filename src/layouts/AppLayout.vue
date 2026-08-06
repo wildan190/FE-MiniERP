@@ -547,6 +547,32 @@
                     </div>
                   </div>
                 </template>
+
+                <!-- ── System Administration ────────────────────────────── -->
+                <template v-if="activeModule === 'system'">
+                  <div class="space-y-1">
+                    <RouterLink
+                      to="/system/roles"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/system/roles') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <ShieldCheck class="h-5 w-5" />
+                        <span>Roles & Permissions</span>
+                      </div>
+                    </RouterLink>
+                    <RouterLink
+                      to="/system/approvals"
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                      :class="route.path.startsWith('/system/approvals') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                    >
+                      <div class="flex items-center gap-3">
+                        <ShieldAlert class="h-5 w-5" />
+                        <span>Approval Center</span>
+                      </div>
+                    </RouterLink>
+                  </div>
+                </template>
               </div>
             </div>
           </nav>
@@ -721,6 +747,8 @@ import {
   Warehouse,
   ArrowRightLeft,
   RefreshCw,
+  ShieldCheck,
+  ShieldAlert,
 } from "lucide-vue-next";
 
 const router = useRouter();
