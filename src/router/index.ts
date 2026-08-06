@@ -668,6 +668,71 @@ const router = createRouter({
           ] 
         },
       },
+      // ── Inventory ──────────────────────────────────────────────────────────
+      {
+        path: '/inventory',
+        name: 'inventory-dashboard',
+        component: () => import('@/pages/inventory/InventoryDashboard.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Inventory' }
+          ]
+        },
+      },
+      {
+        path: '/inventory/products',
+        name: 'inventory-products',
+        component: () => import('@/pages/inventory/InventoryProductListPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Inventory', to: '/inventory' },
+            { label: 'Products' }
+          ]
+        },
+      },
+      {
+        path: '/inventory/warehouses',
+        name: 'inventory-warehouses',
+        component: () => import('@/pages/inventory/WarehouseListPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Inventory', to: '/inventory' },
+            { label: 'Warehouses' }
+          ]
+        },
+      },
+      {
+        path: '/inventory/movements',
+        name: 'inventory-movements',
+        component: () => import('@/pages/inventory/StockMovementsPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Inventory', to: '/inventory' },
+            { label: 'Stock Movements' }
+          ]
+        },
+      },
+      {
+        path: '/inventory/transfers',
+        name: 'inventory-transfers',
+        component: () => import('@/pages/inventory/TransferOrdersPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Inventory', to: '/inventory' },
+            { label: 'Transfer Orders' }
+          ]
+        },
+      },
   ],
 })
 

@@ -72,7 +72,8 @@ import {
   Zap,
   Banknote,
   ShoppingCart,
-  LayoutGrid
+  LayoutGrid,
+  Package,
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
@@ -85,7 +86,7 @@ const apps = [
   { name: "Finance", path: "/finance", icon: Banknote, color: "bg-gradient-to-br from-blue-600 to-primary-800" },
   { name: "Purchasing", path: "/purchasing", icon: ShoppingCart, color: "bg-gradient-to-br from-amber-500 to-orange-700" },
   { name: "Project", path: "/project", icon: LayoutGrid, color: "bg-gradient-to-br from-rose-500 to-pink-700" },
-  { name: "Inventory", path: "#", icon: Box, color: "bg-gradient-to-br from-orange-500 to-red-700 opacity-50 cursor-not-allowed" },
+  { name: "Inventory", path: "/inventory", icon: Package, color: "bg-gradient-to-br from-teal-500 to-cyan-700" },
   { name: "Settings", path: "#", icon: Settings, color: "bg-gradient-to-br from-slate-500 to-gray-700 opacity-50 cursor-not-allowed" },
 ];
 

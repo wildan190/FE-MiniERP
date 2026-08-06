@@ -13,6 +13,10 @@ import {
   Banknote,
   FileX,
   TrendingUp,
+  Package,
+  Warehouse,
+  ArrowRightLeft,
+  RefreshCw,
 } from 'lucide-vue-next';
 
 export interface NavItem {
@@ -109,6 +113,21 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
       ]
     }
   },
+  inventory: {
+    items: [
+      { label: 'Inventory Dashboard', to: '/inventory', icon: LayoutDashboard },
+    ],
+    groups: {
+      catalog: [
+        { label: 'Products', to: '/inventory/products', icon: Package },
+        { label: 'Warehouses', to: '/inventory/warehouses', icon: Warehouse },
+      ],
+      operations: [
+        { label: 'Stock Movements', to: '/inventory/movements', icon: RefreshCw },
+        { label: 'Transfer Orders', to: '/inventory/transfers', icon: ArrowRightLeft },
+      ],
+    }
+  },
   default: {
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
@@ -117,6 +136,7 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
       { label: 'Finance', to: '/finance', icon: Banknote },
       { label: 'Purchasing', to: '/purchasing', icon: Box },
       { label: 'Project', to: '/project', icon: LayoutGrid },
+      { label: 'Inventory', to: '/inventory', icon: Package },
     ]
   }
 };
@@ -126,6 +146,7 @@ export const getModuleByPath = (path: string): string => {
   if (path.startsWith('/finance')) return 'finance';
   if (path.startsWith('/purchasing')) return 'purchasing';
   if (path.startsWith('/project')) return 'project';
+  if (path.startsWith('/inventory')) return 'inventory';
   if (path.startsWith('/crm') || 
       path.startsWith('/customers') || 
       path.startsWith('/leads') || 

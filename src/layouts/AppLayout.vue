@@ -481,6 +481,72 @@
                     </RouterLink>
                   </div>
                 </template>
+
+                <!-- ── Inventory ────────────────────────────────── -->
+                <template v-if="activeModule === 'inventory'">
+                  <RouterLink
+                    to="/inventory"
+                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                    :class="route.path === '/inventory' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                  >
+                    <div class="flex items-center gap-3">
+                      <LayoutDashboard class="h-5 w-5" />
+                      <span>Dashboard</span>
+                    </div>
+                  </RouterLink>
+
+                  <div class="mt-3">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest px-3 mb-2">Catalog</p>
+                    <div class="space-y-1">
+                      <RouterLink
+                        to="/inventory/products"
+                        class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                        :class="route.path.startsWith('/inventory/products') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                      >
+                        <div class="flex items-center gap-3">
+                          <Package class="h-5 w-5" />
+                          <span>Products</span>
+                        </div>
+                      </RouterLink>
+                      <RouterLink
+                        to="/inventory/warehouses"
+                        class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                        :class="route.path.startsWith('/inventory/warehouses') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                      >
+                        <div class="flex items-center gap-3">
+                          <Warehouse class="h-5 w-5" />
+                          <span>Warehouses</span>
+                        </div>
+                      </RouterLink>
+                    </div>
+                  </div>
+
+                  <div class="mt-3">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest px-3 mb-2">Operations</p>
+                    <div class="space-y-1">
+                      <RouterLink
+                        to="/inventory/movements"
+                        class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                        :class="route.path.startsWith('/inventory/movements') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                      >
+                        <div class="flex items-center gap-3">
+                          <RefreshCw class="h-5 w-5" />
+                          <span>Stock Movements</span>
+                        </div>
+                      </RouterLink>
+                      <RouterLink
+                        to="/inventory/transfers"
+                        class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                        :class="route.path.startsWith('/inventory/transfers') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                      >
+                        <div class="flex items-center gap-3">
+                          <ArrowRightLeft class="h-5 w-5" />
+                          <span>Transfer Orders</span>
+                        </div>
+                      </RouterLink>
+                    </div>
+                  </div>
+                </template>
               </div>
             </div>
           </nav>
@@ -651,6 +717,10 @@ import {
   ChevronDown,
   Banknote,
   FileX,
+  Package,
+  Warehouse,
+  ArrowRightLeft,
+  RefreshCw,
 } from "lucide-vue-next";
 
 const router = useRouter();
