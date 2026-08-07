@@ -502,6 +502,46 @@ const router = createRouter({
         },
       },
       {
+        path: '/finance/ap',
+        name: 'finance-ap',
+        component: () => import('@/pages/finance/AccountPayablePage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Finance', to: '/finance' },
+            { label: 'Account Payable' }
+          ]
+        },
+      },
+      {
+        path: '/finance/ap/:uuid',
+        name: 'finance-ap-bill',
+        component: () => import('@/pages/finance/BillDetailPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Finance', to: '/finance' },
+            { label: 'Account Payable', to: '/finance/ap' },
+            { label: 'Bill Detail' }
+          ]
+        },
+      },
+      {
+        path: '/finance/settings',
+        name: 'finance-settings',
+        component: () => import('@/pages/finance/FinanceSettingsPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Finance', to: '/finance' },
+            { label: 'Settings' }
+          ]
+        },
+      },
+      {
         path: '/purchasing',
         name: 'purchasing-dashboard',
         component: () => import('@/pages/purchasing/PurchasingDashboard.vue'),

@@ -88,7 +88,7 @@ const handleTaskSaved = async () => {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-50">
-            <tr v-for="task in projectStore.tasks" :key="task.uuid" class="hover:bg-gray-50/50 transition-colors">
+            <tr v-for="task in (projectStore.tasks || []).filter(Boolean)" :key="task.uuid || task.id" class="hover:bg-gray-50/50 transition-colors">
               <td class="px-6 py-4">
                 <div class="flex flex-col">
                   <span class="font-bold text-gray-900">{{ task.name }}</span>

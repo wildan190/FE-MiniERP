@@ -1,9 +1,18 @@
 <template>
   <AppLayout>
     <!-- Header -->
-    <div class="mb-8">
-      <h2 class="text-3xl font-bold text-gray-900 mb-2">Finance Dashboard</h2>
-      <p class="text-gray-600">Pantau performa keuangan dan analisis AI perusahaan Anda</p>
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Finance Dashboard</h2>
+        <p class="text-gray-600">Pantau performa keuangan dan analisis AI perusahaan Anda</p>
+      </div>
+      <router-link
+        to="/finance/settings"
+        class="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl shadow-sm flex items-center gap-2 text-sm transition-all"
+      >
+        <Settings class="h-4 w-4 text-gray-500" />
+        <span>Finance Settings</span>
+      </router-link>
     </div>
 
     <!-- Skeleton Loading State -->
@@ -209,7 +218,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import Card from '@/components/common/Card.vue'
 import Alert from '@/components/common/Alert.vue'
 import Skeleton from '@/components/common/Skeleton.vue'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Settings } from 'lucide-vue-next'
 
 const financeStore = useFinanceStore()
 

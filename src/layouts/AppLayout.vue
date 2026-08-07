@@ -204,19 +204,53 @@
                       <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">AI Insights</p>
                     </div>
 
-                    <RouterLink
-                      to="/finance/analytics"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/finance/analytics') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Zap class="h-5 w-5" />
-                        <span>AI Analytics</span>
+                      <RouterLink
+                        to="/finance/analytics"
+                        @click="isMobileSidebarOpen = false"
+                        class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                        :class="route.path.startsWith('/finance/analytics') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                      >
+                        <div class="flex items-center gap-3">
+                          <Zap class="h-5 w-5" />
+                          <span>AI Analytics</span>
+                        </div>
+                      </RouterLink>
+
+                      <div class="pt-3 pb-1">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Payables</p>
                       </div>
-                    </RouterLink>
-                  </div>
-                </template>
+
+                      <RouterLink
+                        to="/finance/ap"
+                        @click="isMobileSidebarOpen = false"
+                        class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                        :class="route.path.startsWith('/finance/ap') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                      >
+                        <div class="flex items-center gap-3">
+                          <CreditCard class="h-5 w-5" />
+                          <span>Account Payable</span>
+                        </div>
+                      </RouterLink>
+
+                      <div class="pt-3 pb-1">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Configuration</p>
+                      </div>
+
+                      <RouterLink
+                        to="/finance/settings"
+                        @click="isMobileSidebarOpen = false"
+                        class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                        :class="route.path.startsWith('/finance/settings') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
+                      >
+                        <div class="flex items-center gap-3">
+                          <Settings class="h-5 w-5" />
+                          <span>Settings</span>
+                        </div>
+                      </RouterLink>
+                    </div>
+                  </template>
+
+
 
                 <template v-if="activeModule === 'purchasing'">
                   <div class="pt-2 pb-2">
@@ -749,6 +783,8 @@ import {
   RefreshCw,
   ShieldCheck,
   ShieldAlert,
+  CreditCard,
+  Settings,
 } from "lucide-vue-next";
 
 const router = useRouter();

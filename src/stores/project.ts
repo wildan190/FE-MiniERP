@@ -90,7 +90,9 @@ export const useProjectStore = defineStore('project', () => {
     isLoading.value = true
     try {
       const response = await projectRepository.getTasks(projectUuid)
-      tasks.value = response.data.data
+      const resData = response.data.data
+      const list = Array.isArray(resData) ? resData : (resData?.data || [])
+      tasks.value = list.filter(Boolean)
     } catch (err: any) {
       error.value = err.message
     } finally {

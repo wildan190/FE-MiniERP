@@ -39,8 +39,8 @@ const columns = [
 
 const tasksByStatus = computed(() => {
   const groups: any = { todo: [], in_progress: [], review: [], done: [] };
-  projectStore.tasks.forEach(task => {
-    if (groups[task.status]) {
+  (projectStore.tasks || []).filter(Boolean).forEach(task => {
+    if (task && groups[task.status]) {
       groups[task.status].push(task);
     }
   });
@@ -158,10 +158,10 @@ const handleTaskSaved = async () => {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-50">
-            <tr v-for="task in projectStore.tasks" :key="task.uuid" class="hover:bg-gray-50/50 transition-colors">
+            <tr v-for="task in (projectStore.tasks || []).filter(Boolean)" :key="task.uuid || task.id" class="hover:bg-gray-50/50 transition-colors">
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
-                  <div class="h-2 w-2 rounded-full" :class="columns.find(c => c.id === task.status)?.color.split(' ')[1].replace('text-', 'bg-')"></div>
+                  <div class="h-2 w-2 rounded-full" :class="columns.find(c => c.id === task.status)?.color?.split(' ')[1]?.replace('text-', 'bg-') || 'bg-gray-400'"></div>
                   <span class="font-medium text-gray-900">{{ task.name }}</span>
                 </div>
               </td>
