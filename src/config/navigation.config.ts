@@ -77,9 +77,15 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
         { label: 'Chart of Accounts', to: '/finance/ledger/accounts', icon: Box },
         { label: 'General Ledger', to: '/finance/ledger/items', icon: ClipboardList },
       ],
+      payables: [
+        { label: 'Account Payable', to: '/finance/ap', icon: Banknote },
+      ],
       analytics: [
         { label: 'AI Analytics', to: '/finance/analytics', icon: Zap },
-      ]
+      ],
+      configuration: [
+        { label: 'Settings', to: '/finance/settings', icon: TrendingUp },
+      ],
     }
   },
   purchasing: {

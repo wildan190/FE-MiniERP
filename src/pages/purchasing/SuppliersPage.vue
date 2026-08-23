@@ -8,13 +8,23 @@ const purchasingStore = usePurchasingStore();
 const searchQuery = ref('');
 const isAddModalOpen = ref(false);
 
+const BANK_CODES = [
+  { code: 'bca', label: 'BCA' }, { code: 'bni', label: 'BNI' },
+  { code: 'bri', label: 'BRI' }, { code: 'mandiri', label: 'Mandiri' },
+  { code: 'cimb', label: 'CIMB Niaga' }, { code: 'permata', label: 'Bank Permata' },
+  { code: 'danamon', label: 'Bank Danamon' }, { code: 'ocbc', label: 'OCBC NISP' },
+];
+
 const newSupplier = ref({
   name: '',
   pic: '',
   contact: '',
   email: '',
   address: '',
-  category: 'General'
+  category: 'General',
+  bank_code: '',
+  bank_account_number: '',
+  bank_account_name: ''
 });
 
 onMounted(async () => {
@@ -31,7 +41,10 @@ const handleAddSupplier = async () => {
     contact: '',
     email: '',
     address: '',
-    category: 'General'
+    category: 'General',
+    bank_code: '',
+    bank_account_number: '',
+    bank_account_name: ''
   };
 };
 </script>
@@ -42,7 +55,7 @@ const handleAddSupplier = async () => {
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-900">Suppliers</h1>
-          <p class="text-gray-500">Manage your vendor relationships and contact details.</p>
+          <p class="text-gray-500">Manage your vendor relationships and payment details.</p>
         </div>
         <button 
           @click="isAddModalOpen = true"
@@ -76,9 +89,14 @@ const handleAddSupplier = async () => {
             <div class="h-12 w-12 bg-primary-50 rounded-2xl flex items-center justify-center text-primary-600 font-bold text-lg group-hover:bg-primary-600 group-hover:text-white transition-all">
               {{ supplier.name.charAt(0) }}
             </div>
-            <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
-              {{ supplier.category || 'General' }}
-            </span>
+            <div class="flex flex-col items-end gap-1">
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                {{ supplier.category || 'General' }}
+              </span>
+              <span v-if="supplier.bank_code && supplier.bank_account_number" class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-bold">
+                AP Ready
+              </span>
+            </div>
           </div>
           
           <h3 class="text-lg font-bold text-gray-900 mb-1">{{ supplier.name }}</h3>
@@ -95,6 +113,10 @@ const handleAddSupplier = async () => {
             <div class="flex items-center gap-3 text-sm text-gray-600">
               <Phone class="h-4 w-4 text-gray-400" />
               <span>{{ supplier.contact || 'No contact info' }}</span>
+            </div>
+            <div v-if="supplier.bank_code" class="flex items-center gap-3 text-sm text-gray-600 font-mono">
+              <span class="text-xs font-bold text-gray-400 uppercase">Bank:</span>
+              <span>{{ supplier.bank_code.toUpperCase() }} - {{ supplier.bank_account_number }}</span>
             </div>
             <div class="flex items-center gap-3 text-sm text-gray-600">
               <MapPin class="h-4 w-4 text-gray-400" />
@@ -130,10 +152,10 @@ const handleAddSupplier = async () => {
               </button>
             </div>
             
-            <form @submit.prevent="handleAddSupplier" class="p-6 space-y-4">
+            <form @submit.prevent="handleAddSupplier" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
               <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2 space-y-1.5">
-                  <label class="text-sm font-semibold text-gray-700">Supplier Name</label>
+                  <label class="text-sm font-semibold text-gray-700">Supplier Name *</label>
                   <input v-model="newSupplier.name" type="text" required class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500" />
                 </div>
                 <div class="space-y-1.5">
@@ -157,9 +179,30 @@ const handleAddSupplier = async () => {
                   <label class="text-sm font-semibold text-gray-700">Email Address</label>
                   <input v-model="newSupplier.email" type="email" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500" />
                 </div>
+
+                <!-- Bank Info (AP) -->
+                <div class="col-span-2 pt-2 border-t border-gray-100">
+                  <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Banking Details (Account Payable)</p>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-sm font-semibold text-gray-700">Bank</label>
+                  <select v-model="newSupplier.bank_code" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500">
+                    <option value="">Select Bank</option>
+                    <option v-for="b in BANK_CODES" :key="b.code" :value="b.code">{{ b.label }}</option>
+                  </select>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-sm font-semibold text-gray-700">Account Number</label>
+                  <input v-model="newSupplier.bank_account_number" type="text" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500 font-mono" />
+                </div>
+                <div class="col-span-2 space-y-1.5">
+                  <label class="text-sm font-semibold text-gray-700">Account Name</label>
+                  <input v-model="newSupplier.bank_account_name" type="text" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500" />
+                </div>
+
                 <div class="col-span-2 space-y-1.5">
                   <label class="text-sm font-semibold text-gray-700">Address</label>
-                  <textarea v-model="newSupplier.address" rows="3" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500"></textarea>
+                  <textarea v-model="newSupplier.address" rows="2" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500"></textarea>
                 </div>
               </div>
 
