@@ -16,33 +16,36 @@
         </button>
       </div>
 
-      <!-- Stats -->
+      <!-- Stats (pagination.total = server-side count, others scoped to current page) -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card>
           <div class="text-center">
-            <p class="text-gray-600 text-sm">Total Employees</p>
+            <p class="text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">Total Employees</p>
             <div v-if="isLoading" class="flex justify-center mt-2">
               <Skeleton width="4rem" height="2rem" />
             </div>
-            <p v-else class="text-3xl font-bold text-gray-900 mt-2">{{ pagination.total }}</p>
+            <p v-else class="text-3xl font-bold text-gray-900 mt-1">{{ pagination.total }}</p>
+            <p class="text-xs text-gray-400 mt-1">All records (server)</p>
           </div>
         </Card>
         <Card>
           <div class="text-center">
-            <p class="text-gray-600 text-sm">Active Employees</p>
+            <p class="text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">Active on This Page</p>
             <div v-if="isLoading" class="flex justify-center mt-2">
               <Skeleton width="3rem" height="2rem" />
             </div>
-            <p v-else class="text-3xl font-bold text-green-600 mt-2">{{ activeEmployeesCount }}</p>
+            <p v-else class="text-3xl font-bold text-green-600 mt-1">{{ activeEmployeesCount }}</p>
+            <p class="text-xs text-gray-400 mt-1">of {{ employees.length }} shown</p>
           </div>
         </Card>
         <Card>
           <div class="text-center">
-            <p class="text-gray-600 text-sm">Departments</p>
+            <p class="text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">Departments on Page</p>
             <div v-if="isLoading" class="flex justify-center mt-2">
               <Skeleton width="3rem" height="2rem" />
             </div>
-            <p v-else class="text-3xl font-bold text-blue-600 mt-2">{{ uniqueDepartmentsCount }}</p>
+            <p v-else class="text-3xl font-bold text-blue-600 mt-1">{{ uniqueDepartmentsCount }}</p>
+            <p class="text-xs text-gray-400 mt-1">distinct, current page</p>
           </div>
         </Card>
       </div>
@@ -178,7 +181,7 @@ const pagination = ref({
 const submitErrors = ref<Record<string, string[]> | null>(null);
 const submitErrorMessage = ref<string | null>(null);
 
-// Computed properties
+// These counts are from the CURRENT PAGE only — used for display alongside pagination.total
 const activeEmployeesCount = computed(() => {
   return employees.value.filter((emp) => emp.status === "active").length;
 });

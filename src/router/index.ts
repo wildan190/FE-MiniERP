@@ -1,28 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+// Only the truly always-needed pages are imported statically:
 import LoginPage from '@/pages/LoginPage.vue'
-import DashboardPage from '@/pages/DashboardPage.vue'
-import CRMDashboardPage from '@/pages/CRMDashboardPage.vue'
-
-import CustomersPage from '@/pages/CustomersPage.vue'
-import LeadsPage from '@/pages/LeadsPage.vue'
-import ProspectsPage from '@/pages/ProspectsPage.vue'
-import SalesPipelinePage from '@/pages/SalesPipelinePage.vue'
-import SalesPipelineDetailView from '../views/crm/SalesPipelineDetailView.vue'
-import QuotationPage from '../pages/QuotationsPage.vue'
-import QuotationDetailView from '../views/crm/QuotationDetailView.vue'
-
-import CustomerDetailView from '@/views/crm/CustomerDetailView.vue'
-import LeadDetailView from '@/views/crm/LeadDetailView.vue'
-import ProspectDetailView from '@/views/crm/ProspectDetailView.vue'
-import OrderListView from '@/views/crm/OrderListView.vue'
 import AppMenuView from '@/pages/AppMenuView.vue'
-import DepartmentsPage from '@/pages/DepartmentsPage.vue'
-import DepartmentDetailView from '@/views/hrm/DepartmentDetailView.vue'
-import EmployeesPage from '@/pages/EmployeesPage.vue'
-import EmployeeDetailView from '@/views/hrm/EmployeeDetailView.vue'
-import OfficeLocationsPage from '@/pages/OfficeLocationsPage.vue'
-// No change to file content here, just updating router.
+// All other pages are lazy-loaded — no data is fetched until the user visits that route
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,50 +23,50 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: DashboardPage,
+      component: () => import('@/pages/DashboardPage.vue'),
       meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Dashboard' }] },
     },
     {
       path: '/crm',
       name: 'crm',
-      component: CRMDashboardPage,
+      component: () => import('@/pages/CRMDashboardPage.vue'),
       meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'CRM' }] },
     },
     {
       path: '/customers',
       name: 'customers',
-      component: CustomersPage,
+      component: () => import('@/pages/CustomersPage.vue'),
       meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Customers' }] },
     },
     {
       path: '/quotations',
       name: 'Quotations',
-      component: QuotationPage, // Using the already imported QuotationPage
+      component: () => import('@/pages/QuotationsPage.vue'),
       meta: { requiresAuth: true, breadcrumbs: [{ name: 'Home', path: '/dashboard' }, { name: 'Quotations', path: '/quotations' }] }
     },
     {
       path: '/quotations/:uuid',
       name: 'QuotationDetail',
-      component: QuotationDetailView,
+      component: () => import('@/views/crm/QuotationDetailView.vue'),
       meta: { requiresAuth: true, breadcrumbs: [{ name: 'Home', path: '/dashboard' }, { name: 'Quotations', path: '/quotations' }, { name: 'Detail', path: '' }] }
     },
     {
       path: '/leads',
       name: 'leads',
-      component: LeadsPage,
+      component: () => import('@/pages/LeadsPage.vue'),
       meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Leads' }] },
     },
     {
       path: '/prospects',
       name: 'prospects',
-      component: ProspectsPage,
+      component: () => import('@/pages/ProspectsPage.vue'),
       meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Prospects' }] },
     },
 
       {
         path: '/crm/customers/:uuid',
         name: 'crm-customer-detail',
-        component: CustomerDetailView,
+        component: () => import('@/views/crm/CustomerDetailView.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -98,19 +79,19 @@ const router = createRouter({
       {
         path: '/crm/quotations',
         name: 'crm-quotations',
-        component: QuotationPage,
+        component: () => import('@/pages/QuotationsPage.vue'),
         meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'CRM', to: '/crm' }, { label: 'Quotations' }] },
       },
       {
         path: '/crm/orders',
         name: 'crm-orders',
-        component: OrderListView,
+        component: () => import('@/views/crm/OrderListView.vue'),
         meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'CRM', to: '/crm' }, { label: 'Orders' }] },
       },
       {
         path: '/crm/leads/:uuid',
         name: 'crm-lead-detail',
-        component: LeadDetailView,
+        component: () => import('@/views/crm/LeadDetailView.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -123,7 +104,7 @@ const router = createRouter({
       {
         path: '/crm/prospects/:uuid',
         name: 'crm-prospect-detail',
-        component: ProspectDetailView,
+        component: () => import('@/views/crm/ProspectDetailView.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -136,13 +117,13 @@ const router = createRouter({
       {
         path: '/crm/pipelines',
         name: 'crm-pipelines',
-        component: SalesPipelinePage,
+        component: () => import('@/pages/SalesPipelinePage.vue'),
         meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'CRM', to: '/crm' }, { label: 'Pipelines' }] },
       },
       {
         path: '/crm/pipelines/:uuid',
         name: 'crm-pipeline-detail',
-        component: SalesPipelineDetailView,
+        component: () => import('@/views/crm/SalesPipelineDetailView.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -161,7 +142,7 @@ const router = createRouter({
       {
         path: '/hrm/departments',
         name: 'hrm-departments',
-        component: DepartmentsPage,
+        component: () => import('@/pages/DepartmentsPage.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -174,7 +155,7 @@ const router = createRouter({
       {
         path: '/hrm/departments/:uuid',
         name: 'hrm-department-detail',
-        component: DepartmentDetailView,
+        component: () => import('@/views/hrm/DepartmentDetailView.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -254,7 +235,7 @@ const router = createRouter({
       {
         path: '/hrm/employees',
         name: 'hrm-employees',
-        component: EmployeesPage,
+        component: () => import('@/pages/EmployeesPage.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -267,7 +248,7 @@ const router = createRouter({
       {
         path: '/hrm/employees/:uuid',
         name: 'hrm-employee-detail',
-        component: EmployeeDetailView,
+        component: () => import('@/views/hrm/EmployeeDetailView.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -281,7 +262,7 @@ const router = createRouter({
       {
         path: '/hrm/office-locations',
         name: 'hrm-office-locations',
-        component: OfficeLocationsPage,
+        component: () => import('@/pages/OfficeLocationsPage.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
