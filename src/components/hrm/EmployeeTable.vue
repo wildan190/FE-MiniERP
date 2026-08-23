@@ -101,12 +101,22 @@
                     {{ getInitials(employee) }}
                   </div>
                   <div>
-                    <RouterLink
-                      :to="`/hrm/employees/${employee.uuid}`"
-                      class="text-sm font-bold text-gray-900 hover:text-primary-600 transition-colors"
-                    >
-                      {{ getFullName(employee) }}
-                    </RouterLink>
+                    <div class="flex items-center gap-2">
+                      <RouterLink
+                        :to="`/hrm/employees/${employee.uuid}`"
+                        class="text-sm font-bold text-gray-900 hover:text-primary-600 transition-colors"
+                      >
+                        {{ getFullName(employee) }}
+                      </RouterLink>
+                      <span
+                        v-if="employee.leave_requests && employee.leave_requests.length > 0"
+                        class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300"
+                        :title="`On Leave: ${employee.leave_requests[0].leave_type?.name || 'Leave'}`"
+                      >
+                        <CalendarOff class="h-3 w-3 text-amber-600" />
+                        On Leave ({{ employee.leave_requests[0].leave_type?.name || 'Leave' }})
+                      </span>
+                    </div>
                     <p class="text-xs text-gray-400 font-mono mt-0.5">{{ employee.emp_code || "No code" }}</p>
                     <!-- Role badges -->
                     <div v-if="employee.user?.roles && employee.user.roles.length" class="flex flex-wrap gap-1 mt-1">
@@ -236,7 +246,16 @@
                   {{ getInitials(employee) }}
                 </div>
                 <div>
-                  <p class="text-sm font-bold text-gray-900">{{ getFullName(employee) }}</p>
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <p class="text-sm font-bold text-gray-900">{{ getFullName(employee) }}</p>
+                    <span
+                      v-if="employee.leave_requests && employee.leave_requests.length > 0"
+                      class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300"
+                    >
+                      <CalendarOff class="h-2.5 w-2.5 text-amber-600" />
+                      On Leave
+                    </span>
+                  </div>
                   <p class="text-xs text-gray-400 font-mono">{{ employee.emp_code || "No code" }}</p>
                 </div>
               </div>
@@ -331,7 +350,7 @@ import { RouterLink } from "vue-router";
 import type { Employee } from "../../services/hrm/types/employee.types";
 import Card from "../common/Card.vue";
 import Skeleton from "../common/Skeleton.vue";
-import { Search, X, Eye, Edit3, Banknote, Trash2, ShieldCheck } from "lucide-vue-next";
+import { Search, X, Eye, Edit3, Banknote, Trash2, ShieldCheck, CalendarOff } from "lucide-vue-next";
 
 interface Props {
   employees: Employee[];

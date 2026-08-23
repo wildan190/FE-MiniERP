@@ -56,6 +56,16 @@ export interface Employee {
   user?: User
   department?: Department
   designation?: Designation
+  leave_requests?: Array<{
+    id: number
+    uuid: string
+    start_date: string
+    end_date: string
+    status: string
+    leave_type?: {
+      name: string
+    }
+  }>
 }
 
 export interface EmployeePaginationData {
