@@ -1,6 +1,16 @@
 import type { Department } from './department.types'
 import type { Designation } from './designation.types'
 
+export interface RoleSummary {
+  id: number
+  uuid: string
+  name: string
+  slug: string
+  description?: string | null
+  is_system?: boolean
+  permissions?: Array<{ id: number; uuid: string; name: string; slug: string; module: string }>
+}
+
 export interface User {
   id: number
   name: string
@@ -9,6 +19,7 @@ export interface User {
   created_at: string
   updated_at: string
   uuid: string
+  roles?: RoleSummary[]
 }
 
 export interface Employee {

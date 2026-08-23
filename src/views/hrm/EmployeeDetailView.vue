@@ -16,6 +16,14 @@
         </div>
         <div class="flex gap-3">
           <button
+            v-if="employee?.user"
+            @click="openRolesModal"
+            class="hidden md:flex px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium items-center gap-2"
+          >
+            <ShieldCheck class="h-5 w-5" />
+            Manage Roles
+          </button>
+          <button
             @click="openEnrollFaceModal"
             class="hidden md:flex px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium items-center gap-2"
           >
@@ -31,6 +39,15 @@
           </button>
         </div>
       </div>
+
+      <!-- Assign Roles Modal -->
+      <AssignUserRoleModal
+        :is-open="isRolesModalOpen"
+        :user="employee?.user || null"
+        :user-name="employee ? getFullName(employee) : ''"
+        @close="closeRolesModal"
+        @updated="handleRolesUpdated"
+      />
 
       <!-- Edit Modal -->
       <CreateEmployeeModal
@@ -349,7 +366,16 @@
 
           <!-- User Account Information -->
           <Card v-if="employee.user">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">User Account Information</h3>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900">User Account Information</h3>
+              <button
+                @click="openRolesModal"
+                class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors flex items-center gap-1.5"
+              >
+                <ShieldCheck class="h-3.5 w-3.5" />
+                Manage Roles
+              </button>
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700">Name</label>
@@ -368,6 +394,22 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700">Account Created</label>
                 <p class="mt-1 text-sm text-gray-900">{{ formatDate(employee.user.created_at) }}</p>
+              </div>
+              <div class="sm:col-span-2 pt-2 border-t border-gray-100">
+                <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Assigned Roles</label>
+                <div v-if="employee.user.roles && employee.user.roles.length" class="flex flex-wrap gap-2">
+                  <span
+                    v-for="role in employee.user.roles"
+                    :key="role.uuid || role.slug"
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  >
+                    <ShieldCheck class="h-3.5 w-3.5" />
+                    {{ role.name }}
+                  </span>
+                </div>
+                <div v-else class="text-xs text-gray-400 italic">
+                  No roles assigned yet. Click "Manage Roles" to assign.
+                </div>
               </div>
             </div>
           </Card>
@@ -457,6 +499,7 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute, RouterLink } from "vue-router";
 import Swal from "sweetalert2";
 import CreateEmployeeModal from "../../components/hrm/CreateEmployeeModal.vue";
+import AssignUserRoleModal from "../../components/system/AssignUserRoleModal.vue";
 import EmployeeDocumentList from "../../components/hrm/EmployeeDocumentList.vue";
 import UploadDocumentModal from "../../components/hrm/UploadDocumentModal.vue";
 import EnrollFaceModal from "../../components/hrm/EnrollFaceModal.vue";
@@ -473,6 +516,29 @@ const employeeStore = useEmployeeStore();
 const employee = ref<Employee | null>(null);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
+
+// Roles modal state
+const isRolesModalOpen = ref(false);
+
+const openRolesModal = () => {
+  isRolesModalOpen.value = true;
+};
+
+const closeRolesModal = () => {
+  isRolesModalOpen.value = false;
+};
+
+const handleRolesUpdated = (updatedUser: any) => {
+  if (employee.value && employee.value.user) {
+    employee.value.user.roles = updatedUser.roles || [];
+  }
+  Swal.fire({
+    title: "Success!",
+    text: "Roles updated successfully",
+    icon: "success",
+    confirmButtonColor: "#10b981",
+  });
+};
 
 // Documents state
 const documents = ref<EmployeeDocument[]>([]);

@@ -55,8 +55,10 @@
             :employees="employees"
             :loading="isLoading"
             :search-query="searchQuery"
+            :start-index="pagination.from || 1"
             @search="handleSearch"
             @edit="handleEdit"
+            @manage-roles="handleManageRoles"
             @delete="handleDelete"
           />
 
@@ -73,6 +75,15 @@
           />
         </div>
       </div>
+
+      <!-- Assign Roles Modal -->
+      <AssignUserRoleModal
+        :is-open="isRolesModalOpen"
+        :user="selectedEmployeeForRoles?.user || null"
+        :user-name="selectedEmployeeForRoles?.user?.name || (selectedEmployeeForRoles?.first_name + ' ' + (selectedEmployeeForRoles?.last_name || ''))"
+        @close="closeRolesModal"
+        @updated="handleRolesUpdated"
+      />
 
       <!-- Create Modal -->
       <CreateEmployeeModal
@@ -105,6 +116,7 @@ import Card from "../components/common/Card.vue";
 import Skeleton from "../components/common/Skeleton.vue";
 import EmployeeTable from "../components/hrm/EmployeeTable.vue";
 import CreateEmployeeModal from "../components/hrm/CreateEmployeeModal.vue";
+import AssignUserRoleModal from "../components/system/AssignUserRoleModal.vue";
 import MobileActions from "../components/common/MobileActions.vue";
 import ResponsivePagination from "../components/common/ResponsivePagination.vue";
 import { Plus } from "lucide-vue-next";
@@ -117,6 +129,34 @@ const isLoading = ref(false);
 const isSubmitting = ref(false);
 const isModalOpen = ref(false);
 const selectedEmployee = ref<Employee | null>(null);
+
+// Roles modal state
+const isRolesModalOpen = ref(false);
+const selectedEmployeeForRoles = ref<Employee | null>(null);
+
+const handleManageRoles = (employee: Employee) => {
+  selectedEmployeeForRoles.value = employee;
+  isRolesModalOpen.value = true;
+};
+
+const closeRolesModal = () => {
+  isRolesModalOpen.value = false;
+  selectedEmployeeForRoles.value = null;
+};
+
+const handleRolesUpdated = (updatedUser: any) => {
+  if (selectedEmployeeForRoles.value && selectedEmployeeForRoles.value.user) {
+    selectedEmployeeForRoles.value.user.roles = updatedUser.roles || [];
+  }
+  Swal.fire({
+    title: "Success!",
+    text: "Roles updated successfully",
+    icon: "success",
+    confirmButtonColor: "#10b981",
+  });
+  loadData(pagination.value.current_page);
+};
+
 const searchQuery = ref('');
 let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 

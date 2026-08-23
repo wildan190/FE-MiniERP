@@ -28,34 +28,38 @@
     <div class="hidden md:block overflow-x-auto">
       <table class="w-full">
         <thead>
-          <tr class="border-b border-gray-200">
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+          <tr class="border-b border-gray-100 bg-gray-50/75">
+            <th class="px-4 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider w-12">
+              No.
+            </th>
+            <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
               Employee
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
               Department
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
               Designation
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
               Status
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
               Joining Date
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider text-right">
+            <th class="px-6 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider w-48">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-gray-100">
           <!-- Loading State -->
           <template v-if="loading">
             <tr v-for="i in 5" :key="i" class="border-b border-gray-100">
+              <td class="px-4 py-4 text-center"><Skeleton width="1.5rem" height="1rem" class="mx-auto" /></td>
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
-                  <Skeleton width="2.5rem" height="2.5rem" />
+                  <Skeleton width="2.5rem" height="2.5rem" borderRadius="0.75rem" />
                   <div class="space-y-2">
                     <Skeleton width="10rem" height="1rem" />
                     <Skeleton width="6rem" height="0.75rem" />
@@ -64,13 +68,14 @@
               </td>
               <td class="px-6 py-4"><Skeleton width="8rem" height="1rem" /></td>
               <td class="px-6 py-4"><Skeleton width="10rem" height="1rem" /></td>
-              <td class="px-6 py-4"><Skeleton width="4rem" height="1.25rem" /></td>
+              <td class="px-6 py-4"><Skeleton width="4rem" height="1.25rem" borderRadius="9999px" /></td>
               <td class="px-6 py-4"><Skeleton width="7rem" height="1rem" /></td>
-              <td class="px-6 py-4 text-right">
-                <div class="flex justify-end gap-2">
-                  <Skeleton width="3rem" height="1rem" />
-                  <Skeleton width="3rem" height="1rem" />
-                  <Skeleton width="3rem" height="1rem" />
+              <td class="px-6 py-4 text-center">
+                <div class="flex justify-center gap-1.5">
+                  <Skeleton width="2rem" height="2rem" borderRadius="0.5rem" />
+                  <Skeleton width="2rem" height="2rem" borderRadius="0.5rem" />
+                  <Skeleton width="2rem" height="2rem" borderRadius="0.5rem" />
+                  <Skeleton width="2rem" height="2rem" borderRadius="0.5rem" />
                 </div>
               </td>
             </tr>
@@ -78,71 +83,122 @@
 
           <template v-else>
             <tr
-              v-for="employee in employees"
+              v-for="(employee, idx) in employees"
               :key="employee.id"
-              class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+              class="hover:bg-gray-50/80 transition-colors group"
             >
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center gap-3">
-                <div
-                  class="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm"
-                >
-                  {{ getInitials(employee) }}
+              <!-- Numbering -->
+              <td class="px-4 py-4 text-center whitespace-nowrap text-xs font-mono font-bold text-gray-400 group-hover:text-primary-600">
+                {{ (startIndex || 1) + idx }}
+              </td>
+
+              <!-- Employee Details -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-primary-600 flex items-center justify-center text-white font-bold text-xs shadow-sm shadow-indigo-100 flex-shrink-0"
+                  >
+                    {{ getInitials(employee) }}
+                  </div>
+                  <div>
+                    <RouterLink
+                      :to="`/hrm/employees/${employee.uuid}`"
+                      class="text-sm font-bold text-gray-900 hover:text-primary-600 transition-colors"
+                    >
+                      {{ getFullName(employee) }}
+                    </RouterLink>
+                    <p class="text-xs text-gray-400 font-mono mt-0.5">{{ employee.emp_code || "No code" }}</p>
+                    <!-- Role badges -->
+                    <div v-if="employee.user?.roles && employee.user.roles.length" class="flex flex-wrap gap-1 mt-1">
+                      <span
+                        v-for="r in employee.user.roles"
+                        :key="r.uuid || r.slug"
+                        class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                      >
+                        <ShieldCheck class="h-2.5 w-2.5" />
+                        {{ r.name }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div>
+              </td>
+
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="text-sm font-medium text-gray-700 bg-gray-100/80 px-2.5 py-1 rounded-lg">
+                  {{ employee.department?.name || "—" }}
+                </span>
+              </td>
+
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm font-semibold text-gray-800">{{ employee.designation?.name || "—" }}</p>
+              </td>
+
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span
+                  :class="getStatusClass(employee.status)"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full capitalize"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+                  {{ employee.status || "N/A" }}
+                </span>
+              </td>
+
+              <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-500">
+                {{ employee.joining_date ? formatDate(employee.joining_date) : "—" }}
+              </td>
+
+              <!-- Modern Action Toolbar -->
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <div class="inline-flex items-center bg-gray-50/80 border border-gray-200/80 rounded-xl p-1 gap-1 shadow-sm">
+                  <!-- View Profile -->
                   <RouterLink
                     :to="`/hrm/employees/${employee.uuid}`"
-                    class="text-sm font-medium text-gray-900 hover:text-primary-600 transition-colors"
+                    class="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all"
+                    title="View Profile"
                   >
-                    {{ getFullName(employee) }}
+                    <Eye class="h-4 w-4" />
                   </RouterLink>
-                  <p class="text-xs text-gray-600">{{ employee.emp_code || "No code" }}</p>
+
+                  <!-- Manage Roles (if user account exists) -->
+                  <button
+                    v-if="employee.user"
+                    @click="$emit('manage-roles', employee)"
+                    class="p-1.5 rounded-lg text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                    title="Manage Roles & Permissions"
+                  >
+                    <ShieldCheck class="h-4 w-4" />
+                  </button>
+
+                  <!-- Edit Employee -->
+                  <button
+                    @click="$emit('edit', employee)"
+                    class="p-1.5 rounded-lg text-gray-500 hover:text-amber-600 hover:bg-amber-50 transition-all"
+                    title="Edit Employee"
+                  >
+                    <Edit3 class="h-4 w-4" />
+                  </button>
+
+                  <!-- Salary Components -->
+                  <RouterLink
+                    :to="`/hrm/employees/${employee.uuid}/salary-components`"
+                    class="p-1.5 rounded-lg text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-all"
+                    title="Salary Components"
+                  >
+                    <Banknote class="h-4 w-4" />
+                  </RouterLink>
+
+                  <div class="h-4 w-[1px] bg-gray-200 mx-0.5"></div>
+
+                  <!-- Delete Employee -->
+                  <button
+                    @click="$emit('delete', employee.uuid)"
+                    class="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-all"
+                    title="Delete Employee"
+                  >
+                    <Trash2 class="h-4 w-4" />
+                  </button>
                 </div>
-              </div>
-            </td>
-            <td class="px-6 py-4">
-              <p class="text-sm text-gray-900">{{ employee.department?.name || "-" }}</p>
-            </td>
-            <td class="px-6 py-4">
-              <p class="text-sm text-gray-900">{{ employee.designation?.name || "-" }}</p>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span
-                :class="getStatusClass(employee.status)"
-                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-              >
-                {{ employee.status || "N/A" }}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-              {{ employee.joining_date ? formatDate(employee.joining_date) : "-" }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-              <RouterLink
-                :to="`/hrm/employees/${employee.uuid}`"
-                class="text-blue-600 hover:text-blue-900 font-medium transition-colors mr-3"
-              >
-                View
-              </RouterLink>
-              <button
-                @click="$emit('edit', employee)"
-                class="text-primary-600 hover:text-primary-900 font-medium transition-colors mr-3"
-              >
-                Edit
-              </button>
-              <RouterLink
-                :to="`/hrm/employees/${employee.uuid}/salary-components`"
-                class="text-purple-600 hover:text-purple-900 font-medium transition-colors mr-3"
-              >
-                Salary
-              </RouterLink>
-              <button
-                @click="$emit('delete', employee.uuid)"
-                class="text-red-600 hover:text-red-900 font-medium transition-colors"
-              >
-                Delete
-              </button>
-            </td>
+              </td>
             </tr>
           </template>
         </tbody>
@@ -153,9 +209,9 @@
     <div class="md:hidden">
       <!-- Loading State -->
       <template v-if="loading">
-        <div v-for="i in 3" :key="i" class="border-b border-gray-200 p-4 space-y-4">
+        <div v-for="i in 3" :key="i" class="border-b border-gray-100 p-4 space-y-4">
           <div class="flex items-center gap-3">
-            <Skeleton width="2.5rem" height="2.5rem" />
+            <Skeleton width="2.5rem" height="2.5rem" borderRadius="0.75rem" />
             <div class="space-y-2">
               <Skeleton width="12rem" height="1rem" />
               <Skeleton width="8rem" height="0.75rem" />
@@ -164,84 +220,85 @@
           <div class="space-y-2">
             <Skeleton width="100%" height="0.875rem" />
             <Skeleton width="80%" height="0.875rem" />
-            <Skeleton width="40%" height="1.25rem" />
-          </div>
-          <div class="flex flex-col gap-2">
-            <Skeleton width="100%" height="2.5rem" />
-            <div class="flex gap-2">
-              <Skeleton width="50%" height="2.5rem" />
-              <Skeleton width="50%" height="2.5rem" />
-            </div>
           </div>
         </div>
       </template>
 
       <template v-else>
-        <div v-for="employee in employees" :key="employee.id" class="border-b border-gray-200">
-        <div class="p-4">
-          <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-3">
-              <div
-                class="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm"
-              >
-                {{ getInitials(employee) }}
+        <div v-for="(employee, idx) in employees" :key="employee.id" class="border-b border-gray-100 last:border-b-0">
+          <div class="p-4 space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-mono font-bold text-gray-400">#{{ (startIndex || 1) + idx }}</span>
+                <div
+                  class="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-primary-600 flex items-center justify-center text-white font-bold text-xs"
+                >
+                  {{ getInitials(employee) }}
+                </div>
+                <div>
+                  <p class="text-sm font-bold text-gray-900">{{ getFullName(employee) }}</p>
+                  <p class="text-xs text-gray-400 font-mono">{{ employee.emp_code || "No code" }}</p>
+                </div>
               </div>
-              <div>
-                <p class="text-sm font-semibold text-gray-900">{{ getFullName(employee) }}</p>
-                <p class="text-xs text-gray-500">{{ employee.emp_code || "No code" }}</p>
-              </div>
-            </div>
-          </div>
-          <div class="space-y-1 mb-4">
-            <p class="text-sm text-gray-600">
-              <span class="font-medium">Department:</span> {{ employee.department?.name || "N/A" }}
-            </p>
-            <p class="text-sm text-gray-600">
-              <span class="font-medium">Designation:</span>
-              {{ employee.designation?.name || "N/A" }}
-            </p>
-            <p class="text-sm text-gray-600">
-              <span class="font-medium">Status:</span>
               <span
                 :class="getStatusClass(employee.status)"
-                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ml-1"
+                class="inline-flex px-2 py-0.5 text-xs font-bold rounded-full capitalize"
               >
                 {{ employee.status || "N/A" }}
               </span>
-            </p>
-            <p class="text-sm text-gray-600">
-              <span class="font-medium">Joined:</span>
-              {{ employee.joining_date ? formatDate(employee.joining_date) : "N/A" }}
-            </p>
-          </div>
-          <div class="flex flex-col gap-2">
-            <RouterLink
-              :to="`/hrm/employees/${employee.uuid}`"
-              class="w-full text-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
-            >
-              View Details
-            </RouterLink>
-            <div class="flex gap-2">
+            </div>
+
+            <!-- Meta details -->
+            <div class="grid grid-cols-2 gap-2 text-xs bg-gray-50/80 p-3 rounded-xl border border-gray-100">
+              <div>
+                <span class="text-gray-400 block text-[10px] uppercase font-bold">Department</span>
+                <span class="font-semibold text-gray-800">{{ employee.department?.name || "—" }}</span>
+              </div>
+              <div>
+                <span class="text-gray-400 block text-[10px] uppercase font-bold">Designation</span>
+                <span class="font-semibold text-gray-800">{{ employee.designation?.name || "—" }}</span>
+              </div>
+            </div>
+
+            <!-- Mobile Action Grid -->
+            <div class="flex items-center gap-1.5 pt-1">
+              <RouterLink
+                :to="`/hrm/employees/${employee.uuid}`"
+                class="flex-1 py-2 rounded-xl bg-primary-50 text-primary-700 text-xs font-bold text-center hover:bg-primary-100 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Eye class="h-3.5 w-3.5" />
+                View
+              </RouterLink>
+              <button
+                v-if="employee.user"
+                @click="$emit('manage-roles', employee)"
+                class="p-2 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
+                title="Manage Roles"
+              >
+                <ShieldCheck class="h-4 w-4" />
+              </button>
               <button
                 @click="$emit('edit', employee)"
-                class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                class="p-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                title="Edit Employee"
               >
-                Edit
+                <Edit3 class="h-4 w-4" />
               </button>
               <RouterLink
                 :to="`/hrm/employees/${employee.uuid}/salary-components`"
-                class="flex-1 text-center px-4 py-2 bg-purple-50 text-purple-700 text-sm font-medium rounded-lg hover:bg-purple-100 transition-colors"
+                class="p-2 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors"
+                title="Salary Components"
               >
-                Salary
+                <Banknote class="h-4 w-4" />
               </RouterLink>
               <button
                 @click="$emit('delete', employee.uuid)"
-                class="flex-1 px-4 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors"
+                class="p-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                title="Delete Employee"
               >
-                Delete
+                <Trash2 class="h-4 w-4" />
               </button>
             </div>
-          </div>
           </div>
         </div>
       </template>
@@ -274,17 +331,19 @@ import { RouterLink } from "vue-router";
 import type { Employee } from "../../services/hrm/types/employee.types";
 import Card from "../common/Card.vue";
 import Skeleton from "../common/Skeleton.vue";
-import { Search, X } from "lucide-vue-next";
+import { Search, X, Eye, Edit3, Banknote, Trash2, ShieldCheck } from "lucide-vue-next";
 
 interface Props {
   employees: Employee[];
   loading?: boolean;
   searchQuery?: string;
+  startIndex?: number;
 }
 
 defineProps<Props>();
 defineEmits<{
   (e: "edit", employee: Employee): void;
+  (e: "manage-roles", employee: Employee): void;
   (e: "delete", uuid: string): void;
   (e: "search", query: string): void;
 }>();
