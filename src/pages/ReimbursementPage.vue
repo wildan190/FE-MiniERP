@@ -1,31 +1,31 @@
 <template>
   <AppLayout>
-    <div class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+    <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Reimbursement</h1>
-          <p class="text-gray-600 mt-1">Manage expense claims and employee reimbursements.</p>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Reimbursement</h1>
+          <p class="text-sm text-gray-500 mt-1">Manage expense claims and employee reimbursements.</p>
         </div>
         <button
           @click="isClaimModalOpen = true"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all active:scale-95 shadow-sm shadow-primary-200 font-semibold"
+          class="btn-primary flex items-center justify-center gap-2"
         >
-          <Plus class="h-5 w-5" />
+          <Plus class="h-4 w-4" />
           <span>Submit New Claim</span>
         </button>
       </div>
 
       <!-- Tabs -->
       <div class="border-b border-gray-200">
-        <nav class="-mb-px flex space-x-8">
+        <nav class="-mb-px flex space-x-6">
           <button
             v-for="tab in availableTabs"
             :key="tab.id"
             @click="currentTab = tab.id"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm transition-all"
+            class="whitespace-nowrap py-3 px-1 border-b-2 font-semibold text-sm transition-colors"
             :class="currentTab === tab.id
-              ? 'border-primary-500 text-primary-600'
+              ? 'border-blue-600 text-blue-600'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
           >
             {{ tab.label }}
@@ -34,12 +34,12 @@
       </div>
 
       <!-- Filters -->
-      <div class="flex flex-wrap items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+      <div class="flex flex-wrap items-center gap-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
         <div class="flex-1 min-w-[200px]">
-          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1">Status</label>
+          <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider ml-1 mb-1">Status</label>
           <select
             v-model="filters.status"
-            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all text-sm"
+            class="input"
           >
             <option value="">All Status</option>
             <option value="pending">Pending</option>
@@ -50,7 +50,7 @@
         </div>
         <button 
           @click="loadData(1)"
-          class="px-6 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all active:scale-95 text-sm font-bold mt-5"
+          class="btn-primary mt-5"
         >
           Apply Filters
         </button>
