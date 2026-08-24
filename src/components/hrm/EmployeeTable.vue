@@ -111,10 +111,10 @@
                       <span
                         v-if="employee.leave_requests && employee.leave_requests.length > 0"
                         class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300"
-                        :title="`On Leave: ${employee.leave_requests[0].leave_type?.name || 'Leave'}`"
+                        :title="`On Leave: ${employee.leave_requests[0]?.leave_type?.name || 'Leave'}`"
                       >
                         <CalendarOff class="h-3 w-3 text-amber-600" />
-                        On Leave ({{ employee.leave_requests[0].leave_type?.name || 'Leave' }})
+                        On Leave ({{ employee.leave_requests[0]?.leave_type?.name || 'Leave' }})
                       </span>
                     </div>
                     <p class="text-xs text-gray-400 font-mono mt-0.5">{{ employee.emp_code || "No code" }}</p>

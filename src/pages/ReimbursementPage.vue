@@ -130,7 +130,7 @@ const isAdmin = computed(() => {
 })
 
 const availableTabs = computed(() => {
-  const tabs = [{ id: 'my', label: 'My Claims' }]
+  const tabs: { id: 'all' | 'my'; label: string }[] = [{ id: 'my', label: 'My Claims' }]
   if (isAdmin.value) {
     tabs.unshift({ id: 'all', label: 'All Reimbursements' })
   }
@@ -192,17 +192,17 @@ const handleStatusUpdate = async (data: UpdateReimbursementStatusRequest) => {
 const viewClaim = (claim: Reimbursement) => {
   let details = `
     <div class="text-left space-y-2 text-sm">
-      <p><strong>Employee:</strong> ${claim.employee?.user?.name}</p>
-      <p><strong>Type:</strong> ${claim.type}</p>
-      <p><strong>Amount:</strong> ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(claim.amount)}</p>
-      <p><strong>Description:</strong> ${claim.description || '-'}</p>
-      <p><strong>Status:</strong> <span class="uppercase font-bold">${claim.status}</span></p>
+      <p><strong>Employee:</strong> ${claim?.employee?.user?.name || '-'}</p>
+      <p><strong>Type:</strong> ${claim?.type || '-'}</p>
+      <p><strong>Amount:</strong> ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(claim?.amount || 0)}</p>
+      <p><strong>Description:</strong> ${claim?.description || '-'}</p>
+      <p><strong>Status:</strong> <span class="uppercase font-bold">${claim?.status || '-'}</span></p>
   `
   
-  if (claim.approved_at) {
+  if (claim?.approved_at) {
     details += `<p><strong>Processed At:</strong> ${new Date(claim.approved_at).toLocaleString()}</p>`
   }
-  if (claim.rejection_reason) {
+  if (claim?.rejection_reason) {
     details += `<p class="text-red-600"><strong>Rejection Reason:</strong> ${claim.rejection_reason}</p>`
   }
   

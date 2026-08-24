@@ -100,7 +100,7 @@ const handleLogTime = async () => {
               </td>
               <td class="px-6 py-4 text-right font-bold text-gray-900">8.0</td>
             </tr>
-            <tr v-if="i === 1" class="bg-gray-50/30">
+            <tr class="bg-gray-50/30">
               <td class="px-6 py-4 font-bold text-gray-900">Total</td>
               <td v-for="d in 7" :key="d" class="px-4 py-4 text-center font-bold text-gray-900">8.0</td>
               <td class="px-6 py-4 text-right font-bold text-primary-600">32.5</td>

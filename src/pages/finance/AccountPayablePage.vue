@@ -159,7 +159,7 @@ function isOverdue(due: string, status: string) {
           <button v-for="s in ['', 'draft', 'approved', 'partial', 'paid', 'cancelled']" :key="s"
             @click="filterStatus = s"
             :class="['px-3 py-1.5 rounded-xl text-xs font-bold transition-all', filterStatus === s ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']">
-            {{ s === '' ? 'All' : STATUS_CONFIG[s].label }}
+            {{ s === '' ? 'All' : STATUS_CONFIG[s]?.label }}
           </button>
         </div>
 

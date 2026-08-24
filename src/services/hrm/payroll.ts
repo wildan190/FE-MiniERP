@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { apiClient } from '../api/ApiClient'
 import type {
   PayrollListResponse,

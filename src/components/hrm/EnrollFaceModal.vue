@@ -202,7 +202,7 @@ const resetState = () => {
   selectedFile.value = null;
   fileError.value = '';
   cameraError.value = null;
-  if (previewUrl.value && !selectedFile.value?.webkitRelativePath) { // Only revoke if it's a blob URL
+  if (previewUrl.value && !(selectedFile.value as File | null)?.webkitRelativePath) { // Only revoke if it's a blob URL
     URL.revokeObjectURL(previewUrl.value);
   }
   previewUrl.value = null;
