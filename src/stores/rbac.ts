@@ -40,6 +40,17 @@ export const useRbacStore = defineStore('rbac', () => {
     return res.data
   }
 
+  async function updateRole(uuid: string, data: any) {
+    const res = await rbacRepository.updateRole(uuid, data)
+    await fetchRoles()
+    return res.data
+  }
+
+  async function deleteRole(uuid: string) {
+    await rbacRepository.deleteRole(uuid)
+    await fetchRoles()
+  }
+
   return {
     roles,
     permissions,
@@ -48,6 +59,8 @@ export const useRbacStore = defineStore('rbac', () => {
     fetchRoles,
     fetchPermissions,
     createRole,
+    updateRole,
+    deleteRole,
     assignUserRole,
   }
 })

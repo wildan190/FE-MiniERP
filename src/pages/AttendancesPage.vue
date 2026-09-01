@@ -2,22 +2,22 @@
   <AppLayout>
     <div class="max-w-7xl mx-auto px-4 py-8">
       <!-- Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Attendance</h1>
-          <p class="text-gray-600 mt-1">Track employee presence and clock events</p>
+          <h1 class="text-3xl font-bold text-gray-900">{{ isHrUser ? (currentTab === 'all' ? 'All Attendance Records' : 'My Attendance') : 'My Attendance' }}</h1>
+          <p class="text-gray-600 mt-1">{{ isHrUser ? 'Track organization-wide attendance or view your personal records' : 'View your personal clock events and presence history' }}</p>
         </div>
         <div class="flex flex-wrap gap-2">
           <button
             @click="isClockInModalOpen = true"
-            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium flex items-center gap-2"
+            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium flex items-center gap-2 shadow-sm"
           >
             <LogIn class="h-5 w-5" />
             Clock In
           </button>
           <button
             @click="isClockOutModalOpen = true"
-            class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium flex items-center gap-2"
+            class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium flex items-center gap-2 shadow-sm"
           >
             <LogOut class="h-5 w-5" />
             Clock Out
@@ -25,9 +25,27 @@
         </div>
       </div>
 
-      <!-- Filters -->
+      <!-- Tab Switcher (Visible only to HR/Admin) -->
+      <div v-if="isHrUser" class="flex gap-2 border-b border-gray-200 mb-6">
+        <button
+          @click="switchTab('all')"
+          :class="currentTab === 'all' ? 'border-b-2 border-primary-600 text-primary-600 font-bold' : 'text-gray-500 hover:text-gray-700 font-medium'"
+          class="px-4 py-2.5 text-sm transition-colors"
+        >
+          All Employees
+        </button>
+        <button
+          @click="switchTab('mine')"
+          :class="currentTab === 'mine' ? 'border-b-2 border-primary-600 text-primary-600 font-bold' : 'text-gray-500 hover:text-gray-700 font-medium'"
+          class="px-4 py-2.5 text-sm transition-colors"
+        >
+          My Attendance
+        </button>
+      </div>
+
+      <!-- Filters (Search employee & Department only for HR when viewing all) -->
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <div>
+        <div v-if="isHrUser && currentTab === 'all'">
           <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Search Employee</label>
           <input
             v-model="filters.search"
@@ -47,7 +65,7 @@
           />
         </div>
 
-        <div>
+        <div v-if="isHrUser">
           <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Department</label>
           <select
             v-model="filters.department_uuid"
@@ -156,18 +174,24 @@ import ClockOutModal from '../components/hrm/ClockOutModal.vue'
 import ResponsivePagination from '../components/common/ResponsivePagination.vue'
 import { LogIn, LogOut, Clock, Calendar, Search } from 'lucide-vue-next'
 import { useAttendanceStore } from '../stores/attendance'
+import { useAuthStore } from '../stores/auth'
 import { officeLocationRepository } from '../repositories/hrm/office-location.repository'
 import { departmentRepository } from '../repositories/hrm/department.repository'
 import type { OfficeLocation } from '../services/hrm/types/office-location.types'
 import type { Department } from '../services/hrm/types/department.types'
 import type { ClockInRequest, ClockOutRequest } from '../services/hrm/types/attendance.types'
 
+const authStore = useAuthStore()
 const attendanceStore = useAttendanceStore()
 const officeLocations = ref<OfficeLocation[]>([])
 const departments = ref<Department[]>([])
 const isClockInModalOpen = ref(false)
 const isClockOutModalOpen = ref(false)
 const isSubmitting = ref(false)
+
+const isHrUser = computed(() => {
+  return authStore.hasHrAccess || authStore.hasPermission('hrm.attendances.view')
+})
 
 // Clock Logic
 const now = ref(new Date())
@@ -200,6 +224,17 @@ const currentDay = computed(() => {
   return now.value.toLocaleDateString('id-ID', { weekday: 'long' })
 })
 
+const currentTab = ref<'all' | 'mine'>('mine')
+
+const switchTab = (tab: 'all' | 'mine') => {
+  currentTab.value = tab
+  if (tab === 'mine') {
+    filters.value.search = ''
+    filters.value.department_uuid = ''
+  }
+  loadData(1)
+}
+
 const filters = ref({
   search: '',
   date: new Date().toISOString().split('T')[0],
@@ -209,7 +244,13 @@ const filters = ref({
 
 const loadData = async (page = 1) => {
   try {
-    await attendanceStore.fetchAttendances({ ...filters.value }, page)
+    const queryParams: any = { ...filters.value }
+    if (isHrUser.value) {
+      queryParams.view = currentTab.value
+    } else {
+      queryParams.view = 'mine'
+    }
+    await attendanceStore.fetchAttendances(queryParams, page)
   } catch (err) {
     console.error('Failed to load attendances:', err)
   }
@@ -293,6 +334,7 @@ const handleClockOut = async (data: ClockOutRequest) => {
 }
 
 onMounted(() => {
+  currentTab.value = isHrUser.value ? 'all' : 'mine'
   loadData()
   loadOfficeLocations()
   loadDepartments()

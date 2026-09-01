@@ -156,10 +156,58 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  const timesheets = ref<any[]>([])
+
+  async function fetchTimesheets(params?: any) {
+    isLoading.value = true
+    try {
+      const response = await projectRepository.getTimesheets(params)
+      const resData = response.data.data
+      timesheets.value = Array.isArray(resData) ? resData : (resData?.data || [])
+    } catch (err: any) {
+      error.value = err.message
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function logTimesheet(data: { project_uuid: string; task_uuid?: string; date: string; hours: number; notes?: string }) {
+    isLoading.value = true
+    try {
+      const response = await projectRepository.logTimesheet(data.project_uuid, {
+        task_uuid: data.task_uuid || null,
+        date: data.date,
+        hours: data.hours,
+        notes: data.notes || null
+      })
+      await fetchTimesheets()
+      return response.data
+    } catch (err: any) {
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function updateProjectStatus(uuid: string, status: string) {
+    isLoading.value = true
+    try {
+      await projectRepository.updateProjectStatus(uuid, status)
+      await fetchProjects()
+    } catch (err: any) {
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     projects,
     currentProject,
     tasks,
+    timesheets,
     dashboardData,
     resourceData,
     financialData,
@@ -171,10 +219,13 @@ export const useProjectStore = defineStore('project', () => {
     fetchProjects,
     fetchProjectDetail,
     createProject,
+    updateProjectStatus,
     fetchTasks,
     createTask,
     updateTask,
     assignMember,
-    addExpense
+    addExpense,
+    fetchTimesheets,
+    logTimesheet
   }
 })

@@ -17,7 +17,7 @@
             Apply for Leave
           </button>
           <button
-            v-if="activeTab === 'Types'"
+            v-if="activeTab === 'Types' && isHrUser"
             @click="openCreateTypeModal"
             class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium flex items-center gap-2"
           >
@@ -27,8 +27,8 @@
         </div>
       </div>
 
-      <!-- Tab Selection -->
-      <div class="flex gap-4 border-b border-gray-200 mb-8">
+      <!-- Tab Selection (Visible only when multiple tabs exist) -->
+      <div v-if="tabs.length > 1" class="flex gap-4 border-b border-gray-200 mb-8">
         <button
           v-for="tab in tabs"
           :key="tab"
@@ -77,6 +77,29 @@
               </Card>
             </template>
           </div>
+        </div>
+
+        <!-- HR-only: View Toggle (All Employees vs My Requests) -->
+        <div v-if="isHrUser" class="flex items-center gap-2 mb-6">
+          <span class="text-sm font-medium text-gray-600 mr-1">View:</span>
+          <button
+            @click="leaveView = 'all'"
+            :class="leaveView === 'all'
+              ? 'bg-primary-600 text-white shadow'
+              : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'"
+            class="px-4 py-1.5 rounded-full text-sm font-semibold transition-all"
+          >
+            All Employees
+          </button>
+          <button
+            @click="leaveView = 'mine'"
+            :class="leaveView === 'mine'
+              ? 'bg-primary-600 text-white shadow'
+              : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'"
+            class="px-4 py-1.5 rounded-full text-sm font-semibold transition-all"
+          >
+            My Requests
+          </button>
         </div>
 
         <!-- Requests Content -->
@@ -162,7 +185,7 @@
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
                         <button
-                          v-if="req.status === 'pending'"
+                          v-if="req.status === 'pending' && isHrUser"
                           @click="openStatusUpdateModal(req)"
                           class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
                         >
@@ -215,7 +238,7 @@
                     <p><span class="font-medium">Reason:</span> {{ req.reason }}</p>
                   </div>
                   <button
-                    v-if="req.status === 'pending'"
+                    v-if="req.status === 'pending' && isHrUser"
                     @click="openStatusUpdateModal(req)"
                     class="w-full text-center text-sm text-primary-600 font-medium py-1.5 rounded-lg border border-primary-200 hover:bg-primary-50 transition-colors"
                   >
@@ -416,18 +439,33 @@ import type { LeaveRequest, CreateLeaveRequestRequest, UpdateLeaveRequestStatusR
 import type { LeaveType, CreateLeaveTypeRequest } from '../services/hrm/types/leave-type.types'
 import type { PaginationLink } from '../services/types'
 
+import { useAuthStore } from '../stores/auth'
+
 const route = useRoute()
+const authStore = useAuthStore()
 const leaveRequestStore = useLeaveRequestStore()
 const leaveTypeStore = useLeaveTypeStore()
 
-// Tabs
-const tabs = ['Requests', 'Types']
-const activeTab = ref(route.path.includes('leave-types') ? 'Types' : 'Requests')
+const isHrUser = computed(() => {
+  return authStore.hasHrAccess || authStore.hasPermission('hrm.leave.approve')
+})
+
+// Tabs - 'Types' is only visible to HR/Admin
+const tabs = computed(() => {
+  return isHrUser.value ? ['Requests', 'Types'] : ['Requests']
+})
+const activeTab = ref(route.path.includes('leave-types') && isHrUser.value ? 'Types' : 'Requests')
+
+// View toggle for HR users: 'all' = see everyone, 'mine' = see own requests
+const leaveView = ref<'all' | 'mine'>(isHrUser.value ? 'all' : 'mine')
 
 // Watch path for external navigation
 watch(() => route.path, (newPath) => {
-  activeTab.value = newPath.includes('leave-types') ? 'Types' : 'Requests'
+  activeTab.value = newPath.includes('leave-types') && isHrUser.value ? 'Types' : 'Requests'
 })
+
+// Reload when HR user switches between all/mine view
+watch(leaveView, () => loadRequestsData(1))
 
 // === Requests Logic ===
 const leaveRequests = ref<LeaveRequest[]>([])
@@ -463,7 +501,12 @@ const countByStatus = (status: string) =>
 const loadRequestsData = async (page = 1) => {
   isLoadingRequests.value = true
   try {
-    await leaveRequestStore.fetchLeaveRequests(page)
+    // Non-HR users always see only their own; HR users respect leaveView toggle
+    const filters: Record<string, string | number | undefined> = {}
+    if (!isHrUser.value || leaveView.value === 'mine') {
+      filters.view = 'mine'
+    }
+    await leaveRequestStore.fetchLeaveRequests(page, filters)
     leaveRequests.value = leaveRequestStore.leaveRequests
     pagination.value = {
       current_page: leaveRequestStore.currentPage,
@@ -635,6 +678,8 @@ const getStatusClass = (status: string) => {
 onMounted(() => {
   loadRequestsData()
   loadBalanceData()
-  loadTypesData()
+  if (isHrUser.value) {
+    loadTypesData()
+  }
 })
 </script>

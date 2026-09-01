@@ -4,6 +4,18 @@ export interface LoginRequest {
   password: string
 }
 
+export interface UserPermission {
+  slug: string
+  module: string
+}
+
+export interface UserRole {
+  id: number
+  name: string
+  slug: string
+  permissions: UserPermission[]
+}
+
 export interface LoginResponse {
   token?: string
   message?: string
@@ -15,6 +27,7 @@ export interface LoginResponse {
     created_at: string
     updated_at: string
   }
+  roles?: UserRole[]
 }
 
 export interface DashboardResponse {

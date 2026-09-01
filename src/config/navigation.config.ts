@@ -26,9 +26,15 @@ export interface NavItem {
   to: string;
   icon: any;
   group?: string;
+  requiresHr?: boolean;
 }
 
 export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Record<string, NavItem[]> }> = {
+  dashboard: {
+    items: [
+      { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+    ]
+  },
   crm: {
     items: [
       { label: 'CRM Dashboard', to: '/crm', icon: LayoutDashboard },
@@ -39,30 +45,43 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
       { label: 'Pipelines', to: '/crm/pipelines', icon: LayoutGrid },
     ]
   },
+  attendance: {
+    items: [
+      { label: 'My Attendance', to: '/hrm/attendances', icon: Clock },
+    ]
+  },
+  leaves: {
+    items: [
+      { label: 'My Leave Requests', to: '/hrm/leave-requests', icon: ClipboardList },
+      { label: 'Leave Types Policy', to: '/hrm/leave-types', icon: CalendarRange, requiresHr: true },
+    ]
+  },
+  reimbursement: {
+    items: [
+      { label: 'My Claims', to: '/hrm/reimbursements', icon: Banknote },
+    ]
+  },
+  payslips: {
+    items: [
+      { label: 'My Payslips', to: '/hrm/payslips', icon: Banknote },
+    ]
+  },
   hrm: {
     items: [
       { label: 'Reports', to: '/hrm/reports', icon: BarChart3 },
     ],
     groups: {
-      employment: [
+      'hr-administration': [
         { label: 'Employees', to: '/hrm/employees', icon: Users },
         { label: 'Departments', to: '/hrm/departments', icon: Zap },
         { label: 'Designations', to: '/hrm/designations', icon: Briefcase },
-        { label: 'Resignations', to: '/hrm/resignations', icon: FileX },
         { label: 'Office Locations', to: '/hrm/office-locations', icon: MapPin },
-      ],
-      tracking: [
-        { label: 'Attendance', to: '/hrm/attendances', icon: Clock },
         { label: 'Shifts', to: '/hrm/shifts', icon: CalendarRange },
-        { label: 'Leave Management', to: '/hrm/leave-requests', icon: ClipboardList },
+        { label: 'Resignations', to: '/hrm/resignations', icon: FileX },
       ],
-      claims: [
-        { label: 'Reimbursements', to: '/hrm/reimbursements', icon: Banknote },
-      ],
-      payroll: [
+      'payroll-management': [
         { label: 'Payroll Periods', to: '/hrm/payroll-periods', icon: Banknote },
         { label: 'Payrolls', to: '/hrm/payrolls', icon: Banknote },
-        { label: 'Payslips', to: '/hrm/payslips', icon: Banknote },
         { label: 'Salary Components', to: '/hrm/salary-components', icon: Banknote },
       ]
     }
@@ -145,18 +164,12 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
   default: {
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
-      { label: 'CRM', to: '/crm', icon: Users },
-      { label: 'HRM', to: '/hrm/departments', icon: Zap },
-      { label: 'Finance', to: '/finance', icon: Banknote },
-      { label: 'Purchasing', to: '/purchasing', icon: Box },
-      { label: 'Project', to: '/project', icon: LayoutGrid },
-      { label: 'Inventory', to: '/inventory', icon: Package },
-      { label: 'System', to: '/system/roles', icon: ShieldCheck },
     ]
   }
 };
 
 export const getModuleByPath = (path: string): string => {
+  if (path.startsWith('/dashboard')) return 'dashboard';
   if (path.startsWith('/hrm')) return 'hrm';
   if (path.startsWith('/finance')) return 'finance';
   if (path.startsWith('/purchasing')) return 'purchasing';

@@ -9,10 +9,34 @@
         </div>
       </div>
 
+      <!-- HR-only: View Toggle -->
+      <div v-if="isHrUser" class="flex items-center gap-2 mb-6">
+        <span class="text-sm font-medium text-gray-600 mr-1">View:</span>
+        <button
+          @click="payslipView = 'all'"
+          :class="payslipView === 'all'
+            ? 'bg-primary-600 text-white shadow'
+            : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'"
+          class="px-4 py-1.5 rounded-full text-sm font-semibold transition-all"
+        >
+          All Employees
+        </button>
+        <button
+          @click="payslipView = 'mine'"
+          :class="payslipView === 'mine'
+            ? 'bg-primary-600 text-white shadow'
+            : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'"
+          class="px-4 py-1.5 rounded-full text-sm font-semibold transition-all"
+        >
+          My Payslips
+        </button>
+      </div>
+
       <!-- Filters -->
       <Card class="mb-6 bg-white/50 border-0 shadow-sm backdrop-blur-xl">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          <!-- Search Employee: only relevant for HR viewing all -->
+          <div v-if="isHrUser && payslipView === 'all'">
             <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
               Search Employee
             </label>
@@ -78,6 +102,7 @@
                   <td class="px-6 py-4 text-sm font-medium text-gray-600">
                     {{ payroll.payroll_period?.name }}
                   </td>
+
                   <td class="px-6 py-4 text-sm font-black text-gray-900">
                     {{ formatCurrency(payroll.net_salary) }}
                   </td>
@@ -112,22 +137,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import Card from '../components/common/Card.vue'
 import Skeleton from '../components/common/Skeleton.vue'
 import { Search, Download, FileText } from 'lucide-vue-next'
 import { payrollRepository } from '../repositories/hrm/payroll.repository'
+import { useAuthStore } from '../stores/auth'
 import type { Payroll } from '../services/hrm/types/payroll.types'
 
+const authStore = useAuthStore()
 const payrolls = ref<Payroll[]>([])
 const isLoading = ref(true)
 const search = ref('')
 
+// HR access check
+const isHrUser = computed(() =>
+  authStore.hasHrAccess || authStore.hasPermission('hrm.payroll.manage')
+)
+
+// View toggle: HR can switch between all employees or just their own
+const payslipView = ref<'all' | 'mine'>(isHrUser.value ? 'all' : 'mine')
+
 const loadData = async () => {
   isLoading.value = true
   try {
-    const response = await payrollRepository.getPayrolls({ status: 'paid', per_page: 100 })
+    const params: Record<string, string | number | undefined> = {
+      status: 'paid',
+      per_page: 100,
+    }
+    // Non-HR always scoped; HR respects the toggle
+    if (!isHrUser.value || payslipView.value === 'mine') {
+      params.view = 'mine'
+    }
+    const response = await payrollRepository.getPayrolls(params as any)
     payrolls.value = response.data.data
   } catch (error) {
     console.error('Failed to load payslips:', error)
@@ -136,11 +179,14 @@ const loadData = async () => {
   }
 }
 
+// Reload when view changes
+watch(payslipView, () => loadData())
+
 const filteredPayrolls = computed(() => {
   if (!search.value) return payrolls.value
   const q = search.value.toLowerCase()
-  return payrolls.value.filter(p => 
-    p.employee?.user?.name?.toLowerCase().includes(q) || 
+  return payrolls.value.filter(p =>
+    p.employee?.user?.name?.toLowerCase().includes(q) ||
     p.employee?.first_name?.toLowerCase().includes(q) ||
     p.employee?.emp_code?.toLowerCase().includes(q)
   )
@@ -152,7 +198,6 @@ const handleDownload = async (payroll: Payroll) => {
     await payrollRepository.downloadPayslip(payroll.uuid, filename)
   } catch (error) {
     console.error('Failed to download payslip:', error)
-    // Could add Swal here, but console error is fine for now
   }
 }
 

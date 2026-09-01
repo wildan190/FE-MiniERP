@@ -29,6 +29,10 @@ export const projectRepository = {
     return apiClient.getClient().put(`/project/${uuid}`, data)
   },
 
+  updateProjectStatus(uuid: string, status: string) {
+    return apiClient.getClient().patch(`/project/projects/${uuid}/status`, { status })
+  },
+
   getTasks(projectUuid?: string) {
     const params = projectUuid ? { project_uuid: projectUuid } : {}
     return apiClient.getClient().get('/project/tasks', { params })
@@ -52,5 +56,13 @@ export const projectRepository = {
 
   addExpense(data: any) {
     return apiClient.getClient().post('/project/costs', data)
+  },
+
+  getTimesheets(params?: any) {
+    return apiClient.getClient().get('/project/timesheets', { params })
+  },
+
+  logTimesheet(projectUuid: string, data: any) {
+    return apiClient.getClient().post(`/project/projects/${projectUuid}/timesheets`, data)
   }
 }

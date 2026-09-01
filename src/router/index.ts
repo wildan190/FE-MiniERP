@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { getModuleByPath as getModuleKey } from '@/config/role-access.config'
 // Only the truly always-needed pages are imported statically:
 import LoginPage from '@/pages/LoginPage.vue'
 import AppMenuView from '@/pages/AppMenuView.vue'
@@ -24,25 +25,31 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('@/pages/DashboardPage.vue'),
-      meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Dashboard' }] },
+      meta: { requiresAuth: true, module: 'dashboard', breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Dashboard' }] },
+    },
+    {
+      path: '/unauthorized',
+      name: 'unauthorized',
+      component: () => import('@/pages/UnauthorizedPage.vue'),
+      meta: { requiresAuth: true },
     },
     {
       path: '/crm',
       name: 'crm',
       component: () => import('@/pages/CRMDashboardPage.vue'),
-      meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'CRM' }] },
+      meta: { requiresAuth: true, module: 'crm', breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'CRM' }] },
     },
     {
       path: '/customers',
       name: 'customers',
       component: () => import('@/pages/CustomersPage.vue'),
-      meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Customers' }] },
+      meta: { requiresAuth: true, module: 'crm', breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Customers' }] },
     },
     {
       path: '/quotations',
       name: 'Quotations',
       component: () => import('@/pages/QuotationsPage.vue'),
-      meta: { requiresAuth: true, breadcrumbs: [{ name: 'Home', path: '/dashboard' }, { name: 'Quotations', path: '/quotations' }] }
+      meta: { requiresAuth: true, module: 'crm', breadcrumbs: [{ name: 'Home', path: '/dashboard' }, { name: 'Quotations', path: '/quotations' }] }
     },
     {
       path: '/quotations/:uuid',
@@ -796,9 +803,22 @@ router.beforeEach((to) => {
   if (requiresAuth && !isAuthenticated) {
     return '/login'
   }
+
   // If user is authenticated and trying to access login page, redirect to menu
   if (to.path === '/login' && isAuthenticated) {
     return '/'
+  }
+
+  // Module-level access guard — purely data-driven via permission.module from DB
+  if (isAuthenticated && to.path !== '/unauthorized') {
+    const routeModule = (to.meta.module as string | undefined) ?? getModuleKey(to.path)
+
+    // 'default' = non-module routes (/, /login, /unauthorized), always allowed
+    if (routeModule !== 'default' && routeModule !== '') {
+      if (!authStore.canAccessModule(routeModule)) {
+        return '/unauthorized'
+      }
+    }
   }
 })
 

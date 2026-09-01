@@ -105,6 +105,11 @@
                   {{ authStore.user?.name || 'User' }}
                 </p>
                 <p class="text-xs text-gray-500 truncate">{{ authStore.user?.email || '-' }}</p>
+                <!-- Role badge -->
+                <span class="inline-flex items-center gap-1 mt-0.5 text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
+                  <ShieldCheck class="h-3 w-3" />
+                  {{ primaryRoleLabel }}
+                </span>
               </div>
             </div>
             <button
@@ -194,6 +199,11 @@
               {{ authStore.user?.name || 'User' }}
             </p>
             <p class="text-xs text-gray-500 truncate">{{ authStore.user?.email || '-' }}</p>
+            <!-- Role badge -->
+            <span class="inline-flex items-center gap-1 mt-0.5 text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
+              <ShieldCheck class="h-3 w-3" />
+              {{ primaryRoleLabel }}
+            </span>
           </div>
         </div>
         <button
@@ -297,7 +307,8 @@ import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute, RouterLink } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import Breadcrumb from "@/components/common/Breadcrumb.vue";
-import { NAVIGATION_CONFIG, getModuleByPath } from "@/config/navigation.config";
+import { NAVIGATION_CONFIG } from "@/config/navigation.config";
+import { getModuleByPath } from "@/config/role-access.config";
 import {
   LayoutGrid,
   LogOut,
@@ -305,6 +316,7 @@ import {
   ChevronDown,
   Menu,
   X,
+  ShieldCheck,
 } from "lucide-vue-next";
 
 const router = useRouter();
@@ -313,16 +325,62 @@ const authStore = useAuthStore();
 const showUserMenu = ref(false);
 
 const activeModule = computed(() => getModuleByPath(route.path));
-const moduleConfig = computed(() => NAVIGATION_CONFIG[activeModule.value] || NAVIGATION_CONFIG.default);
+const moduleConfig = computed(() => {
+  const base = NAVIGATION_CONFIG[activeModule.value] || NAVIGATION_CONFIG.default;
+  if (!base) return { items: [] };
+
+  const isHr = authStore.hasHrAccess;
+
+  // Filter standalone items
+  const filteredItems = (base.items || []).filter((item) => {
+    if (item.requiresHr && !isHr) return false;
+    return true;
+  });
+
+  // Filter grouped items
+  let filteredGroups: Record<string, any[]> | undefined = undefined;
+  if (base.groups) {
+    filteredGroups = {};
+    for (const [groupKey, items] of Object.entries(base.groups)) {
+      const validItems = items.filter((item) => {
+        if (item.requiresHr && !isHr) return false;
+        return true;
+      });
+      if (validItems.length > 0) {
+        filteredGroups[groupKey] = validItems;
+      }
+    }
+  }
+
+  return {
+    items: filteredItems,
+    groups: filteredGroups,
+  };
+});
+
+/** Use primaryRoleLabel from auth store (computed from actual role names) */
+const primaryRoleLabel = computed(() => authStore.primaryRoleLabel)
 
 const moduleList = [
+  { id: 'attendance', label: '⏱️ Attendance', path: '/hrm/attendances' },
+  { id: 'leaves', label: '📋 Leaves', path: '/hrm/leave-requests' },
+  { id: 'reimbursement', label: '💳 Reimbursement', path: '/hrm/reimbursements' },
+  { id: 'payslips', label: '💵 Payslips', path: '/hrm/payslips' },
+  { id: 'hrm', label: '👥 HR Management', path: '/hrm/employees' },
   { id: 'crm', label: '📊 CRM', path: '/crm' },
-  { id: 'hrm', label: '👥 HRM', path: '/hrm/employees' },
   { id: 'finance', label: '💰 Finance', path: '/finance' },
   { id: 'purchasing', label: '🛒 Purchasing', path: '/purchasing' },
   { id: 'inventory', label: '📦 Inventory', path: '/inventory' },
   { id: 'system', label: '⚙️ System', path: '/system/roles' },
 ];
+
+/**
+ * Module switcher only shows modules the user can access.
+ * Uses authStore.canAccessModule() which is data-driven — no hardcode.
+ */
+const accessibleModuleList = computed(() =>
+  moduleList.filter((m) => authStore.canAccessModule(m.id))
+);
 
 const switchModule = (moduleId: string) => {
   const target = moduleList.find(m => m.id === moduleId);

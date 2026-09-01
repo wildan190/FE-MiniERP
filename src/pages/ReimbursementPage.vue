@@ -4,8 +4,8 @@
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Reimbursement</h1>
-          <p class="text-sm text-gray-500 mt-1">Manage expense claims and employee reimbursements.</p>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ isAdmin && currentTab === 'all' ? 'All Reimbursements' : 'My Claims' }}</h1>
+          <p class="text-sm text-gray-500 mt-1">{{ isAdmin ? 'Manage expense claims and employee reimbursements.' : 'View and submit your expense reimbursement claims.' }}</p>
         </div>
         <button
           @click="isClaimModalOpen = true"
@@ -16,8 +16,8 @@
         </button>
       </div>
 
-      <!-- Tabs -->
-      <div class="border-b border-gray-200">
+      <!-- Tabs (Visible only for HR/Admin) -->
+      <div v-if="isAdmin" class="border-b border-gray-200">
         <nav class="-mb-px flex space-x-6">
           <button
             v-for="tab in availableTabs"
@@ -124,9 +124,9 @@ const filters = reactive({
   status: '' as ReimbursementStatus | '',
 })
 
-// Simplified role check - assuming admin can see "all"
+// Check if user has HR or Management permission for reimbursement approval/all view
 const isAdmin = computed(() => {
-  return true // Replace with actual auth logic if available
+  return authStore.hasHrAccess || authStore.hasPermission('hrm.reimbursement.approve')
 })
 
 const availableTabs = computed(() => {
@@ -137,9 +137,9 @@ const availableTabs = computed(() => {
   return tabs
 })
 
-// Default to 'all' if admin
+// Default to 'all' only if user is HR/admin, otherwise 'my'
 onMounted(() => {
-  if (isAdmin.value) currentTab.value = 'all'
+  currentTab.value = isAdmin.value ? 'all' : 'my'
   loadData()
 })
 

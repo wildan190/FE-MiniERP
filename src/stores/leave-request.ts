@@ -20,11 +20,11 @@ export const useLeaveRequestStore = defineStore('leaveRequest', {
   }),
 
   actions: {
-    async fetchLeaveRequests(page: number = 1) {
+    async fetchLeaveRequests(page: number = 1, filters: Record<string, string | number | undefined> = {}) {
       this.loading = true
       this.error = null
       try {
-        const response = await leaveRequestRepository.getLeaveRequests(page)
+        const response = await leaveRequestRepository.getLeaveRequests(page, filters)
         this.leaveRequests = response.data.data
         this.currentPage = response.data.current_page
         this.totalPages = response.data.last_page

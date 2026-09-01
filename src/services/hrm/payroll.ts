@@ -34,6 +34,18 @@ export class PayrollService {
     return response.data
   }
 
+  async approve(uuid: string): Promise<any> {
+    const response = await apiClient.getClient().post(`/hrm/payrolls/${uuid}/approve`)
+    return response.data
+  }
+
+  async batchApprove(uuids: string[]): Promise<{ message: string }> {
+    const response = await apiClient.getClient().post('/hrm/payrolls/batch-approve', {
+      payroll_uuids: uuids,
+    })
+    return response.data
+  }
+
   async batchPay(uuids: string[]): Promise<{ message: string }> {
     const response = await apiClient.getClient().post('/hrm/payrolls/batch-pay', {
       payroll_uuids: uuids,

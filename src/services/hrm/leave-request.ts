@@ -18,8 +18,8 @@ export type {
 }
 
 export class LeaveRequestService {
-  async getLeaveRequests(page: number = 1): Promise<LeaveRequestListResponse> {
-    const response = await apiClient.getClient().get('/hrm/leave-requests', { params: { page } })
+  async getLeaveRequests(page: number = 1, filters: Record<string, string | number | undefined> = {}): Promise<LeaveRequestListResponse> {
+    const response = await apiClient.getClient().get('/hrm/leave-requests', { params: { page, ...filters } })
     return response.data
   }
 

@@ -24,6 +24,14 @@ export class PayrollRepository {
     return await payrollService.markAsPaid(uuid)
   }
 
+  async approve(uuid: string): Promise<any> {
+    return await payrollService.approve(uuid)
+  }
+
+  async batchApprove(uuids: string[]): Promise<{ message: string }> {
+    return await payrollService.batchApprove(uuids)
+  }
+
   async batchPay(uuids: string[]): Promise<{ message: string }> {
     return await payrollService.batchPay(uuids)
   }
