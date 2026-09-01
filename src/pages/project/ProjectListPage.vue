@@ -14,9 +14,6 @@ import {
   Kanban,
   CheckSquare,
   DollarSign,
-  Eye,
-  Pencil,
-  Trash2,
   CheckCircle,
   XCircle
 } from 'lucide-vue-next';
@@ -175,47 +172,57 @@ const filteredProjects = computed(() => {
       </div>
 
       <!-- Project Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div 
-          v-for="project in filteredProjects" 
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div
+          v-for="project in filteredProjects"
           :key="project.uuid"
           @click="navigateToTasks(project.uuid)"
-          class="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-primary-200 transition-all overflow-hidden group cursor-pointer relative flex flex-col justify-between"
+          class="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-primary-200 transition-all group cursor-pointer flex flex-col"
         >
-          <div class="p-6">
-            <div class="flex items-start justify-between mb-4">
-              <div class="h-12 w-12 bg-primary-50 rounded-2xl flex items-center justify-center text-primary-600 font-bold group-hover:bg-primary-600 group-hover:text-white transition-all shadow-sm">
-                {{ project.name ? project.name.charAt(0).toUpperCase() : 'P' }}
-              </div>
-              
-              <!-- Action Dropdown Trigger -->
-              <div class="relative">
-                <button 
-                  @click="toggleDropdown(project.uuid, $event)"
-                  class="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-700"
-                  title="Actions Menu"
-                >
-                  <MoreVertical class="h-5 w-5" />
-                </button>
+          <!-- Card Body -->
+          <div class="p-6 flex-1 space-y-4">
 
-                <!-- Dropdown Menu -->
-                <div 
-                  v-if="activeDropdown === project.uuid"
-                  class="absolute right-0 mt-1 w-44 bg-white rounded-2xl shadow-xl border border-gray-100 py-1.5 z-20"
+            <!-- Top row: icon + status + dropdown -->
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="h-11 w-11 shrink-0 bg-primary-50 rounded-2xl flex items-center justify-center text-primary-600 font-extrabold text-lg group-hover:bg-primary-600 group-hover:text-white transition-all shadow-sm">
+                  {{ project.name ? project.name.charAt(0).toUpperCase() : 'P' }}
+                </div>
+                <div class="min-w-0">
+                  <h3 class="font-bold text-gray-900 text-base leading-snug truncate max-w-[180px] group-hover:text-primary-600 transition-colors">
+                    {{ project.name }}
+                  </h3>
+                  <p class="text-[11px] text-gray-400 font-mono truncate max-w-[180px]">
+                    {{ project.code || '—' }} · {{ project.client_name || 'Internal' }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Dropdown trigger -->
+              <div class="relative shrink-0">
+                <button
+                  @click="toggleDropdown(project.uuid, $event)"
+                  class="p-1.5 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-700"
                 >
-                  <button 
+                  <MoreVertical class="h-4 w-4" />
+                </button>
+                <div
+                  v-if="activeDropdown === project.uuid"
+                  class="absolute right-0 top-8 w-44 bg-white rounded-2xl shadow-xl border border-gray-100 py-1.5 z-20"
+                >
+                  <button
                     @click="navigateToTasks(project.uuid, $event)"
                     class="w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors flex items-center gap-2"
                   >
                     <CheckSquare class="h-4 w-4" /> View Tasks
                   </button>
-                  <button 
+                  <button
                     @click="navigateToKanban(project.uuid, $event)"
                     class="w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors flex items-center gap-2"
                   >
                     <Kanban class="h-4 w-4" /> Task Kanban
                   </button>
-                  <RouterLink 
+                  <RouterLink
                     :to="`/project/budget`"
                     @click.stop
                     class="w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors flex items-center gap-2"
@@ -225,79 +232,85 @@ const filteredProjects = computed(() => {
                 </div>
               </div>
             </div>
-            
-            <h3 class="text-lg font-bold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">{{ project.name }}</h3>
-            <p class="text-xs text-gray-500 mb-4 font-mono">{{ project.code || 'NO-CODE' }} &bull; {{ project.client_name || 'Internal' }}</p>
 
-            <div class="space-y-3 pt-4 border-t border-gray-50">
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-500 flex items-center gap-2 text-xs"><Calendar class="h-4 w-4 text-gray-400" /> Start Date</span>
-                <span class="font-semibold text-gray-900 text-xs">{{ project.start_date ? new Date(project.start_date).toLocaleDateString() : 'N/A' }}</span>
-              </div>
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-500 flex items-center gap-2 text-xs"><TrendingUp class="h-4 w-4 text-emerald-500" /> Progress</span>
-                <span class="font-bold text-primary-600 text-xs">65%</span>
-              </div>
-            </div>
-
-            <!-- Progress Bar -->
-            <div class="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-              <div class="h-full bg-primary-500 rounded-full" style="width: 65%"></div>
-            </div>
-          </div>
-          
-          <!-- Card Footer Action Toolbar -->
-          <div class="px-6 py-3.5 bg-gray-50/60 border-t border-gray-100 flex items-center justify-between gap-2">
-            <span 
-              class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+            <!-- Status badge -->
+            <span
+              class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
               :class="{
                 'bg-emerald-100 text-emerald-700': project.status === 'active' || project.status === 'approved',
-                'bg-amber-100 text-amber-700': project.status === 'pending_approval' || project.status === 'draft',
+                'bg-amber-100 text-amber-700': project.status === 'pending_approval' || project.status === 'draft' || project.status === 'planning',
                 'bg-rose-100 text-rose-700': project.status === 'rejected',
                 'bg-blue-100 text-blue-700': project.status === 'completed',
-                'bg-gray-100 text-gray-700': project.status === 'on_hold' || project.status === 'planning'
+                'bg-gray-100 text-gray-600': project.status === 'on_hold',
               }"
             >
-              {{ (project.status || 'Active').replace('_', ' ') }}
+              {{ (project.status || 'active').replace(/_/g, ' ') }}
             </span>
-            
-            <div class="flex items-center gap-1.5">
-              <template v-if="(project.status === 'pending_approval' || project.status === 'draft') && canApproveProject">
-                <button 
-                  @click="handleApproveProject(project.uuid, $event)"
-                  class="px-2.5 py-1 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors flex items-center gap-1 shadow-2xs"
-                  title="Approve Project"
-                >
-                  <CheckCircle class="h-3.5 w-3.5" />
-                  Approve
-                </button>
-                <button 
-                  @click="handleRejectProject(project.uuid, $event)"
-                  class="px-2.5 py-1 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 text-xs font-bold hover:bg-rose-100 transition-colors flex items-center gap-1 shadow-2xs"
-                  title="Reject Project"
-                >
-                  <XCircle class="h-3.5 w-3.5" />
-                  Reject
-                </button>
-              </template>
-              <button 
-                @click="navigateToTasks(project.uuid, $event)"
-                class="px-2.5 py-1 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-colors flex items-center gap-1 shadow-2xs"
+
+            <!-- Meta info -->
+            <div class="space-y-2 text-xs text-gray-500">
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-1.5"><Calendar class="h-3.5 w-3.5 text-gray-400" /> Start</span>
+                <span class="font-semibold text-gray-800">
+                  {{ project.start_date ? new Date(project.start_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' }}
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-1.5"><Calendar class="h-3.5 w-3.5 text-gray-400" /> Deadline</span>
+                <span class="font-semibold text-gray-800">
+                  {{ project.end_date ? new Date(project.end_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' }}
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-1.5"><TrendingUp class="h-3.5 w-3.5 text-gray-400" /> Tasks</span>
+                <span class="font-semibold text-gray-800">{{ project.tasks_count ?? 0 }} task(s)</span>
+              </div>
+            </div>
+
+            <!-- Value badge if available -->
+            <div v-if="project.value && project.value > 0" class="pt-1">
+              <span class="text-xs font-bold text-primary-600 bg-primary-50 px-2.5 py-1 rounded-lg">
+                Rp {{ Number(project.value).toLocaleString('id-ID') }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Card Footer -->
+          <div class="px-6 py-3 bg-gray-50/80 border-t border-gray-100 rounded-b-3xl flex flex-wrap items-center gap-2">
+            <!-- Approve/Reject (conditionally shown) -->
+            <template v-if="(project.status === 'pending_approval' || project.status === 'draft') && canApproveProject">
+              <button
+                @click="handleApproveProject(project.uuid, $event)"
+                class="px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-bold hover:bg-emerald-700 transition-colors flex items-center gap-1"
               >
-                <CheckSquare class="h-3.5 w-3.5" />
-                Tasks
+                <CheckCircle class="h-3 w-3" /> Approve
               </button>
-              <button 
-                @click="navigateToKanban(project.uuid, $event)"
-                class="px-2.5 py-1 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-colors flex items-center gap-1 shadow-2xs"
+              <button
+                @click="handleRejectProject(project.uuid, $event)"
+                class="px-2.5 py-1 rounded-lg border border-rose-200 text-rose-600 bg-rose-50 text-[11px] font-bold hover:bg-rose-100 transition-colors flex items-center gap-1"
               >
-                <Kanban class="h-3.5 w-3.5" />
-                Kanban
+                <XCircle class="h-3 w-3" /> Reject
+              </button>
+            </template>
+
+            <div class="ml-auto flex items-center gap-1.5">
+              <button
+                @click="navigateToTasks(project.uuid, $event)"
+                class="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-[11px] font-bold text-gray-700 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-colors flex items-center gap-1"
+              >
+                <CheckSquare class="h-3 w-3" /> Tasks
+              </button>
+              <button
+                @click="navigateToKanban(project.uuid, $event)"
+                class="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-[11px] font-bold text-gray-700 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-colors flex items-center gap-1"
+              >
+                <Kanban class="h-3 w-3" /> Kanban
               </button>
             </div>
           </div>
         </div>
 
+        <!-- Empty state -->
         <div v-if="!filteredProjects.length" class="col-span-full py-20 text-center">
           <div class="inline-flex items-center justify-center h-20 w-20 bg-gray-50 rounded-full mb-4">
             <Briefcase class="h-10 w-10 text-gray-300" />

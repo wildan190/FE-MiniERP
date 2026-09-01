@@ -77,9 +77,10 @@ export const useAuthStore = defineStore('auth', () => {
    * maka 'hrm' masuk ke accessibleModules secara otomatis.
    */
   const accessibleModules = computed<Set<string>>(() => {
-    // ESS (Self-Service) & Dashboard selalu accessible untuk semua user yang sudah login
+    // ESS (Self-Service), Dashboard & Calendar selalu accessible untuk semua user yang sudah login
     const modules = new Set<string>([
       'dashboard',
+      'calendar',
       'attendance',
       'leaves',
       'reimbursement',
@@ -88,7 +89,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     if (isSuperAdmin.value) {
       // Super-admin dapat akses ke semua modul yang dikenal
-      ;['crm', 'hrm', 'finance', 'purchasing', 'project', 'inventory', 'system'].forEach((m) =>
+      ;['crm', 'hrm', 'finance', 'purchasing', 'project', 'inventory', 'system', 'calendar'].forEach((m) =>
         modules.add(m),
       )
       return modules

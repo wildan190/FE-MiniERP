@@ -28,6 +28,12 @@ const router = createRouter({
       meta: { requiresAuth: true, module: 'dashboard', breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Dashboard' }] },
     },
     {
+      path: '/calendar',
+      name: 'calendar',
+      component: () => import('@/pages/CalendarPage.vue'),
+      meta: { requiresAuth: true, module: 'calendar', breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Calendar' }] },
+    },
+    {
       path: '/unauthorized',
       name: 'unauthorized',
       component: () => import('@/pages/UnauthorizedPage.vue'),
@@ -236,6 +242,19 @@ const router = createRouter({
             { label: 'Home', to: '/dashboard' }, 
             { label: 'HRM', to: '/hrm' }, 
             { label: 'Reports' }
+          ] 
+        },
+      },
+      {
+        path: '/hrm/recruitment',
+        name: 'hrm-recruitment',
+        component: () => import('@/pages/RecruitmentPage.vue'),
+        meta: { 
+          requiresAuth: true, 
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Talent Acquisition' }
           ] 
         },
       },

@@ -167,26 +167,36 @@
           <!-- User will be automatically detected by backend -->
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Notice Date -->
+            <!-- Notice Date (Auto Set to Today & Disabled) -->
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Notice Date</label>
+              <label class="block text-sm font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Notice Date (Today)</label>
               <input
                 v-model="formData.notice_date"
                 type="date"
-                required
-                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all text-sm"
+                disabled
+                class="w-full px-4 py-2.5 bg-gray-100 border border-gray-200 text-gray-500 rounded-xl cursor-not-allowed font-medium text-sm"
               />
+              <span class="text-[11px] text-gray-400 mt-1 block">Submission date automatically recorded today</span>
             </div>
 
-            <!-- Resignation Date -->
+            <!-- Resignation Date (Auto Calculated +30 Days & Disabled) -->
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Resignation Date</label>
+              <label class="block text-sm font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Effective Resignation Date</label>
               <input
                 v-model="formData.resignation_date"
                 type="date"
-                required
-                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all text-sm"
+                disabled
+                class="w-full px-4 py-2.5 bg-gray-100 border border-gray-200 text-gray-700 font-bold rounded-xl cursor-not-allowed text-sm"
               />
+              <span class="text-[11px] text-primary-600 font-semibold mt-1 block">🔒 Fixed: Exactly 30-Day Notice Period</span>
+            </div>
+          </div>
+
+          <!-- Notice Policy Info Banner -->
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5">
+            <span class="text-base">⏳</span>
+            <div class="text-xs text-amber-800 leading-relaxed">
+              <strong>One-Month Notice Rule:</strong> Tanggal pengunduran diri efektif ditetapkan otomatis <strong>30 hari</strong> sejak tanggal pengajuan (Notice Date) sesuai kebijakan perusahaan.
             </div>
           </div>
 
@@ -270,10 +280,23 @@ const stats = computed(() => {
   }
 })
 
+const calculateDates = () => {
+  const today = new Date()
+  const noticeDateStr = today.toISOString().slice(0, 10)
+  
+  const resignDate = new Date(today)
+  resignDate.setDate(resignDate.getDate() + 30)
+  const resignDateStr = resignDate.toISOString().slice(0, 10)
+
+  return { noticeDateStr, resignDateStr }
+}
+
+const initialDates = calculateDates()
+
 const formData = reactive<CreateResignationRequest>({
   employee_uuid: '',
-  notice_date: new Date().toISOString().slice(0, 10),
-  resignation_date: '',
+  notice_date: initialDates.noticeDateStr,
+  resignation_date: initialDates.resignDateStr,
   reason: '',
   handover_to_uuid: null
 })
@@ -283,6 +306,7 @@ const fetchPage = (page: number) => {
 }
 
 const openResignationModal = () => {
+  resetForm()
   isModalOpen.value = true
 }
 
@@ -292,9 +316,10 @@ const closeResignationModal = () => {
 }
 
 const resetForm = () => {
+  const dates = calculateDates()
   formData.employee_uuid = ''
-  formData.notice_date = new Date().toISOString().slice(0, 10)
-  formData.resignation_date = ''
+  formData.notice_date = dates.noticeDateStr
+  formData.resignation_date = dates.resignDateStr
   formData.reason = ''
   formData.handover_to_uuid = null
 }

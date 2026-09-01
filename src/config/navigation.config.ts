@@ -19,6 +19,7 @@ import {
   RefreshCw,
   ShieldCheck,
   ShieldAlert,
+  Calendar,
 } from 'lucide-vue-next';
 
 export interface NavItem {
@@ -33,6 +34,11 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
   dashboard: {
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+    ]
+  },
+  calendar: {
+    items: [
+      { label: 'Calendar & Agenda', to: '/calendar', icon: Calendar },
     ]
   },
   crm: {
@@ -72,6 +78,7 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
     ],
     groups: {
       'hr-administration': [
+        { label: 'Talent Acquisition', to: '/hrm/recruitment', icon: Users },
         { label: 'Employees', to: '/hrm/employees', icon: Users },
         { label: 'Departments', to: '/hrm/departments', icon: Zap },
         { label: 'Designations', to: '/hrm/designations', icon: Briefcase },
@@ -170,6 +177,7 @@ export const NAVIGATION_CONFIG: Record<string, { items: NavItem[], groups?: Reco
 
 export const getModuleByPath = (path: string): string => {
   if (path.startsWith('/dashboard')) return 'dashboard';
+  if (path.startsWith('/calendar')) return 'calendar';
   if (path.startsWith('/hrm')) return 'hrm';
   if (path.startsWith('/finance')) return 'finance';
   if (path.startsWith('/purchasing')) return 'purchasing';

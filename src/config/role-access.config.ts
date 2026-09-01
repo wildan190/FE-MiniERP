@@ -15,6 +15,7 @@
 /** Derive the module key from the current route path */
 export function getModuleByPath(path: string): string {
   if (path.startsWith('/dashboard')) return 'dashboard'
+  if (path.startsWith('/calendar')) return 'calendar'
   
   // Standalone ESS Modules
   if (path.startsWith('/hrm/attendances')) return 'attendance'
@@ -64,6 +65,13 @@ export const MODULE_LIST: ModuleMeta[] = [
     path: '/dashboard',
     color: 'bg-gradient-to-br from-blue-500 to-indigo-700',
     iconKey: 'LayoutDashboard',
+  },
+  {
+    key: 'calendar',
+    name: 'Calendar & Agenda',
+    path: '/calendar',
+    color: 'bg-gradient-to-br from-indigo-500 to-purple-700',
+    iconKey: 'Calendar',
   },
   // ── ESS (Employee Self-Service) Apps ──────────────────────────────────────
   {

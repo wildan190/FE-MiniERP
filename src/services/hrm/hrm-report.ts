@@ -18,6 +18,12 @@ export class HrmReportService {
     const response = await apiClient.getClient().get('/hrm/reports/labor-cost', { params })
     return response.data
   }
+
+  async getEmployeeKpiStatistics(year?: number): Promise<any> {
+    const params = year ? { year } : {}
+    const response = await apiClient.getClient().get('/hrm/reports/kpi', { params })
+    return response.data
+  }
 }
 
 export const hrmReportService = new HrmReportService()

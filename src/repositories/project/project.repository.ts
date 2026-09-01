@@ -25,6 +25,10 @@ export const projectRepository = {
     return apiClient.getClient().post('/project', data)
   },
 
+  getWonProspects() {
+    return apiClient.getClient().get('/project/won-prospects')
+  },
+
   updateProject(uuid: string, data: any) {
     return apiClient.getClient().put(`/project/${uuid}`, data)
   },

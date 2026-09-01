@@ -9,6 +9,7 @@ export const useProjectStore = defineStore('project', () => {
   const dashboardData = ref<any>(null)
   const resourceData = ref<any>(null)
   const financialData = ref<any>(null)
+  const wonProspects = ref<any[]>([])
   
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -81,8 +82,18 @@ export const useProjectStore = defineStore('project', () => {
       await fetchProjects()
     } catch (err: any) {
       error.value = err.message
+      throw err
     } finally {
       isLoading.value = false
+    }
+  }
+
+  async function fetchWonProspects() {
+    try {
+      const res = await projectRepository.getWonProspects()
+      wonProspects.value = res.data.data || []
+    } catch (err: any) {
+      console.error('Failed to fetch won prospects:', err)
     }
   }
 
@@ -211,6 +222,7 @@ export const useProjectStore = defineStore('project', () => {
     dashboardData,
     resourceData,
     financialData,
+    wonProspects,
     isLoading,
     error,
     fetchDashboard,
@@ -226,6 +238,7 @@ export const useProjectStore = defineStore('project', () => {
     assignMember,
     addExpense,
     fetchTimesheets,
-    logTimesheet
+    logTimesheet,
+    fetchWonProspects,
   }
 })
