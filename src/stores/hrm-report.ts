@@ -6,8 +6,10 @@ export const useHrmReportStore = defineStore('hrmReport', {
   state: () => ({
     turnover: null as TurnoverStatistics | null,
     laborCost: null as LaborCostStatistics | null,
+    kpi: null as any | null,
     loadingTurnover: false,
     loadingLaborCost: false,
+    loadingKpi: false,
     error: null as string | null,
   }),
 
@@ -37,6 +39,20 @@ export const useHrmReportStore = defineStore('hrmReport', {
         throw err
       } finally {
         this.loadingLaborCost = false
+      }
+    },
+
+    async fetchEmployeeKpiStatistics(year?: number) {
+      this.loadingKpi = true
+      this.error = null
+      try {
+        const response = await hrmReportRepository.getEmployeeKpiStatistics(year)
+        this.kpi = response.data
+      } catch (err: any) {
+        this.error = err.response?.data?.message || 'Failed to fetch employee KPI statistics'
+        throw err
+      } finally {
+        this.loadingKpi = false
       }
     },
   },

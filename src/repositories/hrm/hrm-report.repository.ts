@@ -9,6 +9,10 @@ export class HrmReportRepository {
   async getLaborCostStatistics(year?: number): Promise<LaborCostResponse> {
     return await hrmReportService.getLaborCostStatistics(year)
   }
+
+  async getEmployeeKpiStatistics(year?: number): Promise<any> {
+    return await hrmReportService.getEmployeeKpiStatistics(year)
+  }
 }
 
 export const hrmReportRepository = new HrmReportRepository()

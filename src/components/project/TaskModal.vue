@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useProjectStore } from '@/stores/project';
-import { useEmployeeStore } from '@/stores/employee';
 import { X, Calendar, User, AlignLeft, Flag, CheckCircle2 } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -13,7 +12,6 @@ const props = defineProps<{
 const emit = defineEmits(['close', 'saved']);
 
 const projectStore = useProjectStore();
-const employeeStore = useEmployeeStore();
 
 const formData = ref({
   project_uuid: '',
@@ -28,10 +26,19 @@ const formData = ref({
 
 const isSubmitting = ref(false);
 
-watch(() => props.isOpen, (newVal) => {
+watch(() => props.isOpen, async (newVal) => {
   if (newVal) {
     if (props.task) {
-      formData.value = { ...props.task };
+      formData.value = {
+        project_uuid: props.task.project_uuid || '',
+        name: props.task.name || '',
+        description: props.task.description || '',
+        assigned_employee_uuid: props.task.assigned_employee_uuid || '',
+        start_date: props.task.start_date || '',
+        due_date: props.task.due_date || '',
+        status: props.task.status || 'todo',
+        is_milestone: Boolean(props.task.is_milestone)
+      };
     } else {
       formData.value = {
         project_uuid: '',
@@ -45,9 +52,39 @@ watch(() => props.isOpen, (newVal) => {
       };
     }
     
-    // Ensure data is loaded
-    if (projectStore.projects.length === 0) projectStore.fetchProjects();
-    if (employeeStore.employees.length === 0) employeeStore.fetchEmployees();
+    // Ensure projects and resources are loaded
+    if (projectStore.projects.length === 0) {
+      await projectStore.fetchProjects();
+    }
+    await projectStore.fetchResources();
+  }
+});
+
+// Filter assigned resources based on the selected project
+const projectResources = computed(() => {
+  const members = projectStore.resourceData?.members || [];
+  if (!formData.value.project_uuid) {
+    // If no specific project is selected yet, list all unique allocated resources
+    const map = new Map();
+    members.forEach((m: any) => {
+      if (m.employee_uuid && m.employee && !map.has(m.employee_uuid)) {
+        map.set(m.employee_uuid, m);
+      }
+    });
+    return Array.from(map.values());
+  }
+
+  return members.filter((m: any) => m.project_uuid === formData.value.project_uuid && m.employee);
+});
+
+// Reset assignee if the project changes and assignee is not part of that project
+watch(() => formData.value.project_uuid, (newProjUuid) => {
+  if (!newProjUuid) return;
+  const existsInProject = (projectStore.resourceData?.members || []).some(
+    (m: any) => m.project_uuid === newProjUuid && m.employee_uuid === formData.value.assigned_employee_uuid
+  );
+  if (formData.value.assigned_employee_uuid && !existsInProject) {
+    formData.value.assigned_employee_uuid = '';
   }
 });
 
@@ -85,7 +122,7 @@ const handleSubmit = async () => {
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-1.5">
                 <label class="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                  <Flag class="h-3 w-3" /> Project
+                  <Flag class="h-3 w-3" /> Project *
                 </label>
                 <select v-model="formData.project_uuid" required class="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500">
                   <option value="" disabled>Select a project</option>
@@ -107,28 +144,32 @@ const handleSubmit = async () => {
             </div>
 
             <div class="space-y-1.5">
-              <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Task Name</label>
-              <input v-model="formData.name" type="text" required class="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500" />
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Task Name *</label>
+              <input v-model="formData.name" type="text" required placeholder="e.g. Design Landing Page" class="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500" />
             </div>
 
             <div class="space-y-1.5">
               <label class="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                 <AlignLeft class="h-3 w-3" /> Description
               </label>
-              <textarea v-model="formData.description" rows="3" class="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500"></textarea>
+              <textarea v-model="formData.description" rows="3" placeholder="Task requirements, notes..." class="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500"></textarea>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
+              <!-- Assignee select from Project Resources -->
               <div class="space-y-1.5">
                 <label class="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                  <User class="h-3 w-3" /> Assignee
+                  <User class="h-3 w-3" /> Assignee (Project Resource)
                 </label>
                 <select v-model="formData.assigned_employee_uuid" class="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500">
                   <option value="">Unassigned</option>
-                  <option v-for="emp in employeeStore.employees" :key="emp.uuid" :value="emp.uuid">
-                    {{ emp.first_name }} {{ emp.last_name || '' }}
+                  <option v-for="res in projectResources" :key="res.employee_uuid" :value="res.employee_uuid">
+                    {{ res.employee?.first_name }} {{ res.employee?.last_name || '' }} ({{ res.role || 'Member' }})
                   </option>
                 </select>
+                <p v-if="formData.project_uuid && projectResources.length === 0" class="text-[11px] text-amber-600 mt-1">
+                  ⚠️ No resources assigned to this project yet. Assign members in Resource Management first.
+                </p>
               </div>
 
               <div class="space-y-1.5">

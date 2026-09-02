@@ -378,12 +378,18 @@ const saveNotes = async () => {
   if (!customer.value?.uuid) return;
   try {
     isSavingNotes.value = true;
-    await crmServiceInstance.updateCustomer(customer.value.uuid, {
+    const res = await crmServiceInstance.updateCustomer(customer.value.uuid, {
       notes: notes.value
     });
-    // Optional: show a success message
-  } catch (error) {
+    if (res && (res as any).data) {
+      customer.value = (res as any).data;
+    } else if (customer.value) {
+      customer.value.notes = notes.value;
+    }
+    alert('Notes saved successfully!');
+  } catch (error: any) {
     console.error("Failed to save notes:", error);
+    alert(error.response?.data?.message || 'Failed to save notes');
   } finally {
     isSavingNotes.value = false;
   }

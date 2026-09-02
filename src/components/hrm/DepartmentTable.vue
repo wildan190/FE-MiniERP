@@ -4,28 +4,28 @@
     <div class="hidden md:block overflow-x-auto">
       <table class="w-full">
         <thead>
-          <tr class="border-b border-gray-200">
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+          <tr class="border-b border-gray-200/80 bg-gray-50/75">
+            <th class="table-th">
               Department Name
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th class="table-th">
               Description
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th class="table-th">
               Created At
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider text-right">
+            <th class="table-th text-right">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-gray-100">
           <!-- Loading State -->
           <template v-if="loading">
             <tr v-for="i in 5" :key="i" class="border-b border-gray-100">
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
-                  <Skeleton width="2.5rem" height="2.5rem" />
+                  <Skeleton width="2.5rem" height="2.5rem" borderRadius="0.5rem" />
                   <div class="space-y-2">
                     <Skeleton width="10rem" height="1rem" />
                     <Skeleton width="6rem" height="0.75rem" />
@@ -42,120 +42,132 @@
             <tr
               v-for="dept in departments"
               :key="dept.id"
-              class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+              class="table-tr-hover"
             >
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center gap-3">
-                <div
-                  class="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm"
-                >
-                  {{ dept.name.charAt(0).toUpperCase() }}
-                </div>
-                <div>
-                  <RouterLink 
-                    :to="`/hrm/departments/${dept.uuid}`"
-                    class="text-sm font-medium text-gray-900 hover:text-primary-600 transition-colors"
+              <td class="table-td">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm flex-shrink-0"
                   >
-                    {{ dept.name }}
-                  </RouterLink>
-                  <p class="text-xs text-gray-600">UUID: {{ dept.uuid.substring(0, 8) }}...</p>
+                    {{ dept.name.charAt(0).toUpperCase() }}
+                  </div>
+                  <div>
+                    <RouterLink 
+                      :to="`/hrm/departments/${dept.uuid}`"
+                      class="text-sm font-bold text-gray-900 hover:text-primary-600 transition-colors"
+                    >
+                      {{ dept.name }}
+                    </RouterLink>
+                    <p class="text-xs text-gray-500 font-mono">UUID: {{ dept.uuid.substring(0, 8) }}...</p>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td class="px-6 py-4">
-              <p class="text-sm text-gray-900">{{ dept.description || '-' }}</p>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-              {{ formatDate(dept.created_at) }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-              <button
-                @click="$emit('edit', dept)"
-                class="text-primary-600 hover:text-primary-900 font-medium transition-colors mr-3"
-              >
-                Edit
-              </button>
-              <button
-                @click="$emit('delete', dept.uuid)"
-                class="text-red-600 hover:text-red-900 font-medium transition-colors"
-              >
-                Delete
-              </button>
-            </td>
+              </td>
+              <td class="table-td">
+                <p class="text-sm text-gray-700 max-w-md truncate">{{ dept.description || '-' }}</p>
+              </td>
+              <td class="table-td text-xs text-gray-500 font-medium">
+                {{ formatDate(dept.created_at) }}
+              </td>
+              <td class="table-td text-right">
+                <div class="table-action-toolbar justify-end">
+                  <RouterLink
+                    :to="`/hrm/departments/${dept.uuid}`"
+                    class="p-1.5 rounded-lg text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                    title="View Details"
+                  >
+                    <Eye class="h-4 w-4" />
+                  </RouterLink>
+                  <button
+                    @click="$emit('edit', dept)"
+                    class="p-1.5 rounded-lg text-gray-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                    title="Edit Department"
+                  >
+                    <Pencil class="h-4 w-4" />
+                  </button>
+                  <button
+                    @click="$emit('delete', dept.uuid)"
+                    class="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    title="Delete Department"
+                  >
+                    <Trash2 class="h-4 w-4" />
+                  </button>
+                </div>
+              </td>
             </tr>
           </template>
         </tbody>
       </table>
     </div>
 
-    <!-- Mobile Card View -->
+    <!-- Mobile Accordion View -->
     <div class="md:hidden">
       <!-- Loading State -->
       <template v-if="loading">
-        <div v-for="i in 3" :key="i" class="border-b border-gray-200 p-4 space-y-4">
+        <div v-for="i in 3" :key="i" class="border-b border-gray-100 p-4 space-y-4">
           <div class="flex items-center gap-3">
-            <Skeleton width="2.5rem" height="2.5rem" />
+            <Skeleton width="2.5rem" height="2.5rem" borderRadius="0.5rem" />
             <div class="space-y-2">
               <Skeleton width="12rem" height="1rem" />
               <Skeleton width="8rem" height="0.75rem" />
             </div>
           </div>
           <Skeleton width="100%" height="2rem" />
-          <div class="flex flex-col gap-2">
-            <Skeleton width="100%" height="2.5rem" />
-            <div class="flex gap-2">
-              <Skeleton width="50%" height="2.5rem" />
-              <Skeleton width="50%" height="2.5rem" />
-            </div>
-          </div>
         </div>
       </template>
 
       <template v-else>
-        <div
-          v-for="dept in departments"
+        <MobileExpandableRow
+          v-for="(dept, idx) in departments"
           :key="dept.id"
-          class="border-b border-gray-200"
+          :title="dept.name"
+          :subtitle="`Created: ${formatDate(dept.created_at)}`"
+          :index="idx + 1"
         >
-        <div class="p-4">
-          <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-3">
-              <div
-                class="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm"
-              >
-                {{ dept.name.charAt(0).toUpperCase() }}
-              </div>
+          <template #header-icon>
+            <div
+              class="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
+            >
+              {{ dept.name.charAt(0).toUpperCase() }}
+            </div>
+          </template>
+
+          <template #details>
+            <div class="grid grid-cols-1 gap-2 text-xs bg-white p-3 rounded-xl border border-gray-200/80">
               <div>
-                <p class="text-sm font-semibold text-gray-900">{{ dept.name }}</p>
-                <p class="text-xs text-gray-500">{{ formatDate(dept.created_at) }}</p>
+                <span class="text-gray-400 block text-[10px] uppercase font-bold">Description</span>
+                <span class="font-medium text-gray-800">{{ dept.description || 'No description provided' }}</span>
+              </div>
+              <div class="pt-1">
+                <span class="text-gray-400 block text-[10px] uppercase font-bold">UUID</span>
+                <span class="font-mono text-gray-600">{{ dept.uuid }}</span>
               </div>
             </div>
-          </div>
-          <p class="text-sm text-gray-600 mb-4">{{ dept.description || 'No description' }}</p>
-          <div class="flex flex-col gap-2">
+          </template>
+
+          <template #actions>
             <RouterLink
               :to="`/hrm/departments/${dept.uuid}`"
-              class="w-full text-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
+              class="px-3 py-1.5 rounded-lg bg-primary-50 text-primary-700 text-xs font-bold hover:bg-primary-100 transition-colors flex items-center gap-1.5"
             >
+              <Eye class="h-3.5 w-3.5" />
               View Details
             </RouterLink>
-            <div class="flex gap-2">
-              <button
-                @click="$emit('edit', dept)"
-                class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Edit
-              </button>
-              <button
-                @click="$emit('delete', dept.uuid)"
-                class="flex-1 px-4 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-          </div>
-        </div>
+            <button
+              @click="$emit('edit', dept)"
+              class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 text-xs font-bold hover:bg-amber-100 transition-colors flex items-center gap-1.5"
+            >
+              <Pencil class="h-3.5 w-3.5" />
+              Edit
+            </button>
+            <button
+              @click="$emit('delete', dept.uuid)"
+              class="px-3 py-1.5 rounded-lg bg-red-50 text-red-700 text-xs font-bold hover:bg-red-100 transition-colors flex items-center gap-1.5"
+            >
+              <Trash2 class="h-3.5 w-3.5" />
+              Delete
+            </button>
+          </template>
+        </MobileExpandableRow>
       </template>
     </div>
 
@@ -174,9 +186,11 @@
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
+import { Eye, Pencil, Trash2 } from "lucide-vue-next";
 import type { Department } from "../../services/hrm/types/department.types";
 import Card from "../common/Card.vue";
 import Skeleton from "../common/Skeleton.vue";
+import MobileExpandableRow from "../common/MobileExpandableRow.vue";
 
 interface Props {
   departments: Department[];

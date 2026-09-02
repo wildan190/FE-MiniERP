@@ -9,6 +9,18 @@ export const financeRepository = {
     return apiClient.getClient().get('/finance/ledger/accounts')
   },
 
+  createAccount(data: { code: string; name: string; type: string; parent_uuid?: string | null; is_reconcilable?: boolean }) {
+    return apiClient.getClient().post('/finance/ledger/accounts', data)
+  },
+
+  updateAccount(uuid: string, data: Partial<{ code: string; name: string; type: string; parent_uuid: string | null; is_reconcilable: boolean }>) {
+    return apiClient.getClient().put(`/finance/ledger/accounts/${uuid}`, data)
+  },
+
+  deleteAccount(uuid: string) {
+    return apiClient.getClient().delete(`/finance/ledger/accounts/${uuid}`)
+  },
+
   getLedgerItems(page = 1) {
     return apiClient.getClient().get(`/finance/ledger/items?page=${page}`)
   },
@@ -43,5 +55,14 @@ export const financeRepository = {
 
   getRiskAssessment() {
     return apiClient.getClient().get('/finance/supply-chain/risk-assessment')
+  },
+
+  approveRecord(uuid: string) {
+    return apiClient.getClient().post(`/finance/records/${uuid}/approve`)
+  },
+
+  rejectRecord(uuid: string, reason: string) {
+    return apiClient.getClient().post(`/finance/records/${uuid}/reject`, { reason })
   }
 }
+

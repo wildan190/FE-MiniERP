@@ -1,629 +1,304 @@
 <template>
   <div
-    class="min-h-screen bg-gray-50 overflow-x-hidden"
+    class="min-h-screen bg-gray-50 font-sans text-gray-900 overflow-x-hidden flex flex-col"
     @touchstart.passive="handleTouchStart"
     @touchmove.passive="handleTouchMove"
     @touchend="handleTouchEnd"
   >
-    <!-- Gesture Hint (Mobile Only) -->
-    <GestureHint class="md:hidden" />
-
-    <!-- Mobile Sidebar -->
+    <!-- Mobile Sidebar Backdrop Overlay -->
     <Teleport to="body">
       <Transition name="overlay">
         <div
           v-if="isMobileSidebarOpen"
-          class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[70] md:hidden"
+          class="fixed inset-0 bg-gray-900/50 backdrop-blur-xs z-40 md:hidden"
           @click="isMobileSidebarOpen = false"
         ></div>
       </Transition>
 
+      <!-- Mobile Sidebar Drawer -->
       <Transition name="sidebar">
         <aside
           v-if="isMobileSidebarOpen"
-          class="fixed inset-y-0 left-0 w-[280px] bg-white shadow-2xl z-[80] md:hidden flex flex-col"
+          class="fixed inset-y-0 left-0 w-72 bg-white border-r border-gray-200 z-50 md:hidden flex flex-col shadow-xl"
         >
           <!-- Sidebar Header -->
-          <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <div
-                class="h-8 w-8 rounded-lg bg-primary-600 flex items-center justify-center text-white"
-              >
+          <div class="h-16 px-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center gap-3">
+              <div class="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
                 <Zap class="h-5 w-5 fill-current" />
               </div>
-              <span class="text-xl font-bold text-gray-900">MiniERP</span>
+              <span class="text-lg font-bold text-gray-900 tracking-tight">MiniERP</span>
             </div>
             <button
               @click="isMobileSidebarOpen = false"
-              class="p-1 rounded-lg hover:bg-gray-100 text-gray-400"
+              class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+              title="Close Navigation"
             >
-              <ChevronRight class="h-6 w-6 rotate-180" />
+              <X class="h-5 w-5" />
             </button>
           </div>
 
-          <!-- Sidebar Nav -->
-          <nav class="flex-1 overflow-y-auto p-4 space-y-2">
-            <div class="px-2 py-4">
-              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
-                Navigation
-              </p>
-              <div class="space-y-1">
-                <template v-if="activeModule === 'crm'">
-                  <RouterLink
-                    to="/crm"
-                    @click="isMobileSidebarOpen = false"
-                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                    :class="
-                      route.path === '/crm'
-                        ? 'bg-primary-50 text-primary-600 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    "
-                  >
-                    <div class="flex items-center gap-3">
-                      <LayoutDashboard class="h-5 w-5" />
-                      <span>CRM Dashboard</span>
-                    </div>
-                  </RouterLink>
 
-                  <RouterLink
-                    to="/customers"
-                    @click="isMobileSidebarOpen = false"
-                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                    :class="
-                      route.path.startsWith('/customers')
-                        ? 'bg-primary-50 text-primary-600 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    "
-                  >
-                    <div class="flex items-center gap-3">
-                      <Users class="h-5 w-5" />
-                      <span>Customers</span>
-                    </div>
-                  </RouterLink>
 
-                  <RouterLink
-                    to="/leads"
-                    @click="isMobileSidebarOpen = false"
-                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                    :class="
-                      route.path.startsWith('/leads')
-                        ? 'bg-primary-50 text-primary-600 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    "
-                  >
-                    <div class="flex items-center gap-3">
-                      <Users class="h-5 w-5" />
-                      <span>Leads</span>
-                    </div>
-                  </RouterLink>
+          <!-- Sidebar Nav Links -->
+          <nav class="flex-1 overflow-y-auto p-4 space-y-6">
+            <!-- Standalone Items -->
+            <div v-if="moduleConfig?.items?.length" class="space-y-1">
+              <RouterLink
+                v-for="item in moduleConfig.items"
+                :key="item.to"
+                :to="item.to"
+                @click="isMobileSidebarOpen = false"
+                class="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                :class="
+                  isItemActive(item.to)
+                    ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                "
+              >
+                <div class="flex items-center gap-3">
+                  <component :is="item.icon" class="h-5 w-5 flex-shrink-0" />
+                  <span>{{ item.label }}</span>
+                </div>
+              </RouterLink>
+            </div>
 
-                  <RouterLink
-                    to="/prospects"
-                    @click="isMobileSidebarOpen = false"
-                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                    :class="
-                      route.path.startsWith('/prospects')
-                        ? 'bg-primary-50 text-primary-600 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    "
-                  >
-                    <div class="flex items-center gap-3">
-                      <Users class="h-5 w-5" />
-                      <span>Prospects</span>
-                    </div>
-                  </RouterLink>
-
-                  <RouterLink
-                    to="/crm/quotations"
-                    @click="isMobileSidebarOpen = false"
-                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                    :class="
-                      route.path.startsWith('/crm/quotations')
-                        ? 'bg-primary-50 text-primary-600 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    "
-                  >
-                    <div class="flex items-center gap-3">
-                      <Box class="h-5 w-5" />
-                      <span>Quotations</span>
-                    </div>
-                  </RouterLink>
-
-                  <RouterLink
-                    to="/crm/pipelines"
-                    @click="isMobileSidebarOpen = false"
-                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                    :class="
-                      route.path.startsWith('/crm/pipelines')
-                        ? 'bg-primary-50 text-primary-600 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    "
-                  >
-                    <div class="flex items-center gap-3">
-                      <LayoutGrid class="h-5 w-5" />
-                      <span>Pipelines</span>
-                    </div>
-                  </RouterLink>
-                </template>
-
-                <template v-if="activeModule === 'finance'">
-                  <div class="pt-2 pb-2">
-                    <RouterLink
-                      to="/finance"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path === '/finance' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <LayoutDashboard class="h-5 w-5" />
-                        <span>Finance Dashboard</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/finance/reports"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/finance/reports') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <BarChart3 class="h-5 w-5" />
-                        <span>Reports</span>
-                      </div>
-                    </RouterLink>
-
-                    <div class="px-3 mb-2 mt-6">
-                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Ledger</p>
-                    </div>
-
-                    <RouterLink
-                      to="/finance/ledger/accounts"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/finance/ledger/accounts') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Box class="h-5 w-5" />
-                        <span>Chart of Accounts</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/finance/ledger/items"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/finance/ledger/items') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <ClipboardList class="h-5 w-5" />
-                        <span>General Ledger</span>
-                      </div>
-                    </RouterLink>
-
-                    <div class="px-3 mb-2 mt-6">
-                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">AI Insights</p>
-                    </div>
-
-                    <RouterLink
-                      to="/finance/analytics"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/finance/analytics') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Zap class="h-5 w-5" />
-                        <span>AI Analytics</span>
-                      </div>
-                    </RouterLink>
-                  </div>
-                </template>
-
-                <template v-if="activeModule === 'purchasing'">
-                  <div class="pt-2 pb-2">
-                    <RouterLink
-                      to="/purchasing"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path === '/purchasing' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <LayoutDashboard class="h-5 w-5" />
-                        <span>Purchasing Dashboard</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/purchasing/suppliers"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/purchasing/suppliers') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Users class="h-5 w-5" />
-                        <span>Suppliers</span>
-                      </div>
-                    </RouterLink>
-
-                    <div class="px-3 mb-2 mt-6">
-                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Procurement</p>
-                    </div>
-
-                    <RouterLink
-                      to="/purchasing/requests"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/purchasing/requests') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <ClipboardList class="h-5 w-5" />
-                        <span>Purchase Requests</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/purchasing/orders"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/purchasing/orders') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Box class="h-5 w-5" />
-                        <span>Purchase Orders</span>
-                      </div>
-                    </RouterLink>
-
-                    <div class="px-3 mb-2 mt-6">
-                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Financial</p>
-                    </div>
-
-                    <RouterLink
-                      to="/purchasing/receipts"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/purchasing/receipts') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Box class="h-5 w-5" />
-                        <span>Goods Receipts</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/purchasing/invoices"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/purchasing/invoices') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Banknote class="h-5 w-5" />
-                        <span>Supplier Invoices</span>
-                      </div>
-                    </RouterLink>
-                  </div>
-                </template>
-
-                <template v-if="activeModule === 'hrm'">
-                  <div class="pt-2 pb-2">
-                    <!-- Personnel Section -->
-                    <div class="px-3 mb-2 mt-4 first:mt-0">
-                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Employment</p>
-                    </div>
-                    
-                    <RouterLink
-                      to="/hrm/employees"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/hrm/employees') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Users class="h-5 w-5" />
-                        <span>Employees</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/hrm/departments"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/hrm/departments') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Zap class="h-5 w-5" />
-                        <span>Departments</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/hrm/designations"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/hrm/designations') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Briefcase class="h-5 w-5" />
-                        <span>Designations</span>
-                      </div>
-                    </RouterLink>
-                    
-                    <RouterLink
-                      to="/hrm/resignations"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/hrm/resignations') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <FileX class="h-5 w-5" />
-                        <span>Resignations</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/hrm/office-locations"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/hrm/office-locations') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <MapPin class="h-5 w-5" />
-                        <span>Office Locations</span>
-                      </div>
-                    </RouterLink>
-
-                    <!-- Tracking Section -->
-                    <div class="px-3 mb-2 mt-6">
-                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Time Tracking</p>
-                    </div>
-
-                    <RouterLink
-                      to="/hrm/attendances"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/hrm/attendances') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Clock class="h-5 w-5" />
-                        <span>Attendance</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/hrm/shifts"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/hrm/shifts') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <CalendarRange class="h-5 w-5" />
-                        <span>Shifts</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/hrm/leave-requests"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/hrm/leave-requests') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <ClipboardList class="h-5 w-5" />
-                        <span>Leave Management</span>
-                      </div>
-                    </RouterLink>
-
-                    <!-- Payroll Section -->
-                    <div class="px-3 mb-2 mt-6">
-                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Payroll</p>
-                    </div>
-
-                    <RouterLink
-                      to="/hrm/payroll-periods"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/hrm/payroll-periods') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Banknote class="h-5 w-5" />
-                        <span>Payroll Periods</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/hrm/payrolls"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path === '/hrm/payrolls' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Banknote class="h-5 w-5" />
-                        <span>Payrolls</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/hrm/payslips"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path === '/hrm/payslips' ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Banknote class="h-5 w-5" />
-                        <span>Payslips</span>
-                      </div>
-                    </RouterLink>
-
-                    <RouterLink
-                      to="/hrm/salary-components"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/hrm/salary-components') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <Banknote class="h-5 w-5" />
-                        <span>Salary Components</span>
-                      </div>
-                    </RouterLink>
-
-                    <!-- Analytics Section -->
-                    <div class="px-3 mb-2 mt-6">
-                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Analytics</p>
-                    </div>
-
-                    <RouterLink
-                      to="/hrm/reports"
-                      @click="isMobileSidebarOpen = false"
-                      class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                      :class="route.path.startsWith('/hrm/reports') ? 'bg-primary-50 text-primary-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50'"
-                    >
-                      <div class="flex items-center gap-3">
-                        <BarChart3 class="h-5 w-5" />
-                        <span>Reports</span>
-                      </div>
-                    </RouterLink>
-                  </div>
-                </template>
+            <!-- Grouped Items -->
+            <div
+              v-for="(groupItems, groupName) in moduleConfig?.groups"
+              :key="groupName"
+              class="space-y-1"
+            >
+              <div class="px-3 pt-2 pb-1">
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  {{ groupName.replace('-', ' ') }}
+                </p>
               </div>
+              <RouterLink
+                v-for="item in groupItems"
+                :key="item.to"
+                :to="item.to"
+                @click="isMobileSidebarOpen = false"
+                class="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                :class="
+                  route.path.startsWith(item.to)
+                    ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                "
+              >
+                <div class="flex items-center gap-3">
+                  <component :is="item.icon" class="h-5 w-5 flex-shrink-0" />
+                  <span>{{ item.label }}</span>
+                </div>
+              </RouterLink>
             </div>
           </nav>
 
           <!-- Sidebar Footer -->
-          <div class="p-6 border-t border-gray-100 bg-gray-50/50">
-            <div class="flex items-center gap-3 mb-6">
-              <div
-                class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold uppercase"
-              >
-                {{ authStore.user?.name?.charAt(0) }}
+          <div class="p-4 border-t border-gray-200 bg-gray-50/50 flex-shrink-0 space-y-3">
+            <div class="flex items-center gap-3">
+              <div class="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                {{ authStore.user?.name?.charAt(0).toUpperCase() || 'U' }}
               </div>
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-gray-900 truncate">
-                  {{ authStore.user?.name }}
+                  {{ authStore.user?.name || 'User' }}
                 </p>
-                <p class="text-xs text-gray-500 truncate">{{ authStore.user?.email }}</p>
+                <p class="text-xs text-gray-500 truncate">{{ authStore.user?.email || '-' }}</p>
+                <!-- Role badge -->
+                <span class="inline-flex items-center gap-1 mt-0.5 text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
+                  <ShieldCheck class="h-3 w-3" />
+                  {{ primaryRoleLabel }}
+                </span>
               </div>
             </div>
             <button
               @click="handleLogout"
-              class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white border border-red-100 text-red-600 text-sm font-bold hover:bg-red-50 transition-colors"
+              class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-white border border-gray-300 text-red-600 text-xs font-semibold hover:bg-red-50 transition-colors"
             >
               <LogOut class="h-4 w-4" />
-              <span>Logout Account</span>
+              <span>Logout</span>
             </button>
           </div>
         </aside>
       </Transition>
     </Teleport>
 
-    <!-- Header -->
-    <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50 print:hidden">
-      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <!-- App Drawer Button -->
-          <RouterLink
-            to="/"
-            class="p-2 hover:bg-gray-100 rounded-lg transition-all active:scale-95 group"
-            title="Main Menu"
-          >
-            <LayoutGrid
-              class="h-6 w-6 text-gray-400 group-hover:text-primary-600 transition-colors"
-            />
-          </RouterLink>
+    <!-- Desktop Desktop Fixed Left Sidebar -->
+    <aside class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 z-40 bg-white border-r border-gray-200">
+      <!-- Sidebar Header -->
+      <div class="h-16 px-6 border-b border-gray-200 flex items-center gap-3 flex-shrink-0">
+        <div class="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
+          <Zap class="h-5 w-5 fill-current" />
+        </div>
+        <span class="text-xl font-bold text-gray-900 tracking-tight">MiniERP</span>
+      </div>
 
-          <!-- Mobile Hamburger (md:hidden) -->
+
+
+      <!-- Sidebar Nav Links -->
+      <nav class="flex-1 overflow-y-auto p-4 space-y-6">
+        <!-- Standalone Items -->
+        <div v-if="moduleConfig?.items?.length" class="space-y-1">
+          <RouterLink
+            v-for="item in moduleConfig.items"
+            :key="item.to"
+            :to="item.to"
+            class="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            :class="
+              isItemActive(item.to)
+                ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+            "
+          >
+            <div class="flex items-center gap-3">
+              <component :is="item.icon" class="h-5 w-5 flex-shrink-0" />
+              <span>{{ item.label }}</span>
+            </div>
+          </RouterLink>
+        </div>
+
+        <!-- Grouped Items -->
+        <div
+          v-for="(groupItems, groupName) in moduleConfig?.groups"
+          :key="groupName"
+          class="space-y-1"
+        >
+          <div class="px-3 pt-2 pb-1">
+            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              {{ groupName.replace('-', ' ') }}
+            </p>
+          </div>
+          <RouterLink
+            v-for="item in groupItems"
+            :key="item.to"
+            :to="item.to"
+            class="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            :class="
+              route.path.startsWith(item.to)
+                ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+            "
+          >
+            <div class="flex items-center gap-3">
+              <component :is="item.icon" class="h-5 w-5 flex-shrink-0" />
+              <span>{{ item.label }}</span>
+            </div>
+          </RouterLink>
+        </div>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="p-4 border-t border-gray-200 bg-gray-50/50 flex-shrink-0 space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+            {{ authStore.user?.name?.charAt(0).toUpperCase() || 'U' }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-900 truncate">
+              {{ authStore.user?.name || 'User' }}
+            </p>
+            <p class="text-xs text-gray-500 truncate">{{ authStore.user?.email || '-' }}</p>
+            <!-- Role badge -->
+            <span class="inline-flex items-center gap-1 mt-0.5 text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
+              <ShieldCheck class="h-3 w-3" />
+              {{ primaryRoleLabel }}
+            </span>
+          </div>
+        </div>
+        <button
+          @click="handleLogout"
+          class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-white border border-gray-300 text-red-600 text-xs font-semibold hover:bg-red-50 transition-colors"
+        >
+          <LogOut class="h-4 w-4" />
+          <span>Logout Account</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace (Shifted Right on Desktop) -->
+    <div class="flex-1 md:pl-64 pt-16 flex flex-col min-w-0">
+      <!-- Top Bar Header (Fixed Position) -->
+      <header class="fixed top-0 left-0 right-0 md:left-64 bg-white border-b border-gray-200 z-30 print:hidden h-16 flex items-center px-4 md:px-6 justify-between">
+        <div class="flex items-center gap-3">
+          <!-- Mobile Hamburger Toggle -->
           <button
-            class="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-all active:scale-95"
+            class="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
             @click="isMobileSidebarOpen = true"
             title="Open Menu"
           >
-            <svg class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <Menu class="h-6 w-6" />
           </button>
 
-          <div class="flex items-center gap-2">
-            <div
-              class="flex items-center justify-center h-8 w-8 rounded-lg bg-primary-600 text-white shadow-sm"
-            >
-              <Zap class="h-5 w-5 fill-current" />
+          <!-- Mobile App Title -->
+          <div class="flex items-center gap-2 md:hidden">
+            <div class="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
+              <Zap class="h-4 w-4 fill-current" />
             </div>
-            <h1 class="text-xl font-bold text-gray-800 tracking-tight hidden sm:block">MiniERP</h1>
+            <span class="text-base font-bold text-gray-900">MiniERP</span>
+          </div>
+
+          <!-- Desktop Current Module Title Indicator -->
+          <div class="hidden md:flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider border border-blue-100">
+              {{ activeModule }}
+            </span>
           </div>
         </div>
 
-        <!-- Navigation -->
-        <nav class="hidden md:flex items-center gap-1">
-          <!-- Render Groups (Dropdowns) -->
-          <div v-for="(groupItems, groupName) in moduleConfig?.groups" :key="groupName" class="relative dropdown-container">
-            <button 
-              @click="toggleDropdown(groupName)"
-              class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
-              :class="{ 'bg-primary-50 text-primary-600': isGroupActive(groupItems) }"
-            >
-              <span class="capitalize">{{ groupName.replace('-', ' ') }}</span>
-              <ChevronDown class="h-4 w-4 transition-transform" :class="{ 'rotate-180': activeDropdown === groupName }" />
-            </button>
-            <div v-if="activeDropdown === groupName" class="absolute left-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-50">
-              <RouterLink 
-                v-for="item in groupItems"
-                :key="item.to"
-                :to="item.to" 
-                class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600"
-                :class="{ 'text-primary-600 font-semibold bg-primary-50': route.path.startsWith(item.to) }"
-              >
-                {{ item.label }}
-              </RouterLink>
-            </div>
-          </div>
-
-          <!-- Render Individual Items -->
+        <!-- Right Side Header Controls -->
+        <div class="flex items-center gap-3">
+          <!-- Main Menu Grid Jump -->
           <RouterLink
-            v-for="item in moduleConfig?.items"
-            :key="item.to"
-            :to="item.to"
-            class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            :class="{ 'bg-primary-50 text-primary-600': isItemActive(item.to) }"
+            to="/"
+            class="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Main Dashboard Launcher"
           >
-            {{ item.label }}
+            <LayoutGrid class="h-5 w-5" />
           </RouterLink>
-        </nav>
 
-        <!-- User Menu -->
-        <div class="relative">
-          <button
-            @click="showUserMenu = !showUserMenu"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <div class="text-right">
-              <p class="text-sm font-medium text-gray-900">{{ authStore.user?.name }}</p>
-              <p class="text-xs text-gray-600">{{ authStore.user?.email }}</p>
-            </div>
-            <div
-              class="h-8 w-8 rounded-full bg-gradient-to-br from-primary-400 to-secondary-600 flex items-center justify-center text-white font-semibold text-sm"
-            >
-              {{ authStore.user?.name?.charAt(0).toUpperCase() }}
-            </div>
-          </button>
-
-          <!-- Dropdown Menu -->
-          <div
-            v-if="showUserMenu"
-            class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10"
-          >
+          <!-- User Menu Dropdown -->
+          <div class="relative">
             <button
-              @click="handleLogout"
-              class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+              @click="showUserMenu = !showUserMenu"
+              class="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
             >
-              <LogOut class="h-4 w-4" />
-              Logout
+              <div class="hidden sm:block text-right">
+                <p class="text-xs font-bold text-gray-900">{{ authStore.user?.name || 'User' }}</p>
+                <p class="text-[10px] text-gray-500 uppercase font-semibold">{{ activeModule }}</p>
+              </div>
+              <div class="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                {{ authStore.user?.name?.charAt(0).toUpperCase() || 'U' }}
+              </div>
             </button>
+
+            <!-- Dropdown Menu -->
+            <div
+              v-if="showUserMenu"
+              class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+            >
+              <div class="px-4 py-2 border-b border-gray-100 sm:hidden">
+                <p class="text-xs font-bold text-gray-900">{{ authStore.user?.name }}</p>
+                <p class="text-[10px] text-gray-500">{{ authStore.user?.email }}</p>
+              </div>
+              <button
+                @click="handleLogout"
+                class="w-full text-left px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+              >
+                <LogOut class="h-4 w-4" />
+                <span>Logout Account</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8 print:p-0 print:m-0 print:max-w-none">
-      <Breadcrumb class="mb-6 print:hidden" />
-      <slot />
-    </main>
+      <!-- Main Page Content -->
+      <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 md:p-8 print:p-0 print:m-0 print:max-w-none">
+        <Breadcrumb class="mb-6 print:hidden" />
+        <slot />
+      </main>
+    </div>
   </div>
 </template>
 
@@ -632,25 +307,16 @@ import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute, RouterLink } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import Breadcrumb from "@/components/common/Breadcrumb.vue";
-import GestureHint from "@/components/common/GestureHint.vue";
-import { NAVIGATION_CONFIG, getModuleByPath } from "@/config/navigation.config";
+import { NAVIGATION_CONFIG } from "@/config/navigation.config";
+import { getModuleByPath } from "@/config/role-access.config";
 import {
   LayoutGrid,
   LogOut,
   Zap,
-  LayoutDashboard,
-  Users,
-  Box,
-  ChevronRight,
-  Briefcase,
-  ClipboardList,
-  BarChart3,
-  MapPin,
-  Clock,
-  CalendarRange,
   ChevronDown,
-  Banknote,
-  FileX,
+  Menu,
+  X,
+  ShieldCheck,
 } from "lucide-vue-next";
 
 const router = useRouter();
@@ -659,18 +325,74 @@ const authStore = useAuthStore();
 const showUserMenu = ref(false);
 
 const activeModule = computed(() => getModuleByPath(route.path));
-const moduleConfig = computed(() => NAVIGATION_CONFIG[activeModule.value] || NAVIGATION_CONFIG.default);
+const moduleConfig = computed(() => {
+  const base = NAVIGATION_CONFIG[activeModule.value] || NAVIGATION_CONFIG.default;
+  if (!base) return { items: [] };
 
-// Dropdown logic for desktop
-const activeDropdown = ref<string | null>(null);
+  const isHr = authStore.hasHrAccess;
 
-const toggleDropdown = (name: string) => {
-  activeDropdown.value = activeDropdown.value === name ? null : name;
-};
+  const checkItemAccess = (item: any) => {
+    if (item.requiresHr && !isHr) return false;
+    if (item.permission) {
+      if (Array.isArray(item.permission)) {
+        return item.permission.some((p: string) => authStore.hasPermission(p));
+      }
+      return authStore.hasPermission(item.permission);
+    }
+    return true;
+  };
 
-const closeDropdowns = (e: MouseEvent) => {
-  if (!(e.target as Element).closest(".dropdown-container")) {
-    activeDropdown.value = null;
+  // Filter standalone items
+  const filteredItems = (base.items || []).filter(checkItemAccess);
+
+  // Filter grouped items
+  let filteredGroups: Record<string, any[]> | undefined = undefined;
+  if (base.groups) {
+    filteredGroups = {};
+    for (const [groupKey, items] of Object.entries(base.groups)) {
+      const validItems = items.filter(checkItemAccess);
+      if (validItems.length > 0) {
+        filteredGroups[groupKey] = validItems;
+      }
+    }
+  }
+
+  return {
+    items: filteredItems,
+    groups: filteredGroups,
+  };
+});
+
+/** Use primaryRoleLabel from auth store (computed from actual role names) */
+const primaryRoleLabel = computed(() => authStore.primaryRoleLabel)
+
+const moduleList = [
+  { id: 'attendance', label: '⏱️ Attendance', path: '/hrm/attendances' },
+  { id: 'leaves', label: '📋 Leaves', path: '/hrm/leave-requests' },
+  { id: 'reimbursement', label: '💳 Reimbursement', path: '/hrm/reimbursements' },
+  { id: 'payslips', label: '💵 Payslips', path: '/hrm/payslips' },
+  { id: 'resignations', label: '📄 Resignation', path: '/hrm/resignations' },
+  { id: 'hrm', label: '👥 HR Management', path: '/hrm/employees' },
+  { id: 'crm', label: '📊 CRM', path: '/crm' },
+  { id: 'finance', label: '💰 Finance', path: '/finance' },
+  { id: 'purchasing', label: '🛒 Purchasing', path: '/purchasing' },
+  { id: 'inventory', label: '📦 Inventory', path: '/inventory' },
+  { id: 'system', label: '⚙️ System', path: '/system/roles' },
+];
+
+/**
+ * Module switcher only shows modules the user can access.
+ * Uses authStore.canAccessModule() which is data-driven — no hardcode.
+ */
+const accessibleModuleList = computed(() =>
+  moduleList.filter((m) => authStore.canAccessModule(m.id))
+);
+
+const switchModule = (moduleId: string) => {
+  const target = moduleList.find(m => m.id === moduleId);
+  if (target) {
+    router.push(target.path);
+    isMobileSidebarOpen.value = false;
   }
 };
 
@@ -681,30 +403,25 @@ const isItemActive = (path: string) => {
   return route.path.startsWith(path);
 };
 
-const isGroupActive = (items: any[]) => {
-  return items.some(item => route.path.startsWith(item.to));
+const closeUserMenu = (e: MouseEvent) => {
+  if (!(e.target as Element).closest('.relative')) {
+    showUserMenu.value = false;
+  }
 };
 
 onMounted(() => {
-  window.addEventListener("click", closeDropdowns);
+  window.addEventListener("click", closeUserMenu);
 });
 
 onUnmounted(() => {
-  window.removeEventListener("click", closeDropdowns);
+  window.removeEventListener("click", closeUserMenu);
 });
-
-watch(
-  () => route.path,
-  () => {
-    activeDropdown.value = null; // Close dropdowns on navigation
-  }
-);
 
 // Mobile Sidebar Logic
 const isMobileSidebarOpen = ref(false);
 const touchStartX = ref(0);
 const touchEndX = ref(0);
-const minSwipeDistance = 50; // Minimum distance for a swipe to be recognized
+const minSwipeDistance = 50;
 
 const handleTouchStart = (e: TouchEvent) => {
   if (e.touches && e.touches[0]) {
@@ -721,28 +438,16 @@ const handleTouchMove = (e: TouchEvent) => {
 const handleTouchEnd = () => {
   const distance = touchEndX.value - touchStartX.value;
 
-  // Open if swiped from left to right on the left side of the screen
   if (distance > minSwipeDistance && touchStartX.value < 100) {
-    openMobileSidebar();
+    isMobileSidebarOpen.value = true;
   }
 
-  // Close if swiped from right to left while open
   if (distance < -minSwipeDistance && isMobileSidebarOpen.value) {
     isMobileSidebarOpen.value = false;
   }
 
-  // Reset
   touchStartX.value = 0;
   touchEndX.value = 0;
-};
-
-const openMobileSidebar = () => {
-  isMobileSidebarOpen.value = true;
-
-  // Update hint count
-  const STORAGE_KEY = "sidebar_gesture_count";
-  const count = parseInt(localStorage.getItem(STORAGE_KEY) || "0");
-  localStorage.setItem(STORAGE_KEY, (count + 1).toString());
 };
 
 const handleLogout = async () => {
@@ -754,7 +459,7 @@ const handleLogout = async () => {
 <style scoped>
 .sidebar-enter-active,
 .sidebar-leave-active {
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar-enter-from,
@@ -764,7 +469,7 @@ const handleLogout = async () => {
 
 .overlay-enter-active,
 .overlay-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
 .overlay-enter-from,

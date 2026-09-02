@@ -1,4 +1,5 @@
-import type { PaginationLink } from '@/services/hrm/types/shift.types' // Reusing common pagination types
+import type { PaginationLink } from '../../types'
+export type { PaginationLink }
 
 export type ReimbursementStatus = 'pending' | 'approved' | 'rejected' | 'paid'
 

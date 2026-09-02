@@ -39,6 +39,26 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
+  async function createAccount(data: { code: string; name: string; type: string; parent_uuid?: string | null; is_reconcilable?: boolean }) {
+    const newAccount = await financeService.createAccount(data)
+    if (newAccount) accounts.value = [...accounts.value, newAccount]
+    return newAccount
+  }
+
+  async function updateAccount(uuid: string, data: any) {
+    const updated = await financeService.updateAccount(uuid, data)
+    if (updated) {
+      const idx = accounts.value.findIndex((a: any) => a.uuid === uuid)
+      if (idx !== -1) accounts.value[idx] = updated
+    }
+    return updated
+  }
+
+  async function deleteAccount(uuid: string) {
+    await financeService.deleteAccount(uuid)
+    accounts.value = accounts.value.filter((a: any) => a.uuid !== uuid)
+  }
+
   async function fetchLedgerItems(page = 1) {
     isLoading.value = true
     try {
@@ -94,6 +114,32 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
+  async function suggestAccount(description: string, amount: number) {
+    return await financeService.suggestAccount(description, amount)
+  }
+
+  async function approveRecord(uuid: string) {
+    isLoading.value = true
+    try {
+      const res = await financeService.approveRecord(uuid)
+      await fetchDashboard()
+      return res
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function rejectRecord(uuid: string, reason: string) {
+    isLoading.value = true
+    try {
+      const res = await financeService.rejectRecord(uuid, reason)
+      await fetchDashboard()
+      return res
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     dashboardData,
     accounts,
@@ -104,10 +150,16 @@ export const useFinanceStore = defineStore('finance', () => {
     error,
     fetchDashboard,
     fetchAccounts,
+    createAccount,
+    updateAccount,
+    deleteAccount,
     fetchLedgerItems,
     fetchProfitLoss,
     fetchBalanceSheet,
     fetchCashFlow,
-    fetchAIInsights
+    fetchAIInsights,
+    suggestAccount,
+    approveRecord,
+    rejectRecord
   }
 })

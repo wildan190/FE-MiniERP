@@ -9,6 +9,7 @@ export const useProjectStore = defineStore('project', () => {
   const dashboardData = ref<any>(null)
   const resourceData = ref<any>(null)
   const financialData = ref<any>(null)
+  const wonProspects = ref<any[]>([])
   
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -53,7 +54,8 @@ export const useProjectStore = defineStore('project', () => {
     isLoading.value = true
     try {
       const response = await projectRepository.getProjects()
-      projects.value = response.data.data
+      const resData = response.data.data
+      projects.value = Array.isArray(resData) ? resData : (resData?.data || [])
     } catch (err: any) {
       error.value = err.message
     } finally {
@@ -80,8 +82,18 @@ export const useProjectStore = defineStore('project', () => {
       await fetchProjects()
     } catch (err: any) {
       error.value = err.message
+      throw err
     } finally {
       isLoading.value = false
+    }
+  }
+
+  async function fetchWonProspects() {
+    try {
+      const res = await projectRepository.getWonProspects()
+      wonProspects.value = res.data.data || []
+    } catch (err: any) {
+      console.error('Failed to fetch won prospects:', err)
     }
   }
 
@@ -89,7 +101,9 @@ export const useProjectStore = defineStore('project', () => {
     isLoading.value = true
     try {
       const response = await projectRepository.getTasks(projectUuid)
-      tasks.value = response.data.data
+      const resData = response.data.data
+      const list = Array.isArray(resData) ? resData : (resData?.data || [])
+      tasks.value = list.filter(Boolean)
     } catch (err: any) {
       error.value = err.message
     } finally {
@@ -153,13 +167,62 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  const timesheets = ref<any[]>([])
+
+  async function fetchTimesheets(params?: any) {
+    isLoading.value = true
+    try {
+      const response = await projectRepository.getTimesheets(params)
+      const resData = response.data.data
+      timesheets.value = Array.isArray(resData) ? resData : (resData?.data || [])
+    } catch (err: any) {
+      error.value = err.message
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function logTimesheet(data: { project_uuid: string; task_uuid?: string; date: string; hours: number; notes?: string }) {
+    isLoading.value = true
+    try {
+      const response = await projectRepository.logTimesheet(data.project_uuid, {
+        task_uuid: data.task_uuid || null,
+        date: data.date,
+        hours: data.hours,
+        notes: data.notes || null
+      })
+      await fetchTimesheets()
+      return response.data
+    } catch (err: any) {
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function updateProjectStatus(uuid: string, status: string) {
+    isLoading.value = true
+    try {
+      await projectRepository.updateProjectStatus(uuid, status)
+      await fetchProjects()
+    } catch (err: any) {
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     projects,
     currentProject,
     tasks,
+    timesheets,
     dashboardData,
     resourceData,
     financialData,
+    wonProspects,
     isLoading,
     error,
     fetchDashboard,
@@ -168,10 +231,14 @@ export const useProjectStore = defineStore('project', () => {
     fetchProjects,
     fetchProjectDetail,
     createProject,
+    updateProjectStatus,
     fetchTasks,
     createTask,
     updateTask,
     assignMember,
-    addExpense
+    addExpense,
+    fetchTimesheets,
+    logTimesheet,
+    fetchWonProspects,
   }
 })

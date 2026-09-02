@@ -204,6 +204,21 @@
                       </p>
                     </div>
                     <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2"> Shift </label>
+                      <select
+                        v-model="formData.shift_uuid"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      >
+                        <option value="">Select shift</option>
+                        <option v-for="shift in shifts" :key="shift.uuid" :value="shift.uuid">
+                          {{ shift.name }} ({{ shift.start_time }} - {{ shift.end_time }})
+                        </option>
+                      </select>
+                      <p v-if="errors?.shift_uuid" class="mt-1 text-xs text-red-600">
+                        {{ errors.shift_uuid[0] }}
+                      </p>
+                    </div>
+                    <div>
                       <label class="block text-sm font-medium text-gray-700 mb-2"> Basic Salary </label>
                       <input
                         v-model="formData.basic_salary"
@@ -416,8 +431,10 @@ import type {
 } from "../../services/hrm/types/employee.types";
 import type { Department } from "../../services/hrm/types/department.types";
 import type { Designation } from "../../services/hrm/types/designation.types";
+import type { Shift } from "../../services/hrm/types/shift.types";
 import { departmentRepository } from "../../repositories/hrm/department.repository";
 import { designationRepository } from "../../repositories/hrm/designation.repository";
+import { shiftRepository } from "../../repositories/hrm/shift.repository";
 
 interface Props {
   isOpen: boolean;
@@ -435,6 +452,7 @@ const emit = defineEmits<{
 
 const departments = ref<Department[]>([]);
 const designations = ref<Designation[]>([]);
+const shifts = ref<Shift[]>([]);
 
 const formData = ref<EmployeeFormData>({
   first_name: "",
@@ -444,6 +462,7 @@ const formData = ref<EmployeeFormData>({
   user_uuid: "",
   department_uuid: "",
   designation_uuid: "",
+  shift_uuid: "",
   emp_code: "",
   joining_date: "",
   status: "active",
@@ -478,6 +497,23 @@ const loadDesignations = async () => {
   }
 };
 
+const loadShifts = async () => {
+  try {
+    const response: any = await shiftRepository.getShifts();
+    if (response) {
+      if (Array.isArray(response.data?.data)) {
+        shifts.value = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        shifts.value = response.data;
+      } else if (Array.isArray(response)) {
+        shifts.value = response;
+      }
+    }
+  } catch (error) {
+    console.error("Failed to load shifts:", error);
+  }
+};
+
 // Helper: convert ISO timestamp like "2026-02-23T00:00:00.000000Z" to "2026-02-23"
 const toDateInputValue = (dateStr: string | null | undefined): string => {
   if (!dateStr) return "";
@@ -485,7 +521,7 @@ const toDateInputValue = (dateStr: string | null | undefined): string => {
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
   // Parse and convert ISO timestamp
   try {
-    return new Date(dateStr).toISOString().split("T")[0];
+    return new Date(dateStr).toISOString().split("T")[0] ?? "";
   } catch {
     return "";
   }
@@ -505,6 +541,12 @@ const populateForm = (emp: any) => {
     designations.value.find((d: any) => d.id === emp.designation_id)?.uuid ||
     "";
 
+  // Resolve shift UUID
+  const shiftUuid =
+    emp.shift?.uuid ||
+    shifts.value.find((s: any) => s.id === emp.shift_id)?.uuid ||
+    "";
+
   formData.value = {
     first_name: emp.first_name || "",
     last_name: emp.last_name || "",
@@ -513,6 +555,7 @@ const populateForm = (emp: any) => {
     user_uuid: emp.user?.uuid || "",
     department_uuid: deptUuid,
     designation_uuid: desigUuid,
+    shift_uuid: shiftUuid,
     emp_code: emp.emp_code || "",
     joining_date: toDateInputValue(emp.joining_date),
     status: emp.status || "active",
@@ -539,6 +582,7 @@ const resetForm = () => {
     user_uuid: "",
     department_uuid: "",
     designation_uuid: "",
+    shift_uuid: "",
     emp_code: "",
     joining_date: "",
     status: "active",
@@ -561,7 +605,7 @@ watch(
   () => props.isOpen,
   async (newVal) => {
     if (newVal) {
-      await Promise.all([loadDepartments(), loadDesignations()]);
+      await Promise.all([loadDepartments(), loadDesignations(), loadShifts()]);
       // After dropdowns are loaded, populate the form if editing
       if (props.editingEmployee) {
         populateForm(props.editingEmployee);

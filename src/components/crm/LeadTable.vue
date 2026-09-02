@@ -61,7 +61,7 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <button @click="$emit('view', lead)" class="text-indigo-600 hover:text-indigo-900 mr-4">View</button>
-              <button @click="$emit('convert', lead)" class="text-green-600 hover:text-green-900 mr-4">Convert</button>
+              <button v-if="lead.status?.toLowerCase() !== 'converted'" @click="$emit('convert', lead)" class="text-green-600 hover:text-green-900 mr-4">Convert</button>
               <button @click="$emit('edit', lead)" class="text-primary-600 hover:text-primary-900 mr-4">Edit</button>
               <button @click="$emit('delete', lead)" class="text-red-600 hover:text-red-900">Delete</button>
             </td>
@@ -136,6 +136,7 @@
                 View
               </button>
               <button
+                v-if="lead.status?.toLowerCase() !== 'converted'"
                 @click="$emit('convert', lead)"
                 class="flex-1 py-2 px-4 border border-green-300 rounded-md text-sm font-medium text-green-700 bg-white hover:bg-green-50"
               >

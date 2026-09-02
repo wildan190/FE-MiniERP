@@ -198,6 +198,7 @@ const handleUpdateStatus = async () => {
       status: statusForm.status
     })
     showStatusModal.value = false
+    await prospectStore.fetchProspects(prospectStore.currentPage)
   } catch (error) {
     console.error('Failed to update status:', error)
   } finally {

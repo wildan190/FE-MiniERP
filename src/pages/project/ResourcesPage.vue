@@ -89,12 +89,16 @@ const handleSaved = async () => {
               <tr v-for="member in projectStore.resourceData?.members" :key="member.uuid" class="hover:bg-gray-50/50 transition-colors">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 font-bold">
-                      {{ member.employee?.name?.charAt(0) }}
+                    <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold">
+                      {{ member.employee?.first_name ? member.employee.first_name.charAt(0).toUpperCase() : '?' }}
                     </div>
                     <div>
-                      <p class="text-sm font-bold text-gray-900">{{ member.employee?.name }}</p>
-                      <p class="text-xs text-gray-500">{{ member.employee?.designation || 'Staff' }}</p>
+                      <p class="text-sm font-bold text-gray-900">
+                        {{ member.employee ? `${member.employee.first_name} ${member.employee.last_name || ''}`.trim() : 'Unknown Employee' }}
+                      </p>
+                      <p class="text-xs text-gray-500">
+                        {{ member.employee?.designation?.title || member.employee?.designation?.name || 'Staff' }}
+                      </p>
                     </div>
                   </div>
                 </td>

@@ -48,6 +48,7 @@
               >
                 <option value="">All Statuses</option>
                 <option value="draft">Draft</option>
+                <option value="approved">Approved</option>
                 <option value="paid">Paid</option>
               </select>
               <Tag class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
@@ -60,17 +61,17 @@
       <!-- Table -->
       <div class="space-y-4">
         <!-- Batch Actions -->
-        <div v-if="selectedUuids.length > 0" class="flex items-center justify-between p-4 bg-primary-50 rounded-2xl border border-primary-100 shadow-sm animate-fade-in">
+        <div v-if="selectedUuids.length > 0" class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-primary-50 rounded-2xl border border-primary-100 shadow-sm gap-4 animate-fade-in">
           <div class="flex items-center gap-3">
             <div class="h-10 w-10 rounded-xl bg-primary-600 flex items-center justify-center text-white shadow-sm">
               <CheckCircle class="h-6 w-6" />
             </div>
             <div>
               <p class="text-sm font-bold text-primary-900">{{ selectedUuids.length }} Payrolls Selected</p>
-              <p class="text-xs text-primary-600">You can mark all selected records as paid at once.</p>
+              <p class="text-xs text-primary-600">Approve payroll calculations or process disbursements.</p>
             </div>
           </div>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
             <button
               @click="clearSelection"
               class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700 transition-colors"
@@ -78,11 +79,19 @@
               Cancel
             </button>
             <button
+              @click="handleBatchApprove"
+              :disabled="isBatchApproving"
+              class="px-5 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2 hover:-translate-y-0.5 active:scale-95 disabled:opacity-50"
+            >
+              <CheckCircle class="h-4 w-4" />
+              {{ isBatchApproving ? 'Approving...' : 'Batch Approve' }}
+            </button>
+            <button
               @click="handleBatchPay"
               :disabled="isBatchPaying"
-              class="px-6 py-2.5 bg-green-600 text-white text-sm font-bold rounded-xl hover:bg-green-700 transition-all shadow-md flex items-center gap-2 hover:-translate-y-0.5 active:scale-95 disabled:opacity-50"
+              class="px-5 py-2.5 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-md flex items-center gap-2 hover:-translate-y-0.5 active:scale-95 disabled:opacity-50"
             >
-              <Banknote class="h-5 w-5" />
+              <Banknote class="h-4 w-4" />
               {{ isBatchPaying ? 'Processing...' : 'Mark as Paid' }}
             </button>
           </div>
@@ -131,6 +140,7 @@ const payrolls = ref<Payroll[]>([])
 const isLoading = ref(false)
 const selectedUuids = ref<string[]>([])
 const isBatchPaying = ref(false)
+const isBatchApproving = ref(false)
 
 const payrollPeriods = ref<PayrollPeriod[]>([])
 const isLoadingPeriods = ref(false)
@@ -199,6 +209,45 @@ const handleFilterChange = () => {
 
 const clearSelection = () => {
   selectedUuids.value = []
+}
+
+const handleBatchApprove = async () => {
+  if (selectedUuids.value.length === 0) return
+
+  const result = await Swal.fire({
+    title: 'Batch Approve Payrolls?',
+    text: `Are you sure you want to approve ${selectedUuids.value.length} selected payrolls? Approved payrolls can then be marked as paid.`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#4f46e5',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, approve selected'
+  })
+
+  if (result.isConfirmed) {
+    isBatchApproving.value = true
+    try {
+      const response = await payrollRepository.batchApprove(selectedUuids.value)
+      await Swal.fire({
+        title: 'Approved!',
+        text: response.message || 'Payrolls successfully approved.',
+        icon: 'success',
+        confirmButtonColor: '#4f46e5',
+      })
+      selectedUuids.value = []
+      loadData(pagination.value.current_page)
+    } catch (error: any) {
+      console.error('Batch approve failed:', error)
+      Swal.fire({
+        title: 'Error!',
+        text: error.response?.data?.message || 'Failed to approve payrolls.',
+        icon: 'error',
+        confirmButtonColor: '#ef4444',
+      })
+    } finally {
+      isBatchApproving.value = false
+    }
+  }
 }
 
 const handleBatchPay = async () => {

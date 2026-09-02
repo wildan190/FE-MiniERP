@@ -1,5 +1,17 @@
 import type { Department } from './department.types'
 import type { Designation } from './designation.types'
+import type { Shift } from './shift.types'
+import type { OfficeLocation } from './office-location.types'
+
+export interface RoleSummary {
+  id: number
+  uuid: string
+  name: string
+  slug: string
+  description?: string | null
+  is_system?: boolean
+  permissions?: Array<{ id: number; uuid: string; name: string; slug: string; module: string }>
+}
 
 export interface User {
   id: number
@@ -9,6 +21,7 @@ export interface User {
   created_at: string
   updated_at: string
   uuid: string
+  roles?: RoleSummary[]
 }
 
 export interface Employee {
@@ -18,6 +31,7 @@ export interface Employee {
   designation_id: number | null
   emp_code: string | null
   joining_date: string | null
+  employment_type?: string | null
   status: 'active' | 'inactive' | 'terminated' | 'resigned' | null
   created_at: string
   updated_at: string
@@ -41,10 +55,23 @@ export interface Employee {
   face_encoding: string | null
   face_image_path: string | null
   requires_face_verification: boolean
+  has_face_enrolled?: boolean
   uuid: string
   user?: User
   department?: Department
   designation?: Designation
+  shift?: Shift
+  office_location?: OfficeLocation
+  leave_requests?: Array<{
+    id: number
+    uuid: string
+    start_date: string
+    end_date: string
+    status: string
+    leave_type?: {
+      name: string
+    }
+  }>
 }
 
 export interface EmployeePaginationData {
@@ -80,6 +107,7 @@ export interface CreateEmployeeRequest {
   password?: string
   department_uuid?: string
   designation_uuid?: string
+  shift_uuid?: string
   joining_date?: string
   status?: 'active' | 'inactive' | 'terminated' | 'resigned'
   nik?: string
@@ -101,6 +129,7 @@ export interface UpdateEmployeeRequest {
   last_name?: string
   department_uuid?: string
   designation_uuid?: string
+  shift_uuid?: string
   emp_code?: string
   joining_date?: string
   status?: 'active' | 'inactive' | 'terminated' | 'resigned'
@@ -145,6 +174,7 @@ export interface EmployeeFormData {
   user_uuid?: string
   department_uuid?: string
   designation_uuid?: string
+  shift_uuid?: string
   emp_code?: string
   joining_date?: string
   status?: 'active' | 'inactive' | 'terminated' | 'resigned'

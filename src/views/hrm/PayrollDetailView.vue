@@ -48,6 +48,15 @@
           
           <div class="flex gap-3">
             <button
+              v-if="payroll.status === 'draft'"
+              @click="handleApprovePayroll"
+              :disabled="isApproving"
+              class="px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 transition-all shadow-sm flex items-center gap-2 hover:-translate-y-0.5 disabled:opacity-50"
+            >
+              <CheckCircle class="h-5 w-5" />
+              {{ isApproving ? 'Approving...' : 'Approve Payroll' }}
+            </button>
+            <button
               v-if="payroll.status === 'paid'"
               @click="handleDownloadPayslip"
               class="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2 hover:-translate-y-0.5"
@@ -61,7 +70,7 @@
               :disabled="isPaying"
               class="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-all shadow-sm flex items-center gap-2 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <CheckCircle class="h-5 w-5" />
+              <Banknote class="h-5 w-5" />
               {{ isPaying ? 'Processing...' : 'Mark as Paid' }}
             </button>
           </div>
@@ -222,6 +231,7 @@ const route = useRoute()
 const payroll = ref<Payroll | null>(null)
 const isLoading = ref(true)
 const isPaying = ref(false)
+const isApproving = ref(false)
 
 const loadPayrollDetail = async () => {
   const uuid = route.params.uuid as string
@@ -241,6 +251,43 @@ const loadPayrollDetail = async () => {
     })
   } finally {
     isLoading.value = false
+  }
+}
+
+const handleApprovePayroll = async () => {
+  if (!payroll.value) return
+  const result = await Swal.fire({
+    title: 'Approve Payroll?',
+    text: 'This will approve the calculated salary and allow it to be marked as paid.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#4f46e5',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, Approve'
+  })
+
+  if (result.isConfirmed) {
+    isApproving.value = true
+    try {
+      const response = await payrollRepository.approve(payroll.value.uuid)
+      payroll.value = response.data
+      await Swal.fire({
+        title: 'Approved!',
+        text: 'Payroll record has been approved successfully.',
+        icon: 'success',
+        confirmButtonColor: '#4f46e5',
+      })
+    } catch (error: any) {
+      console.error('Failed to approve payroll:', error)
+      Swal.fire({
+        title: 'Error!',
+        text: error.response?.data?.message || 'Failed to approve payroll. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#ef4444',
+      })
+    } finally {
+      isApproving.value = false
+    }
   }
 }
 

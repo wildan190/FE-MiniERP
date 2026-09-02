@@ -69,7 +69,7 @@
 
             <!-- Action Buttons (Only for Pending) -->
             <div v-if="resignation.status === 'pending'" class="space-y-3">
-              <div class="flex gap-4">
+              <div v-if="canApproveResignation" class="flex gap-4">
                 <button
                   @click="openStatusModal('rejected')"
                   class="flex-1 px-6 py-4 bg-white border-2 border-red-100 text-red-600 font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-red-50 transition-all flex items-center justify-center gap-2 shadow-sm"
@@ -86,6 +86,7 @@
                 </button>
               </div>
               <button
+                v-if="isOwnResignation || canApproveResignation"
                 @click="openStatusModal('withdrawn')"
                 class="w-full px-6 py-3 bg-gray-100 text-gray-600 font-bold uppercase tracking-widest text-[10px] rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
               >
@@ -200,10 +201,12 @@ import Card from '../../components/common/Card.vue'
 import Modal from '../../components/common/Modal.vue'
 import Skeleton from '../../components/common/Skeleton.vue'
 import { useResignationStore } from '../../stores/resignation'
+import { useAuthStore } from '../../stores/auth'
 import Swal from 'sweetalert2'
 
 const route = useRoute()
 const resignationStore = useResignationStore()
+const authStore = useAuthStore()
 
 const isLoading = ref(true)
 const isUpdating = ref(false)
@@ -212,6 +215,15 @@ const statusAction = ref<'approved' | 'rejected' | 'withdrawn'>('approved')
 const statusRemarks = ref('')
 
 const resignation = computed(() => resignationStore.currentResignation)
+
+const canApproveResignation = computed(() => {
+  return authStore.isSuperAdmin || authStore.hasPermission('hrm.resignation.approve')
+})
+
+const isOwnResignation = computed(() => {
+  if (!resignation.value || !authStore.user) return false
+  return resignation.value.employee?.user_id === authStore.user.id || resignation.value.employee?.uuid === authStore.user.employee?.uuid
+})
 
 const openStatusModal = (action: 'approved' | 'rejected' | 'withdrawn') => {
   statusAction.value = action

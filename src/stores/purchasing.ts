@@ -6,6 +6,7 @@ export const usePurchasingStore = defineStore('purchasing', () => {
   const suppliers = ref<any[]>([])
   const requests = ref<any[]>([])
   const orders = ref<any[]>([])
+  const receipts = ref<any[]>([])
   const invoices = ref<any[]>([])
   const dashboardData = ref<any>(null)
   
@@ -100,10 +101,95 @@ export const usePurchasingStore = defineStore('purchasing', () => {
     }
   }
 
+  async function fetchReceipts() {
+    isLoading.value = true
+    try {
+      const response = await purchasingRepository.getReceipts()
+      const data = response.data?.data
+      receipts.value = Array.isArray(data) ? data : (data?.data || [])
+    } catch (err: any) {
+      error.value = err.message
+      receipts.value = []
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function createReceipt(data: any) {
+    isLoading.value = true
+    try {
+      const response = await purchasingRepository.createReceipt(data)
+      await fetchReceipts()
+      await fetchOrders()
+      return response.data
+    } catch (err: any) {
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function fetchInvoices() {
+    isLoading.value = true
+    try {
+      const response = await purchasingRepository.getInvoices()
+      const data = response.data?.data
+      invoices.value = Array.isArray(data) ? data : (data?.data || [])
+    } catch (err: any) {
+      error.value = err.message
+      invoices.value = []
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function createInvoice(data: any) {
+    isLoading.value = true
+    try {
+      const response = await purchasingRepository.createInvoice(data)
+      await fetchInvoices()
+      await fetchOrders()
+      return response.data
+    } catch (err: any) {
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function updateRequestStatus(uuid: string, status: string) {
+    isLoading.value = true
+    try {
+      await purchasingRepository.updateRequestStatus(uuid, status)
+      await fetchRequests()
+    } catch (err: any) {
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function updateOrderStatus(uuid: string, status: string) {
+    isLoading.value = true
+    try {
+      await purchasingRepository.updateOrderStatus(uuid, status)
+      await fetchOrders()
+    } catch (err: any) {
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     suppliers,
     requests,
     orders,
+    receipts,
     invoices,
     dashboardData,
     isLoading,
@@ -113,7 +199,13 @@ export const usePurchasingStore = defineStore('purchasing', () => {
     createSupplier,
     fetchRequests,
     createRequest,
+    updateRequestStatus,
     fetchOrders,
-    createOrder
+    createOrder,
+    updateOrderStatus,
+    fetchReceipts,
+    createReceipt,
+    fetchInvoices,
+    createInvoice
   }
 })

@@ -1,28 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { getModuleByPath as getModuleKey } from '@/config/role-access.config'
+// Only the truly always-needed pages are imported statically:
 import LoginPage from '@/pages/LoginPage.vue'
-import DashboardPage from '@/pages/DashboardPage.vue'
-import CRMDashboardPage from '@/pages/CRMDashboardPage.vue'
-
-import CustomersPage from '@/pages/CustomersPage.vue'
-import LeadsPage from '@/pages/LeadsPage.vue'
-import ProspectsPage from '@/pages/ProspectsPage.vue'
-import SalesPipelinePage from '@/pages/SalesPipelinePage.vue'
-import SalesPipelineDetailView from '../views/crm/SalesPipelineDetailView.vue'
-import QuotationPage from '../pages/QuotationsPage.vue'
-import QuotationDetailView from '../views/crm/QuotationDetailView.vue'
-
-import CustomerDetailView from '@/views/crm/CustomerDetailView.vue'
-import LeadDetailView from '@/views/crm/LeadDetailView.vue'
-import ProspectDetailView from '@/views/crm/ProspectDetailView.vue'
-import OrderListView from '@/views/crm/OrderListView.vue'
 import AppMenuView from '@/pages/AppMenuView.vue'
-import DepartmentsPage from '@/pages/DepartmentsPage.vue'
-import DepartmentDetailView from '@/views/hrm/DepartmentDetailView.vue'
-import EmployeesPage from '@/pages/EmployeesPage.vue'
-import EmployeeDetailView from '@/views/hrm/EmployeeDetailView.vue'
-import OfficeLocationsPage from '@/pages/OfficeLocationsPage.vue'
-// No change to file content here, just updating router.
+// All other pages are lazy-loaded — no data is fetched until the user visits that route
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,50 +24,62 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: DashboardPage,
-      meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Dashboard' }] },
+      component: () => import('@/pages/DashboardPage.vue'),
+      meta: { requiresAuth: true, module: 'dashboard', breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Dashboard' }] },
+    },
+    {
+      path: '/calendar',
+      name: 'calendar',
+      component: () => import('@/pages/CalendarPage.vue'),
+      meta: { requiresAuth: true, module: 'calendar', breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Calendar' }] },
+    },
+    {
+      path: '/unauthorized',
+      name: 'unauthorized',
+      component: () => import('@/pages/UnauthorizedPage.vue'),
+      meta: { requiresAuth: true },
     },
     {
       path: '/crm',
       name: 'crm',
-      component: CRMDashboardPage,
-      meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'CRM' }] },
+      component: () => import('@/pages/CRMDashboardPage.vue'),
+      meta: { requiresAuth: true, module: 'crm', breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'CRM' }] },
     },
     {
       path: '/customers',
       name: 'customers',
-      component: CustomersPage,
-      meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Customers' }] },
+      component: () => import('@/pages/CustomersPage.vue'),
+      meta: { requiresAuth: true, module: 'crm', permission: ['crm.customers.view', 'crm.customers.manage'], breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Customers' }] },
     },
     {
       path: '/quotations',
       name: 'Quotations',
-      component: QuotationPage, // Using the already imported QuotationPage
-      meta: { requiresAuth: true, breadcrumbs: [{ name: 'Home', path: '/dashboard' }, { name: 'Quotations', path: '/quotations' }] }
+      component: () => import('@/pages/QuotationsPage.vue'),
+      meta: { requiresAuth: true, module: 'crm', permission: 'crm.quotations.manage', breadcrumbs: [{ name: 'Home', path: '/dashboard' }, { name: 'Quotations', path: '/quotations' }] }
     },
     {
       path: '/quotations/:uuid',
       name: 'QuotationDetail',
-      component: QuotationDetailView,
+      component: () => import('@/views/crm/QuotationDetailView.vue'),
       meta: { requiresAuth: true, breadcrumbs: [{ name: 'Home', path: '/dashboard' }, { name: 'Quotations', path: '/quotations' }, { name: 'Detail', path: '' }] }
     },
     {
       path: '/leads',
       name: 'leads',
-      component: LeadsPage,
-      meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Leads' }] },
+      component: () => import('@/pages/LeadsPage.vue'),
+      meta: { requiresAuth: true, module: 'crm', permission: 'crm.leads.manage', breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Leads' }] },
     },
     {
       path: '/prospects',
       name: 'prospects',
-      component: ProspectsPage,
-      meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Prospects' }] },
+      component: () => import('@/pages/ProspectsPage.vue'),
+      meta: { requiresAuth: true, module: 'crm', permission: 'crm.leads.manage', breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'Prospects' }] },
     },
 
       {
         path: '/crm/customers/:uuid',
         name: 'crm-customer-detail',
-        component: CustomerDetailView,
+        component: () => import('@/views/crm/CustomerDetailView.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -98,19 +92,19 @@ const router = createRouter({
       {
         path: '/crm/quotations',
         name: 'crm-quotations',
-        component: QuotationPage,
+        component: () => import('@/pages/QuotationsPage.vue'),
         meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'CRM', to: '/crm' }, { label: 'Quotations' }] },
       },
       {
         path: '/crm/orders',
         name: 'crm-orders',
-        component: OrderListView,
+        component: () => import('@/views/crm/OrderListView.vue'),
         meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'CRM', to: '/crm' }, { label: 'Orders' }] },
       },
       {
         path: '/crm/leads/:uuid',
         name: 'crm-lead-detail',
-        component: LeadDetailView,
+        component: () => import('@/views/crm/LeadDetailView.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -123,7 +117,7 @@ const router = createRouter({
       {
         path: '/crm/prospects/:uuid',
         name: 'crm-prospect-detail',
-        component: ProspectDetailView,
+        component: () => import('@/views/crm/ProspectDetailView.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -136,13 +130,13 @@ const router = createRouter({
       {
         path: '/crm/pipelines',
         name: 'crm-pipelines',
-        component: SalesPipelinePage,
+        component: () => import('@/pages/SalesPipelinePage.vue'),
         meta: { requiresAuth: true, breadcrumbs: [{ label: 'Home', to: '/dashboard' }, { label: 'CRM', to: '/crm' }, { label: 'Pipelines' }] },
       },
       {
         path: '/crm/pipelines/:uuid',
         name: 'crm-pipeline-detail',
-        component: SalesPipelineDetailView,
+        component: () => import('@/views/crm/SalesPipelineDetailView.vue'),
         meta: { 
           requiresAuth: true, 
           breadcrumbs: [
@@ -154,11 +148,17 @@ const router = createRouter({
         },
       },
       {
+        path: '/hrm',
+        name: 'hrm-dashboard',
+        redirect: '/hrm/employees',
+      },
+      {
         path: '/hrm/departments',
         name: 'hrm-departments',
-        component: DepartmentsPage,
+        component: () => import('@/pages/DepartmentsPage.vue'),
         meta: { 
-          requiresAuth: true, 
+          requiresAuth: true,
+          permission: 'hrm.departments.manage',
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' }, 
             { label: 'HRM', to: '/hrm' }, 
@@ -169,9 +169,10 @@ const router = createRouter({
       {
         path: '/hrm/departments/:uuid',
         name: 'hrm-department-detail',
-        component: DepartmentDetailView,
+        component: () => import('@/views/hrm/DepartmentDetailView.vue'),
         meta: { 
-          requiresAuth: true, 
+          requiresAuth: true,
+          permission: 'hrm.departments.manage',
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' }, 
             { label: 'HRM', to: '/hrm' }, 
@@ -185,7 +186,8 @@ const router = createRouter({
         name: 'hrm-designations',
         component: () => import('@/pages/DesignationsPage.vue'),
         meta: { 
-          requiresAuth: true, 
+          requiresAuth: true,
+          permission: 'hrm.designations.manage',
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' }, 
             { label: 'HRM', to: '/hrm' }, 
@@ -198,7 +200,8 @@ const router = createRouter({
         name: 'hrm-designation-detail',
         component: () => import('@/views/hrm/DesignationDetailView.vue'),
         meta: { 
-          requiresAuth: true, 
+          requiresAuth: true,
+          permission: 'hrm.designations.manage',
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' }, 
             { label: 'HRM', to: '/hrm' }, 
@@ -247,11 +250,26 @@ const router = createRouter({
         },
       },
       {
+        path: '/hrm/recruitment',
+        name: 'hrm-recruitment',
+        component: () => import('@/pages/RecruitmentPage.vue'),
+        meta: { 
+          requiresAuth: true,
+          permission: 'hrm.recruitment.manage',
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' }, 
+            { label: 'HRM', to: '/hrm' }, 
+            { label: 'Talent Acquisition' }
+          ] 
+        },
+      },
+      {
         path: '/hrm/employees',
         name: 'hrm-employees',
-        component: EmployeesPage,
+        component: () => import('@/pages/EmployeesPage.vue'),
         meta: { 
-          requiresAuth: true, 
+          requiresAuth: true,
+          permission: ['hrm.employees.view', 'hrm.employees.manage'],
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' }, 
             { label: 'HRM', to: '/hrm' }, 
@@ -262,9 +280,10 @@ const router = createRouter({
       {
         path: '/hrm/employees/:uuid',
         name: 'hrm-employee-detail',
-        component: EmployeeDetailView,
+        component: () => import('@/views/hrm/EmployeeDetailView.vue'),
         meta: { 
-          requiresAuth: true, 
+          requiresAuth: true,
+          permission: ['hrm.employees.view', 'hrm.employees.manage'],
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' }, 
             { label: 'HRM', to: '/hrm' }, 
@@ -276,9 +295,10 @@ const router = createRouter({
       {
         path: '/hrm/office-locations',
         name: 'hrm-office-locations',
-        component: OfficeLocationsPage,
+        component: () => import('@/pages/OfficeLocationsPage.vue'),
         meta: { 
-          requiresAuth: true, 
+          requiresAuth: true,
+          permission: 'hrm.locations.manage',
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' }, 
             { label: 'HRM', to: '/hrm' }, 
@@ -304,7 +324,8 @@ const router = createRouter({
         name: 'hrm-shifts',
         component: () => import('@/pages/ShiftsPage.vue'),
         meta: { 
-          requiresAuth: true, 
+          requiresAuth: true,
+          permission: 'hrm.shifts.manage',
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' }, 
             { label: 'HRM', to: '/hrm' }, 
@@ -330,7 +351,8 @@ const router = createRouter({
         name: 'hrm-payroll-periods',
         component: () => import('@/pages/PayrollPeriodsPage.vue'),
         meta: { 
-          requiresAuth: true, 
+          requiresAuth: true,
+          permission: 'hrm.payroll.manage',
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' }, 
             { label: 'HRM', to: '/hrm' }, 
@@ -343,7 +365,8 @@ const router = createRouter({
         name: 'hrm-payrolls',
         component: () => import('@/pages/PayrollsPage.vue'),
         meta: { 
-          requiresAuth: true, 
+          requiresAuth: true,
+          permission: 'hrm.payroll.manage',
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' }, 
             { label: 'HRM', to: '/hrm' }, 
@@ -384,6 +407,7 @@ const router = createRouter({
         component: () => import('@/pages/SalaryComponentsPage.vue'),
         meta: {
           requiresAuth: true,
+          permission: 'hrm.payroll.manage',
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' },
             { label: 'HRM', to: '/hrm' },
@@ -397,6 +421,7 @@ const router = createRouter({
         component: () => import('@/views/hrm/EmployeeSalaryComponentsView.vue'),
         meta: {
           requiresAuth: true,
+          permission: 'hrm.payroll.manage',
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' },
             { label: 'HRM', to: '/hrm' },
@@ -411,6 +436,8 @@ const router = createRouter({
         component: () => import('@/views/hrm/ResignationsView.vue'),
         meta: {
           requiresAuth: true,
+          // No meta.permission here — all authenticated users can access their own resignations.
+          // The canApproveResignation computed in the view controls approve/reject buttons.
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' },
             { label: 'HRM', to: '/hrm' },
@@ -433,6 +460,19 @@ const router = createRouter({
         },
       },
       {
+        path: '/hrm/my-profile',
+        name: 'hrm-my-profile',
+        component: () => import('@/pages/MyProfilePage.vue'),
+        meta: {
+          requiresAuth: true,
+          // Accessible to any logged in employee
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'My Profile' }
+          ]
+        },
+      },
+      {
         path: '/finance',
         name: 'finance-dashboard',
         component: () => import('@/pages/FinanceDashboardPage.vue'),
@@ -449,7 +489,8 @@ const router = createRouter({
         name: 'finance-ledger-accounts',
         component: () => import('@/pages/finance/LedgerAccountsPage.vue'),
         meta: { 
-          requiresAuth: true, 
+          requiresAuth: true,
+          permission: 'finance.accounts.manage',
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' }, 
             { label: 'Finance', to: '/finance' },
@@ -462,7 +503,8 @@ const router = createRouter({
         name: 'finance-ledger-items',
         component: () => import('@/pages/finance/LedgerItemsPage.vue'),
         meta: { 
-          requiresAuth: true, 
+          requiresAuth: true,
+          permission: 'finance.ledger.view',
           breadcrumbs: [
             { label: 'Home', to: '/dashboard' }, 
             { label: 'Finance', to: '/finance' },
@@ -494,6 +536,73 @@ const router = createRouter({
             { label: 'Finance', to: '/finance' },
             { label: 'AI Analytics' }
           ] 
+        },
+      },
+      {
+        path: '/finance/ap',
+        name: 'finance-ap',
+        component: () => import('@/pages/finance/AccountPayablePage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Finance', to: '/finance' },
+            { label: 'Account Payable' }
+          ]
+        },
+      },
+      {
+        path: '/finance/ap/:uuid',
+        name: 'finance-ap-bill',
+        component: () => import('@/pages/finance/BillDetailPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Finance', to: '/finance' },
+            { label: 'Account Payable', to: '/finance/ap' },
+            { label: 'Bill Detail' }
+          ]
+        },
+      },
+      {
+        path: '/finance/ar',
+        name: 'finance-ar',
+        component: () => import('@/pages/finance/AccountReceivablePage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Finance', to: '/finance' },
+            { label: 'Account Receivable' }
+          ]
+        },
+      },
+      {
+        path: '/finance/ar/:uuid',
+        name: 'finance-ar-invoice',
+        component: () => import('@/pages/finance/InvoiceDetailPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Finance', to: '/finance' },
+            { label: 'Account Receivable', to: '/finance/ar' },
+            { label: 'Invoice Detail' }
+          ]
+        },
+      },
+      {
+        path: '/finance/settings',
+        name: 'finance-settings',
+        component: () => import('@/pages/finance/FinanceSettingsPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Finance', to: '/finance' },
+            { label: 'Settings' }
+          ]
         },
       },
       {
@@ -663,11 +772,103 @@ const router = createRouter({
           ] 
         },
       },
+      // ── Inventory ──────────────────────────────────────────────────────────
+      {
+        path: '/inventory',
+        name: 'inventory-dashboard',
+        component: () => import('@/pages/inventory/InventoryDashboard.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Inventory' }
+          ]
+        },
+      },
+      {
+        path: '/inventory/products',
+        name: 'inventory-products',
+        component: () => import('@/pages/inventory/InventoryProductListPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Inventory', to: '/inventory' },
+            { label: 'Products' }
+          ]
+        },
+      },
+      {
+        path: '/inventory/warehouses',
+        name: 'inventory-warehouses',
+        component: () => import('@/pages/inventory/WarehouseListPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Inventory', to: '/inventory' },
+            { label: 'Warehouses' }
+          ]
+        },
+      },
+      {
+        path: '/inventory/movements',
+        name: 'inventory-movements',
+        component: () => import('@/pages/inventory/StockMovementsPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Inventory', to: '/inventory' },
+            { label: 'Stock Movements' }
+          ]
+        },
+      },
+      {
+        path: '/inventory/transfers',
+        name: 'inventory-transfers',
+        component: () => import('@/pages/inventory/TransferOrdersPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'Inventory', to: '/inventory' },
+            { label: 'Transfer Orders' }
+          ]
+        },
+      },
+      // ── System Administration ─────────────────────────────────────────────
+      {
+        path: '/system/roles',
+        name: 'system-roles',
+        component: () => import('@/pages/system/RoleManagementPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'System', to: '/system/roles' },
+            { label: 'Role & Permissions' }
+          ]
+        },
+      },
+      {
+        path: '/system/approvals',
+        name: 'system-approvals',
+        component: () => import('@/pages/system/ApprovalCenterPage.vue'),
+        meta: {
+          requiresAuth: true,
+          breadcrumbs: [
+            { label: 'Home', to: '/dashboard' },
+            { label: 'System', to: '/system/approvals' },
+            { label: 'Approval Center' }
+          ]
+        },
+      },
   ],
 })
 
-// Navigation Guard
-router.beforeEach((to, from, next) => {
+// Navigation Guard (Vue Router 4 Modern Syntax)
+router.beforeEach((to) => {
   const authStore = useAuthStore()
   authStore.loadUser()
 
@@ -676,15 +877,41 @@ router.beforeEach((to, from, next) => {
 
   // If route requires auth and user is not authenticated, redirect to login
   if (requiresAuth && !isAuthenticated) {
-    next('/login')
+    return '/login'
   }
+
   // If user is authenticated and trying to access login page, redirect to menu
-  else if (to.path === '/login' && isAuthenticated) {
-    next('/')
+  if (to.path === '/login' && isAuthenticated) {
+    return '/'
   }
-  // Otherwise, allow navigation
-  else {
-    next()
+
+  // Module & Granular Permission access guard
+  if (isAuthenticated && to.path !== '/unauthorized') {
+    const routeModule = (to.meta.module as string | undefined) ?? getModuleKey(to.path)
+
+    // 1. Module-level access guard
+    if (routeModule !== 'default' && routeModule !== '') {
+      if (!authStore.canAccessModule(routeModule)) {
+        return '/unauthorized'
+      }
+    }
+
+    // 2. Requires HR access guard
+    if (to.meta.requiresHr && !authStore.hasHrAccess) {
+      return '/unauthorized'
+    }
+
+    // 3. Granular Route-Level Permission Guard
+    if (to.meta.permission) {
+      const perm = to.meta.permission as string | string[]
+      const hasPerm = Array.isArray(perm)
+        ? perm.some((p) => authStore.hasPermission(p))
+        : authStore.hasPermission(perm)
+
+      if (!hasPerm) {
+        return '/unauthorized'
+      }
+    }
   }
 })
 

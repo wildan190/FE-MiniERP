@@ -1,31 +1,31 @@
 <template>
   <AppLayout>
-    <div class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+    <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Reimbursement</h1>
-          <p class="text-gray-600 mt-1">Manage expense claims and employee reimbursements.</p>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ isAdmin && currentTab === 'all' ? 'All Reimbursements' : 'My Claims' }}</h1>
+          <p class="text-sm text-gray-500 mt-1">{{ isAdmin ? 'Manage expense claims and employee reimbursements.' : 'View and submit your expense reimbursement claims.' }}</p>
         </div>
         <button
           @click="isClaimModalOpen = true"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all active:scale-95 shadow-sm shadow-primary-200 font-semibold"
+          class="btn-primary flex items-center justify-center gap-2"
         >
-          <Plus class="h-5 w-5" />
+          <Plus class="h-4 w-4" />
           <span>Submit New Claim</span>
         </button>
       </div>
 
-      <!-- Tabs -->
-      <div class="border-b border-gray-200">
-        <nav class="-mb-px flex space-x-8">
+      <!-- Tabs (Visible only for HR/Admin) -->
+      <div v-if="isAdmin" class="border-b border-gray-200">
+        <nav class="-mb-px flex space-x-6">
           <button
             v-for="tab in availableTabs"
             :key="tab.id"
             @click="currentTab = tab.id"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm transition-all"
+            class="whitespace-nowrap py-3 px-1 border-b-2 font-semibold text-sm transition-colors"
             :class="currentTab === tab.id
-              ? 'border-primary-500 text-primary-600'
+              ? 'border-blue-600 text-blue-600'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
           >
             {{ tab.label }}
@@ -34,12 +34,12 @@
       </div>
 
       <!-- Filters -->
-      <div class="flex flex-wrap items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+      <div class="flex flex-wrap items-center gap-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
         <div class="flex-1 min-w-[200px]">
-          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1">Status</label>
+          <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider ml-1 mb-1">Status</label>
           <select
             v-model="filters.status"
-            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all text-sm"
+            class="input"
           >
             <option value="">All Status</option>
             <option value="pending">Pending</option>
@@ -50,7 +50,7 @@
         </div>
         <button 
           @click="loadData(1)"
-          class="px-6 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all active:scale-95 text-sm font-bold mt-5"
+          class="btn-primary mt-5"
         >
           Apply Filters
         </button>
@@ -124,22 +124,22 @@ const filters = reactive({
   status: '' as ReimbursementStatus | '',
 })
 
-// Simplified role check - assuming admin can see "all"
+// Check if user has HR or Management permission for reimbursement approval/all view
 const isAdmin = computed(() => {
-  return true // Replace with actual auth logic if available
+  return authStore.hasHrAccess || authStore.hasPermission('hrm.reimbursement.approve')
 })
 
 const availableTabs = computed(() => {
-  const tabs = [{ id: 'my', label: 'My Claims' }]
+  const tabs: { id: 'all' | 'my'; label: string }[] = [{ id: 'my', label: 'My Claims' }]
   if (isAdmin.value) {
     tabs.unshift({ id: 'all', label: 'All Reimbursements' })
   }
   return tabs
 })
 
-// Default to 'all' if admin
+// Default to 'all' only if user is HR/admin, otherwise 'my'
 onMounted(() => {
-  if (isAdmin.value) currentTab.value = 'all'
+  currentTab.value = isAdmin.value ? 'all' : 'my'
   loadData()
 })
 
@@ -192,17 +192,17 @@ const handleStatusUpdate = async (data: UpdateReimbursementStatusRequest) => {
 const viewClaim = (claim: Reimbursement) => {
   let details = `
     <div class="text-left space-y-2 text-sm">
-      <p><strong>Employee:</strong> ${claim.employee?.user?.name}</p>
-      <p><strong>Type:</strong> ${claim.type}</p>
-      <p><strong>Amount:</strong> ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(claim.amount)}</p>
-      <p><strong>Description:</strong> ${claim.description || '-'}</p>
-      <p><strong>Status:</strong> <span class="uppercase font-bold">${claim.status}</span></p>
+      <p><strong>Employee:</strong> ${claim?.employee?.user?.name || '-'}</p>
+      <p><strong>Type:</strong> ${claim?.type || '-'}</p>
+      <p><strong>Amount:</strong> ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(claim?.amount || 0)}</p>
+      <p><strong>Description:</strong> ${claim?.description || '-'}</p>
+      <p><strong>Status:</strong> <span class="uppercase font-bold">${claim?.status || '-'}</span></p>
   `
   
-  if (claim.approved_at) {
+  if (claim?.approved_at) {
     details += `<p><strong>Processed At:</strong> ${new Date(claim.approved_at).toLocaleString()}</p>`
   }
-  if (claim.rejection_reason) {
+  if (claim?.rejection_reason) {
     details += `<p class="text-red-600"><strong>Rejection Reason:</strong> ${claim.rejection_reason}</p>`
   }
   

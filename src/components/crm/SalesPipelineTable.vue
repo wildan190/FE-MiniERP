@@ -150,8 +150,10 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { ChevronDown } from "lucide-vue-next";
 import type { SalesPipeline } from "../../services";
 import Skeleton from "../common/Skeleton.vue";
+import Card from "../common/Card.vue";
 
 interface Props {
   pipelines: SalesPipeline[];

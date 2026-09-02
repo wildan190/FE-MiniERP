@@ -75,7 +75,7 @@
       <Card>
         <div class="text-center">
           <p class="text-gray-600 text-sm">Total Value</p>
-          <p class="text-3xl font-bold text-green-600 mt-2">{{ formatCurrency(totalValue) }}</p>
+          <p class="text-3xl font-bold text-green-600 mt-2">{{ formatShort(totalValue) }}</p>
         </div>
       </Card>
       <Card>
@@ -156,6 +156,17 @@ const formatCurrency = (amount: number) => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
+};
+
+const formatShort = (amount: number) => {
+  if (amount >= 1_000_000_000) {
+    return 'Rp ' + (amount / 1_000_000_000).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M'
+  } else if (amount >= 1_000_000) {
+    return 'Rp ' + (amount / 1_000_000).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' jt'
+  } else if (amount >= 1_000) {
+    return 'Rp ' + (amount / 1_000).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 1 }) + ' rb'
+  }
+  return 'Rp ' + amount.toLocaleString('id-ID')
 };
 
 // Load data

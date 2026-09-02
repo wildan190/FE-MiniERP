@@ -2,6 +2,16 @@
   <AppLayout>
     <div class="max-w-6xl mx-auto px-4 py-6">
 
+      <!-- Unauthorized fallback -->
+      <div v-if="!canManagePayroll" class="flex flex-col items-center justify-center py-32 text-center">
+        <div class="h-16 w-16 rounded-2xl bg-red-50 flex items-center justify-center mb-4">
+          <ShieldOff class="h-8 w-8 text-red-400" />
+        </div>
+        <h2 class="text-xl font-bold text-gray-800 mb-1">Access Denied</h2>
+        <p class="text-sm text-gray-500 max-w-xs">You don't have permission to manage salary components. Contact your HR administrator.</p>
+      </div>
+
+      <template v-else>
       <!-- Header -->
       <div class="flex items-center justify-between mb-6">
         <div>
@@ -151,19 +161,24 @@
         @close="closeCreateModal"
         @submit="handleCreate"
       />
+      </template>
     </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import AppLayout from '../layouts/AppLayout.vue'
 import Skeleton from '../components/common/Skeleton.vue'
 import CreateSalaryComponentModal from '../components/hrm/CreateSalaryComponentModal.vue'
-import { Plus, Banknote } from 'lucide-vue-next'
+import { Plus, Banknote, ShieldOff } from 'lucide-vue-next'
 import { salaryComponentRepository } from '../repositories/hrm/salary-component.repository'
+import { useAuthStore } from '../stores/auth'
 import type { SalaryComponent, CreateSalaryComponentRequest } from '../services/hrm/types/salary-component.types'
+
+const authStore = useAuthStore()
+const canManagePayroll = computed(() => authStore.isSuperAdmin || authStore.hasPermission('hrm.payroll.manage'))
 
 const salaryComponents = ref<SalaryComponent[]>([])
 const isLoading = ref(false)

@@ -2,6 +2,16 @@
   <AppLayout>
     <div class="max-w-6xl mx-auto px-4 py-6">
 
+      <!-- Unauthorized fallback -->
+      <div v-if="!canManagePayroll" class="flex flex-col items-center justify-center py-32 text-center">
+        <div class="h-16 w-16 rounded-2xl bg-red-50 flex items-center justify-center mb-4">
+          <ShieldOff class="h-8 w-8 text-red-400" />
+        </div>
+        <h2 class="text-xl font-bold text-gray-800 mb-1">Access Denied</h2>
+        <p class="text-sm text-gray-500 max-w-xs">You don't have permission to manage salary components. Contact your HR administrator.</p>
+      </div>
+
+      <template v-else>
       <!-- Header -->
       <div class="flex items-center gap-3 mb-6">
         <button
@@ -182,7 +192,6 @@
           </button>
         </div>
       </div>
-    </div>
 
     <!-- Assign Modal -->
     <div v-if="isAssignModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -271,6 +280,8 @@
         </div>
       </div>
     </div>
+      </template>
+    </div>
   </AppLayout>
 </template>
 
@@ -280,17 +291,21 @@ import { useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
 import AppLayout from '../../layouts/AppLayout.vue'
 import Skeleton from '../../components/common/Skeleton.vue'
-import { ArrowLeft, Plus, Banknote } from 'lucide-vue-next'
+import { ArrowLeft, Plus, Banknote, ShieldOff } from 'lucide-vue-next'
 
 import { employeeSalaryComponentRepository } from '../../repositories/hrm/employee-salary-component.repository'
 import { employeeRepository } from '../../repositories/hrm/employee.repository'
 import { salaryComponentRepository } from '../../repositories/hrm/salary-component.repository'
+import { useAuthStore } from '../../stores/auth'
 import type { EmployeeSalaryComponent } from '../../services/hrm/types/employee-salary-component.types'
 import type { SalaryComponent } from '../../services/hrm/types/salary-component.types'
 import type { Employee } from '../../services/hrm/types/employee.types'
 
 const route = useRoute()
 const employeeUuid = route.params.uuid as string
+
+const authStore = useAuthStore()
+const canManagePayroll = computed(() => authStore.isSuperAdmin || authStore.hasPermission('hrm.payroll.manage'))
 
 const employee = ref<Employee | null>(null)
 const employeeComponents = ref<EmployeeSalaryComponent[]>([])
