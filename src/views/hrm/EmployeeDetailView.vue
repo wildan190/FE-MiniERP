@@ -16,7 +16,7 @@
         </div>
         <div class="flex gap-3">
           <button
-            v-if="employee?.user"
+            v-if="employee?.user && canManageRoles"
             @click="openRolesModal"
             class="hidden md:flex px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium items-center gap-2"
           >
@@ -24,6 +24,7 @@
             Manage Roles
           </button>
           <button
+            v-if="canManageEmployees"
             @click="openEnrollFaceModal"
             class="hidden md:flex px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium items-center gap-2"
           >
@@ -31,6 +32,7 @@
             Enroll Face
           </button>
           <button
+            v-if="canManageEmployees"
             @click="openEditModal"
             class="hidden md:flex px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium items-center gap-2"
           >
@@ -202,7 +204,7 @@
             </Card>
 
             <!-- Salary Components Summary -->
-            <Card class="mt-6 border-primary-100 bg-primary-50/30">
+            <Card v-if="canManagePayroll" class="mt-6 border-primary-100 bg-primary-50/30">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900">Salary Overview</h3>
                 <RouterLink 
@@ -315,6 +317,15 @@
                 </p>
               </div>
               <div>
+                <label class="block text-sm font-medium text-gray-700">Assigned Shift</label>
+                <p class="mt-1 text-sm text-gray-900 font-medium">
+                  <span v-if="employee.shift" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                    {{ employee.shift.name }} ({{ employee.shift.start_time }} - {{ employee.shift.end_time }})
+                  </span>
+                  <span v-else class="text-gray-400 italic">No shift assigned</span>
+                </p>
+              </div>
+              <div>
                 <label class="block text-sm font-medium text-gray-700">Status</label>
                 <span
                   :class="getStatusClass(employee.status)"
@@ -369,6 +380,7 @@
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-semibold text-gray-900">User Account Information</h3>
               <button
+                v-if="canManageRoles"
                 @click="openRolesModal"
                 class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors flex items-center gap-1.5"
               >
@@ -448,6 +460,7 @@
 
       <!-- Mobile Floating Action -->
       <MobileActions
+        v-if="canManageEmployees"
         :primary-action="{
           label: 'Edit Employee',
           icon: Edit,
@@ -504,6 +517,7 @@ import EmployeeDocumentList from "../../components/hrm/EmployeeDocumentList.vue"
 import UploadDocumentModal from "../../components/hrm/UploadDocumentModal.vue";
 import EnrollFaceModal from "../../components/hrm/EnrollFaceModal.vue";
 import { useEmployeeStore } from "../../stores/employee";
+import { useAuthStore } from "../../stores/auth";
 import { Camera, ShieldCheck, ArrowLeft, Edit } from "lucide-vue-next";
 import { employeeSalaryComponentRepository } from "../../repositories/hrm/employee-salary-component.repository";
 import type { Employee, UpdateEmployeeRequest, CreateEmployeeRequest } from "../../services/hrm/types/employee.types";
@@ -512,6 +526,12 @@ import type { EmployeeDocument } from "../../services/hrm/types/employee-documen
 
 const route = useRoute();
 const employeeStore = useEmployeeStore();
+const authStore = useAuthStore();
+
+// ── Permission Guards ──────────────────────────────────────────────
+const canManageEmployees = computed(() => authStore.isSuperAdmin || authStore.hasPermission('hrm.employees.manage'))
+const canManageRoles     = computed(() => authStore.isSuperAdmin)
+const canManagePayroll   = computed(() => authStore.isSuperAdmin || authStore.hasPermission('hrm.payroll.manage'))
 
 const employee = ref<Employee | null>(null);
 const isLoading = ref(false);

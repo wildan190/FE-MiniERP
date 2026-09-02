@@ -331,21 +331,26 @@ const moduleConfig = computed(() => {
 
   const isHr = authStore.hasHrAccess;
 
-  // Filter standalone items
-  const filteredItems = (base.items || []).filter((item) => {
+  const checkItemAccess = (item: any) => {
     if (item.requiresHr && !isHr) return false;
+    if (item.permission) {
+      if (Array.isArray(item.permission)) {
+        return item.permission.some((p: string) => authStore.hasPermission(p));
+      }
+      return authStore.hasPermission(item.permission);
+    }
     return true;
-  });
+  };
+
+  // Filter standalone items
+  const filteredItems = (base.items || []).filter(checkItemAccess);
 
   // Filter grouped items
   let filteredGroups: Record<string, any[]> | undefined = undefined;
   if (base.groups) {
     filteredGroups = {};
     for (const [groupKey, items] of Object.entries(base.groups)) {
-      const validItems = items.filter((item) => {
-        if (item.requiresHr && !isHr) return false;
-        return true;
-      });
+      const validItems = items.filter(checkItemAccess);
       if (validItems.length > 0) {
         filteredGroups[groupKey] = validItems;
       }
@@ -366,6 +371,7 @@ const moduleList = [
   { id: 'leaves', label: '📋 Leaves', path: '/hrm/leave-requests' },
   { id: 'reimbursement', label: '💳 Reimbursement', path: '/hrm/reimbursements' },
   { id: 'payslips', label: '💵 Payslips', path: '/hrm/payslips' },
+  { id: 'resignations', label: '📄 Resignation', path: '/hrm/resignations' },
   { id: 'hrm', label: '👥 HR Management', path: '/hrm/employees' },
   { id: 'crm', label: '📊 CRM', path: '/crm' },
   { id: 'finance', label: '💰 Finance', path: '/finance' },

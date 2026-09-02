@@ -9,7 +9,7 @@
         </div>
         <div class="flex flex-wrap gap-2">
           <button
-            @click="isClockInModalOpen = true"
+            @click="openClockInModal"
             class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium flex items-center gap-2 shadow-sm"
           >
             <LogIn class="h-5 w-5" />
@@ -258,21 +258,30 @@ const loadData = async (page = 1) => {
 
 const loadOfficeLocations = async () => {
   try {
-    const response = await officeLocationRepository.getOfficeLocations()
-    if (response) {
-      // Handle both { data: [...] } and { data: { data: [...] } }
-      const responseData = response.data;
-      if (Array.isArray(responseData)) {
-        officeLocations.value = responseData;
-      } else if (responseData && Array.isArray((responseData as any).data)) {
-        officeLocations.value = (responseData as any).data;
-      } else if (Array.isArray(response)) {
-        officeLocations.value = response as any;
-      }
+    const response: any = await officeLocationRepository.getOfficeLocations()
+    if (!response) return
+    
+    // Support all API response formats:
+    // 1. { data: { data: [...] } } (Standard Laravel Paginated response)
+    // 2. { data: [...] } (Direct array in data)
+    // 3. [...] (Direct array root)
+    if (Array.isArray(response.data?.data)) {
+      officeLocations.value = response.data.data
+    } else if (Array.isArray(response.data)) {
+      officeLocations.value = response.data
+    } else if (Array.isArray(response)) {
+      officeLocations.value = response
     }
   } catch (err) {
     console.error('Failed to load office locations:', err)
   }
+}
+
+const openClockInModal = async () => {
+  if (officeLocations.value.length === 0) {
+    await loadOfficeLocations()
+  }
+  isClockInModalOpen.value = true
 }
 
 const loadDepartments = async () => {

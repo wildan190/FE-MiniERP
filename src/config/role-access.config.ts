@@ -18,10 +18,12 @@ export function getModuleByPath(path: string): string {
   if (path.startsWith('/calendar')) return 'calendar'
   
   // Standalone ESS Modules
+  if (path.startsWith('/hrm/my-profile')) return 'profile'
   if (path.startsWith('/hrm/attendances')) return 'attendance'
   if (path.startsWith('/hrm/leave-requests') || path.startsWith('/hrm/leave-types')) return 'leaves'
   if (path.startsWith('/hrm/reimbursements')) return 'reimbursement'
   if (path.startsWith('/hrm/payslips')) return 'payslips'
+  if (path.startsWith('/hrm/resignations')) return 'resignations'
   
   // HRM Administration
   if (path.startsWith('/hrm')) return 'hrm'
@@ -75,6 +77,13 @@ export const MODULE_LIST: ModuleMeta[] = [
   },
   // ── ESS (Employee Self-Service) Apps ──────────────────────────────────────
   {
+    key: 'profile',
+    name: 'My Profile',
+    path: '/hrm/my-profile',
+    color: 'bg-gradient-to-br from-blue-500 to-indigo-600',
+    iconKey: 'UserCircle',
+  },
+  {
     key: 'attendance',
     name: 'Attendance',
     path: '/hrm/attendances',
@@ -101,6 +110,13 @@ export const MODULE_LIST: ModuleMeta[] = [
     path: '/hrm/payslips',
     color: 'bg-gradient-to-br from-violet-500 to-purple-700',
     iconKey: 'FileText',
+  },
+  {
+    key: 'resignations',
+    name: 'Resignation',
+    path: '/hrm/resignations',
+    color: 'bg-gradient-to-br from-rose-500 to-amber-700',
+    iconKey: 'FileX',
   },
   // ── Core Enterprise Modules ────────────────────────────────────────────────
   {

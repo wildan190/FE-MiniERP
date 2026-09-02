@@ -55,8 +55,30 @@ export class EmployeeService {
     return response.data
   }
 
-  async enrollFace(uuid: string, data: FormData): Promise<EnrollFaceResponse> {
-    const response = await apiClient.getClient().post(`/hrm/employees/${uuid}/enroll-face`, data, {
+  async getMyProfile(): Promise<EmployeeDetailResponse> {
+    const response = await apiClient.getClient().get('/hrm/employees/me')
+    return response.data
+  }
+
+  async enrollMyFace(data: FormData | File): Promise<EnrollFaceResponse> {
+    const formData = data instanceof FormData ? data : new FormData()
+    if (data instanceof File) {
+      formData.append('face_image', data)
+    }
+    const response = await apiClient.getClient().post('/hrm/employees/me/enroll-face', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    return response.data
+  }
+
+  async enrollFace(uuid: string, data: FormData | File): Promise<EnrollFaceResponse> {
+    const formData = data instanceof FormData ? data : new FormData()
+    if (data instanceof File) {
+      formData.append('face_image', data)
+    }
+    const response = await apiClient.getClient().post(`/hrm/employees/${uuid}/enroll-face`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

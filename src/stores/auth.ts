@@ -81,10 +81,12 @@ export const useAuthStore = defineStore('auth', () => {
     const modules = new Set<string>([
       'dashboard',
       'calendar',
+      'profile',
       'attendance',
       'leaves',
       'reimbursement',
       'payslips',
+      'resignations',
     ])
 
     if (isSuperAdmin.value) {
@@ -130,9 +132,15 @@ export const useAuthStore = defineStore('auth', () => {
     if (
       hasPermission('hrm.employees.manage') ||
       hasPermission('hrm.employees.view') ||
+      hasPermission('hrm.departments.manage') ||
+      hasPermission('hrm.designations.manage') ||
+      hasPermission('hrm.locations.manage') ||
+      hasPermission('hrm.recruitment.manage') ||
       hasPermission('hrm.leave.approve') ||
       hasPermission('hrm.reimbursement.approve') ||
-      hasPermission('hrm.payroll.manage')
+      hasPermission('hrm.resignation.approve') ||
+      hasPermission('hrm.payroll.manage') ||
+      hasPermission('hrm.shifts.manage')
     ) {
       return true
     }

@@ -40,7 +40,15 @@ export class EmployeeRepository {
     return await employeeService.deleteEmployeeDocument(documentUuid)
   }
 
-  async enrollFace(uuid: string, data: FormData): Promise<EnrollFaceResponse> {
+  async getMyProfile(): Promise<EmployeeDetailResponse> {
+    return await employeeService.getMyProfile()
+  }
+
+  async enrollMyFace(data: FormData | File): Promise<EnrollFaceResponse> {
+    return await employeeService.enrollMyFace(data)
+  }
+
+  async enrollFace(uuid: string, data: FormData | File): Promise<EnrollFaceResponse> {
     return await employeeService.enrollFace(uuid, data)
   }
 }

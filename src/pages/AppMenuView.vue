@@ -166,6 +166,8 @@ import {
   ClipboardList,
   FileText,
   Calendar,
+  FileX,
+  UserCircle,
 } from 'lucide-vue-next'
 
 // Map iconKey string → actual component (avoids dynamic import issues)
@@ -183,6 +185,8 @@ const ICON_MAP: Record<string, any> = {
   ClipboardList,
   FileText,
   Calendar,
+  FileX,
+  UserCircle,
 }
 
 const authStore = useAuthStore()

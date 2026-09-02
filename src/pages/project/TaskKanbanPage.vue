@@ -57,8 +57,8 @@ const columns = [
 const tasksByStatus = computed(() => {
   const groups: Record<string, any[]> = { todo: [], in_progress: [], review: [], done: [] };
   (projectStore.tasks || []).filter(Boolean).forEach(task => {
-    if (task && groups[task.status]) {
-      groups[task.status].push(task);
+    if (task?.status && Array.isArray(groups[task.status])) {
+      groups[task.status]!.push(task);
     }
   });
   return groups;

@@ -14,6 +14,7 @@
           <p class="text-gray-500 text-sm mt-1">Manage and view all organisation employees, grouped by department.</p>
         </div>
         <button
+          v-if="canManageEmployees"
           @click="openCreateModal"
           class="flex px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold items-center gap-2 text-sm transition-all shadow-md shadow-indigo-200 self-start sm:self-auto"
         >
@@ -247,14 +248,15 @@
                     <Eye class="h-3.5 w-3.5" />
                   </RouterLink>
                   <button
-                    v-if="employee.user"
+                    v-if="canManageRoles"
+                    v-tooltip="'Manage Roles'"
                     @click="handleManageRoles(employee)"
                     class="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
-                    title="Manage Roles"
                   >
                     <ShieldCheck class="h-3.5 w-3.5" />
                   </button>
                   <button
+                    v-if="canManageEmployees"
                     @click="handleEdit(employee)"
                     class="p-1.5 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-all"
                     title="Edit"
@@ -262,6 +264,7 @@
                     <Edit3 class="h-3.5 w-3.5" />
                   </button>
                   <RouterLink
+                    v-if="canManagePayroll"
                     :to="`/hrm/employees/${employee.uuid}/salary-components`"
                     class="p-1.5 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all"
                     title="Salary"
@@ -269,6 +272,7 @@
                     <Banknote class="h-3.5 w-3.5" />
                   </RouterLink>
                   <button
+                    v-if="canManageEmployees"
                     @click="handleDelete(employee.uuid)"
                     class="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-all"
                     title="Delete"
@@ -326,13 +330,13 @@
             <RouterLink :to="`/hrm/employees/${employee.uuid}`" class="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all" title="View">
               <Eye class="h-3.5 w-3.5" />
             </RouterLink>
-            <button v-if="employee.user" @click="handleManageRoles(employee)" class="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all">
+            <button v-if="employee.user && canManageRoles" @click="handleManageRoles(employee)" class="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all">
               <ShieldCheck class="h-3.5 w-3.5" />
             </button>
-            <button @click="handleEdit(employee)" class="p-1.5 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-all">
+            <button v-if="canManageEmployees" @click="handleEdit(employee)" class="p-1.5 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-all">
               <Edit3 class="h-3.5 w-3.5" />
             </button>
-            <button @click="handleDelete(employee.uuid)" class="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-all">
+            <button v-if="canManageEmployees" @click="handleDelete(employee.uuid)" class="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-all">
               <Trash2 class="h-3.5 w-3.5" />
             </button>
           </div>
@@ -410,8 +414,15 @@ import {
   Banknote, Trash2, ShieldCheck, LayoutList, LayoutGrid, TableProperties
 } from 'lucide-vue-next'
 import { employeeRepository } from '../repositories/hrm/employee.repository'
+import { useAuthStore } from '../stores/auth'
 import type { Employee, CreateEmployeeRequest } from '../services/hrm/types/employee.types'
 import type { PaginationLink } from '../services/types'
+
+// ── Auth Guards ──────────────────────────────────────────────────
+const authStore = useAuthStore()
+const canManageEmployees = computed(() => authStore.isSuperAdmin || authStore.hasPermission('hrm.employees.manage'))
+const canManageRoles     = computed(() => authStore.isSuperAdmin)
+const canManagePayroll   = computed(() => authStore.isSuperAdmin || authStore.hasPermission('hrm.payroll.manage'))
 
 // ── State ────────────────────────────────────────────────────────
 const employees    = ref<Employee[]>([])
@@ -457,7 +468,7 @@ const groupedEmployees = computed(() => {
   // Sort departments alphabetically
   const sorted: Record<string, Employee[]> = {}
   Object.keys(groups).sort((a, b) => a === 'No Department' ? 1 : b === 'No Department' ? -1 : a.localeCompare(b))
-    .forEach(k => { sorted[k] = groups[k] })
+    .forEach(k => { sorted[k] = groups[k] || [] })
   return sorted
 })
 
