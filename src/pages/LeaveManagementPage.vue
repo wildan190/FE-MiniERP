@@ -532,9 +532,12 @@ const loadBalanceData = async () => {
   }
 }
 
-const openApplyModal = () => {
+const openApplyModal = async () => {
   submitRequestErrors.value = null
   submitRequestErrorMessage.value = null
+  if (leaveTypes.value.length === 0) {
+    await loadTypesData()
+  }
   isApplyModalOpen.value = true
 }
 
@@ -678,8 +681,6 @@ const getStatusClass = (status: string) => {
 onMounted(() => {
   loadRequestsData()
   loadBalanceData()
-  if (isHrUser.value) {
-    loadTypesData()
-  }
+  loadTypesData()
 })
 </script>
