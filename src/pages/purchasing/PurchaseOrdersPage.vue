@@ -18,12 +18,15 @@ const selectedOrder = ref<any>(null);
 const searchQuery = ref('');
 const statusFilter = ref('All Status');
 
-// Check if user has purchasing approval rights (Manager / Admin)
+// Only Finance roles/permissions (or Super Admin) can approve purchase orders
 const canApprove = computed(() => {
   return authStore.isSuperAdmin || 
-    authStore.hasRole('purchasing-manager') || 
+    authStore.hasRole('finance-manager') || 
+    authStore.hasRole('finance-staff') ||
     authStore.hasRole('admin') || 
-    authStore.hasPermission('purchasing.orders.manage');
+    authStore.hasPermission('finance.purchasing.po.approve') ||
+    authStore.hasPermission('purchasing.po.approve') ||
+    authStore.hasPermission('finance.records.approve');
 });
 
 const supplierList = computed(() => {

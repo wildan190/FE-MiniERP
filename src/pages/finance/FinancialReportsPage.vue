@@ -190,19 +190,88 @@
             </div>
           </Card>
         </div>
+
+        <!-- Purchasing Report (Laporan Pembelian) -->
+        <div v-else-if="activeTab === 'purchasing'" class="space-y-6">
+          <Card>
+            <div class="flex justify-between items-start mb-8">
+              <div>
+                <h3 class="text-xl font-bold text-gray-900">Laporan Pembelian & Pengadaan (PO)</h3>
+                <p class="text-sm text-gray-500">Period: {{ startDate }} to {{ endDate }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-medium text-gray-500 uppercase">Total Nilai Pembelian</p>
+                <p class="text-3xl font-bold text-primary-600">{{ formatCurrency(totalPurchasingAmount) }}</p>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto border border-gray-100 rounded-2xl">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">No. PO</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Tanggal</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Supplier / Vendor</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Item Pengadaan</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase">Status</th>
+                    <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase">Total Nilai</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">
+                  <tr v-for="order in filteredPurchasingOrders" :key="order?.uuid || order?.id" class="hover:bg-gray-50/50">
+                    <td class="px-4 py-3 text-xs font-mono font-bold text-gray-900">{{ order?.number || 'PO-N/A' }}</td>
+                    <td class="px-4 py-3 text-xs text-gray-600">{{ order?.date || '-' }}</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-900">{{ order?.supplier?.name || '-' }}</td>
+                    <td class="px-4 py-3 text-xs text-gray-600">
+                      <span v-for="(item, idx) in (order?.items || []).slice(0, 2)" :key="idx" class="inline-block bg-gray-100 text-gray-800 px-2 py-0.5 rounded text-[11px] mr-1 mb-1">
+                        {{ item.item_name }} (x{{ item.qty }})
+                      </span>
+                      <span v-if="(order?.items || []).length > 2" class="text-xs text-gray-400 font-bold">
+                        +{{ order.items.length - 2 }} lainnya
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                      <span 
+                        class="text-[11px] font-bold px-2 py-0.5 rounded-full uppercase"
+                        :class="{
+                          'bg-emerald-100 text-emerald-800': order?.status === 'approved',
+                          'bg-blue-100 text-blue-800': order?.status === 'completed',
+                          'bg-amber-100 text-amber-800': order?.status === 'draft' || !order?.status
+                        }"
+                      >
+                        {{ order?.status || 'DRAFT' }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-right font-bold text-gray-900 font-mono">
+                      {{ formatCurrency(order?.total_amount || 0) }}
+                    </td>
+                  </tr>
+                  <tr v-if="!filteredPurchasingOrders.length">
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-400 text-sm">
+                      Tidak ada transaksi pembelian pada rentang tanggal ini.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useFinanceStore } from '@/stores/finance'
+import { usePurchasingStore } from '@/stores/purchasing'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Card from '@/components/common/Card.vue'
 import Skeleton from '@/components/common/Skeleton.vue'
+import { ShoppingBag, CheckCircle, Clock } from 'lucide-vue-next'
 
 const financeStore = useFinanceStore()
+const purchasingStore = usePurchasingStore()
 const activeTab = ref('pl')
 const startDate = ref(new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0])
 const endDate = ref(new Date().toISOString().split('T')[0])
@@ -210,7 +279,8 @@ const endDate = ref(new Date().toISOString().split('T')[0])
 const tabs = [
   { id: 'pl', name: 'Profit & Loss' },
   { id: 'bs', name: 'Balance Sheet' },
-  { id: 'cf', name: 'Cash Flow' }
+  { id: 'cf', name: 'Cash Flow' },
+  { id: 'purchasing', name: 'Laporan Pembelian' }
 ]
 
 const formatCurrency = (value: number) => {
@@ -221,6 +291,17 @@ const formatCurrency = (value: number) => {
   }).format(value)
 }
 
+const filteredPurchasingOrders = computed(() => {
+  return (purchasingStore.orders || []).filter((o: any) => {
+    if (!o.date) return true
+    return o.date >= startDate.value && o.date <= endDate.value
+  })
+})
+
+const totalPurchasingAmount = computed(() => {
+  return filteredPurchasingOrders.value.reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0)
+})
+
 const refreshReport = async () => {
   if (activeTab.value === 'pl') {
     await financeStore.fetchProfitLoss(startDate.value, endDate.value)
@@ -228,6 +309,8 @@ const refreshReport = async () => {
     await financeStore.fetchBalanceSheet(endDate.value)
   } else if (activeTab.value === 'cf') {
     await financeStore.fetchCashFlow(startDate.value, endDate.value)
+  } else if (activeTab.value === 'purchasing') {
+    await purchasingStore.fetchOrders()
   }
 }
 

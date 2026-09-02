@@ -196,7 +196,7 @@ function formatDateTime(d: string) {
                 </div>
                 <div>
                   <p class="font-semibold text-gray-900 text-sm">{{ formatRp(p.amount) }}</p>
-                  <p class="text-xs text-gray-400">{{ formatDateTime(p.payment_date) }} · via {{ p.payment_method.replace('_', ' ').toUpperCase() }}</p>
+                  <p class="text-xs text-gray-400">{{ formatDateTime(p.payment_date) }} · via {{ p.payment_method ? p.payment_method.replace('_', ' ').toUpperCase() : '-' }}</p>
                   <p v-if="p.midtrans_reference_no" class="text-xs font-mono text-gray-500 mt-0.5">{{ p.midtrans_reference_no }}</p>
                   <span v-if="p.midtrans_status" :class="['text-xs font-bold', MIDTRANS_STATUS[p.midtrans_status]?.cls]">
                     {{ MIDTRANS_STATUS[p.midtrans_status]?.label }}

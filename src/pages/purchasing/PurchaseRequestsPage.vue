@@ -2,6 +2,8 @@
 import { onMounted, ref, computed } from 'vue';
 import { usePurchasingStore } from '@/stores/purchasing';
 import { useAuthStore } from '@/stores/auth';
+import { departmentRepository } from '@/repositories';
+import type { Department } from '@/services/hrm/types/department.types';
 import Swal from 'sweetalert2';
 import { ClipboardList, Plus, Search, X, Trash2, Eye, Package, CheckCircle, XCircle } from 'lucide-vue-next';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -13,25 +15,45 @@ const purchasingStore = usePurchasingStore();
 const authStore = useAuthStore();
 const isAddModalOpen = ref(false);
 const isDetailModalOpen = ref(false);
+
+const departments = ref<Department[]>([]);
+const isDepartmentsLoading = ref(false);
+
+const loadDepartments = async () => {
+  if (departments.value.length > 0) return;
+  isDepartmentsLoading.value = true;
+  try {
+    const res = await departmentRepository.getDepartments();
+    const data = res.data as any;
+    departments.value = Array.isArray(data) ? data : (data?.data || []);
+  } catch {
+    departments.value = [];
+  } finally {
+    isDepartmentsLoading.value = false;
+  }
+};
 const selectedRequest = ref<any>(null);
 
 const searchQuery = ref('');
 const statusFilter = ref('All Status');
 
-// Check if user has purchasing approval rights (Manager / Admin)
+// Only Finance roles/permissions (or Super Admin) can approve purchase requests
 const canApprove = computed(() => {
   return authStore.isSuperAdmin || 
-    authStore.hasRole('purchasing-manager') || 
+    authStore.hasRole('finance-manager') || 
+    authStore.hasRole('finance-staff') ||
     authStore.hasRole('admin') || 
-    authStore.hasPermission('purchasing.requests.approve') ||
-    authStore.hasPermission('purchasing.orders.manage');
+    authStore.hasPermission('finance.purchasing.pr.approve') ||
+    authStore.hasPermission('purchasing.pr.approve') ||
+    authStore.hasPermission('finance.records.approve');
 });
 
 const newRequest = ref({
-  department: '',
-  description: '',
+  date: new Date().toISOString().split('T')[0],
+  department_uuid: '',
+  notes: '',
   items: [
-    { item_name: '', quantity: 1, estimated_price: 0 }
+    { item_name: '', qty: 1, estimated_price: 0 }
   ]
 });
 
@@ -40,21 +62,32 @@ onMounted(async () => {
 });
 
 const addItem = () => {
-  newRequest.value.items.push({ item_name: '', quantity: 1, estimated_price: 0 });
+  newRequest.value.items.push({ item_name: '', qty: 1, estimated_price: 0 });
 };
 
 const removeItem = (index: number) => {
   newRequest.value.items.splice(index, 1);
 };
 
+const openAddModal = async () => {
+  isAddModalOpen.value = true;
+  await loadDepartments();
+};
+
 const handleCreateRequest = async () => {
-  await purchasingStore.createRequest(newRequest.value);
-  isAddModalOpen.value = false;
-  newRequest.value = {
-    department: '',
-    description: '',
-    items: [{ item_name: '', quantity: 1, estimated_price: 0 }]
-  };
+  try {
+    await purchasingStore.createRequest(newRequest.value);
+    isAddModalOpen.value = false;
+    newRequest.value = {
+      date: new Date().toISOString().split('T')[0],
+      department_uuid: '',
+      notes: '',
+      items: [{ item_name: '', qty: 1, estimated_price: 0 }]
+    };
+    Swal.fire({ title: 'Success!', text: 'Purchase request submitted.', icon: 'success', timer: 1500, showConfirmButton: false });
+  } catch (err: any) {
+    Swal.fire({ title: 'Error', text: err.response?.data?.message || err.message || 'Failed to submit request.', icon: 'error' });
+  }
 };
 
 const handleApprove = async (uuid: string) => {
@@ -110,7 +143,7 @@ const openDetail = (request: any) => {
 
 const calculateTotalEstimate = (items: any[]) => {
   if (!items || !Array.isArray(items)) return 0;
-  return items.reduce((sum, i) => sum + ((i.estimated_price || i.price || 0) * (i.quantity || i.qty || 1)), 0);
+  return items.reduce((sum, i) => sum + (parseFloat(i.estimated_price || i.price || 0) * parseFloat(i.qty || i.quantity || 1)), 0);
 };
 
 const formatCurrency = (amount: number) => {
@@ -126,7 +159,7 @@ const filteredRequests = computed(() => {
     const q = searchQuery.value.toLowerCase().trim();
     const matchesSearch = !q || 
       (req.number && req.number.toLowerCase().includes(q)) ||
-      (req.department && req.department.toLowerCase().includes(q)) ||
+      (req.department?.name && req.department.name.toLowerCase().includes(q)) ||
       (req.description && req.description.toLowerCase().includes(q));
 
     const matchesStatus = statusFilter.value === 'All Status' || 
@@ -146,7 +179,7 @@ const filteredRequests = computed(() => {
           <p class="text-gray-500">Track and approve internal purchase requirements.</p>
         </div>
         <button 
-          @click="isAddModalOpen = true"
+          @click="openAddModal"
           class="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 transition-all shadow-md shadow-primary-100"
         >
           <Plus class="h-4 w-4" /> New Request
@@ -192,7 +225,7 @@ const filteredRequests = computed(() => {
             <tbody class="divide-y divide-gray-100 bg-white">
               <tr v-for="req in filteredRequests" :key="req.uuid" class="table-tr-hover">
                 <td class="table-td font-bold text-gray-900 font-mono">{{ req.number || 'PR-N/A' }}</td>
-                <td class="table-td text-gray-700 font-medium">{{ req.department || '-' }}</td>
+                <td class="table-td text-gray-700 font-medium">{{ req.department?.name || '-' }}</td>
                 <td class="table-td">
                   <div class="flex items-center gap-1.5 flex-wrap max-w-xs">
                     <span 
@@ -271,7 +304,7 @@ const filteredRequests = computed(() => {
             v-for="(req, idx) in filteredRequests"
             :key="req.uuid"
             :title="req.number || `PR #${idx + 1}`"
-            :subtitle="`Dept: ${req.department || '-'} • ${formatCurrency(calculateTotalEstimate(req.items))}`"
+            :subtitle="`Dept: ${req.department?.name || '-'} • ${formatCurrency(calculateTotalEstimate(req.items))}`"
             :badge="req.status ? req.status.toUpperCase() : 'PENDING'"
             :badgeClass="req.status === 'approved' ? 'bg-emerald-100 text-emerald-800' : req.status === 'rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'"
             :index="idx + 1"
@@ -334,7 +367,7 @@ const filteredRequests = computed(() => {
               <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 text-sm">
                 <div>
                   <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Department</span>
-                  <span class="font-bold text-gray-900">{{ selectedRequest.department || '-' }}</span>
+                  <span class="font-bold text-gray-900">{{ selectedRequest.department?.name || '-' }}</span>
                 </div>
                 <div>
                   <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Status</span>
@@ -431,11 +464,21 @@ const filteredRequests = computed(() => {
               <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1.5 col-span-2 sm:col-span-1">
                   <label class="text-sm font-semibold text-gray-700">Requesting Department</label>
-                  <input v-model="newRequest.department" type="text" required placeholder="e.g. IT Department" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500" />
+                  <select v-model="newRequest.department_uuid" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500">
+                    <option value="">-- Select Department --</option>
+                    <option v-if="isDepartmentsLoading" disabled>Loading...</option>
+                    <option v-for="dept in departments" :key="dept.uuid" :value="dept.uuid">
+                      {{ dept.name }}
+                    </option>
+                  </select>
+                </div>
+                <div class="space-y-1.5 col-span-2 sm:col-span-1">
+                  <label class="text-sm font-semibold text-gray-700">Request Date</label>
+                  <input v-model="newRequest.date" type="date" required class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500" />
                 </div>
                 <div class="col-span-2 space-y-1.5">
                   <label class="text-sm font-semibold text-gray-700">Description / Purpose</label>
-                  <textarea v-model="newRequest.description" rows="2" placeholder="e.g. For new employee workstation" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500"></textarea>
+                  <textarea v-model="newRequest.notes" rows="2" placeholder="e.g. For new employee workstation" class="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500"></textarea>
                 </div>
               </div>
 
@@ -455,7 +498,7 @@ const filteredRequests = computed(() => {
                     </div>
                     <div class="col-span-2 space-y-1">
                       <label class="text-[10px] font-bold text-gray-400 uppercase">Qty</label>
-                      <input v-model.number="item.quantity" type="number" min="1" required class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm" />
+                      <input v-model.number="item.qty" type="number" min="1" required class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm" />
                     </div>
                     <div class="col-span-3 space-y-1">
                       <label class="text-[10px] font-bold text-gray-400 uppercase">Est. Price</label>

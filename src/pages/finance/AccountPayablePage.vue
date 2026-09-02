@@ -3,15 +3,18 @@ import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useApStore } from '@/stores/ap'
+import { usePurchasingStore } from '@/stores/purchasing'
 import {
   CreditCard, Building2, AlertTriangle, Clock, CheckCircle2,
-  Plus, RefreshCw, ExternalLink, Wallet, ChevronRight, Loader2, X
+  Plus, RefreshCw, ExternalLink, Wallet, ChevronRight, Loader2, X,
+  ShoppingCart, Package, FileText
 } from 'lucide-vue-next'
 
 const store = useApStore()
+const purchasingStore = usePurchasingStore()
 const router = useRouter()
 
-const activeTab = ref<'bills' | 'vendors'>('bills')
+const activeTab = ref<'bills' | 'vendors' | 'orders'>('bills')
 const filterStatus = ref('')
 const showVendorModal = ref(false)
 const showBillModal = ref(false)
@@ -40,8 +43,34 @@ const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
 }
 
 onMounted(async () => {
-  await Promise.all([store.fetchDashboard(), store.fetchVendors(), store.fetchBills()])
+  await Promise.all([
+    store.fetchDashboard(),
+    store.fetchVendors(),
+    store.fetchBills(),
+    purchasingStore.fetchOrders()
+  ])
 })
+
+async function createBillFromPo(po: any) {
+  if (!po.supplier?.uuid) return
+  newBill.value = {
+    vendor_uuid: po.supplier.uuid,
+    reference: po.number,
+    bill_date: po.date || new Date().toISOString().split('T')[0],
+    due_date: po.eta || new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+    tax_rate: 0,
+    notes: `Purchasing PO: ${po.number}`,
+    items: (po.items || []).map((item: any) => ({
+      description: item.item_name,
+      quantity: Number(item.qty || item.quantity || 1),
+      unit_price: Number(item.price || item.unit_price || 0)
+    }))
+  }
+  if (!newBill.value.items.length) {
+    newBill.value.items = [{ description: `PO ${po.number}`, quantity: 1, unit_price: Number(po.total_amount || 0) }]
+  }
+  showBillModal.value = true
+}
 
 const filteredBills = computed(() => {
   if (!filterStatus.value) return store.bills
@@ -146,6 +175,11 @@ function isOverdue(due: string, status: string) {
           :class="['px-6 py-3 font-semibold text-sm border-b-2 transition-all', activeTab === 'bills' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700']">
           Bills
         </button>
+        <button @click="activeTab = 'orders'"
+          :class="['px-6 py-3 font-semibold text-sm border-b-2 transition-all flex items-center gap-2', activeTab === 'orders' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700']">
+          <ShoppingCart class="h-4 w-4" />
+          Purchase Orders ({{ purchasingStore.orders.length }})
+        </button>
         <button @click="activeTab = 'vendors'"
           :class="['px-6 py-3 font-semibold text-sm border-b-2 transition-all', activeTab === 'vendors' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700']">
           Vendors ({{ store.vendors.length }})
@@ -201,6 +235,65 @@ function isOverdue(due: string, status: string) {
         </div>
       </div>
 
+      <!-- Purchase Orders from Purchasing -->
+      <div v-if="activeTab === 'orders'" class="space-y-4">
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+          <div class="p-4 bg-gray-50/70 border-b border-gray-100 flex items-center justify-between">
+            <div>
+              <p class="text-sm font-bold text-gray-800">Purchasing Integration (Real-time)</p>
+              <p class="text-xs text-gray-500">Semua Purchase Order dari modul Purchasing yang siap dikonversi ke Tagihan/Bill</p>
+            </div>
+            <button @click="purchasingStore.fetchOrders()" class="p-2 text-gray-500 hover:text-primary-600 hover:bg-white rounded-xl transition-all">
+              <RefreshCw class="h-4 w-4" />
+            </button>
+          </div>
+
+          <div v-for="order in purchasingStore.orders" :key="order?.uuid || order?.id"
+            class="flex items-center justify-between p-5 border-b border-gray-50 hover:bg-gray-50 transition-all">
+            <div class="flex items-start gap-3">
+              <div class="p-2.5 bg-primary-50 rounded-2xl text-primary-600 mt-0.5">
+                <FileText class="h-5 w-5" />
+              </div>
+              <div>
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="text-xs font-mono font-bold text-gray-900">{{ order?.number || 'PO-N/A' }}</span>
+                  <span 
+                    class="text-xs font-bold px-2 py-0.5 rounded-full uppercase"
+                    :class="{
+                      'bg-emerald-100 text-emerald-800': order?.status === 'approved',
+                      'bg-blue-100 text-blue-800': order?.status === 'completed',
+                      'bg-amber-100 text-amber-800': order?.status === 'draft' || !order?.status
+                    }"
+                  >
+                    {{ order?.status || 'DRAFT' }}
+                  </span>
+                </div>
+                <p class="font-bold text-gray-800 text-sm">{{ order?.supplier?.name || 'Vendor N/A' }}</p>
+                <p class="text-xs text-gray-400">Date: {{ formatDate(order?.date) }} · Items: {{ (order?.items || []).length }} goods</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <p class="font-black text-gray-900">{{ formatRp(order?.total_amount || 0) }}</p>
+                <p class="text-xs text-gray-400">Total Nilai PO</p>
+              </div>
+              <button 
+                @click="createBillFromPo(order)"
+                class="px-3.5 py-1.5 bg-primary-50 text-primary-700 hover:bg-primary-600 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Plus class="h-3.5 w-3.5" /> Buat Bill
+              </button>
+            </div>
+          </div>
+
+          <div v-if="!purchasingStore.orders.length" class="py-16 text-center text-gray-400">
+            <ShoppingCart class="h-10 w-10 mx-auto text-gray-300 mb-2" />
+            <p class="font-semibold">Belum ada Purchase Order dari Purchasing</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Vendors List -->
       <div v-if="activeTab === 'vendors'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div v-for="v in store.vendors" :key="v.uuid"
@@ -211,8 +304,9 @@ function isOverdue(due: string, status: string) {
             </div>
             <div class="flex-1 min-w-0">
               <p class="font-bold text-gray-900 truncate">{{ v.name }}</p>
-              <p class="text-xs text-gray-500">{{ v.bank_account_name }}</p>
-              <p class="text-xs font-mono text-gray-400">{{ v.bank_code.toUpperCase() }} · {{ v.bank_account_number }}</p>
+              <p v-if="v.bank_code || v.bank_account_number" class="text-xs font-mono text-gray-400">
+                {{ v.bank_code ? v.bank_code.toUpperCase() : '-' }} · {{ v.bank_account_number || '-' }}
+              </p>
               <div v-if="v.midtrans_beneficiary_alias" class="mt-1.5 flex items-center gap-1 text-xs text-emerald-600 font-semibold">
                 <CheckCircle2 class="h-3 w-3" /> Iris Registered
               </div>
